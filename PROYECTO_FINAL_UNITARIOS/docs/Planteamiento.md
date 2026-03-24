@@ -13,6 +13,7 @@ Diseñar y describir un proceso unitario para la extracción, concentración y e
 ## Alcance
 - Materia prima: grano de soya o arveja.
 - Salidas: proteína aislada en polvo o concentrado listo para envasado como suplemento alimenticio.
+- Caso base hídrico: suministro de agua desde red industrial a 12 m³/h para la extracción (relación 1:12).
 - No se incluye diseño detallado de empaques industriales ni análisis económico exhaustivo en esta etapa.
 
 ## Descripción general del proceso (operaciones unitarias)
@@ -20,9 +21,11 @@ Diseñar y describir un proceso unitario para la extracción, concentración y e
 ### Etapa 0: Preparación de materias primas e insumos
 
 **0.1. Captación y tratamiento de agua**
-   - Suministro de agua de la red industrial con tratamiento de ablandamiento para evitar incrustaciones en equipos.
+   - Suministro de agua de la red industrial con caudal de diseño de 12000 L/h (12 m³/h).
+   - Tratamiento de ablandamiento para evitar incrustaciones en equipos de transferencia de calor y tuberías.
    - Agua destilada o desionizada para ajustes de pH críticos.
-   - **Almacenamiento:** Tanques de acero inoxidable (304/316L) con capacidad suficiente para operación continua.
+   - **Almacenamiento:** Tanque atmosférico de 15 m³ (autonomía base 1 h + 20% de reserva operativa).
+   - **Bombeo de alimentación:** Bomba sanitaria de 1.5 kW (potencia calculada aproximada de 0.60 kW con TDH de 10.7 m).
 
 **0.2. Preparación de soluciones alcalinas y ácidas**
    - Solución de NaOH: Proceso de alcalinización mediante la adición de hidróxido de sodio para alcanzar un pH de 8.5 a 9.0 en el agua de extracción.
@@ -219,70 +222,91 @@ Transformar el concentrado líquido en el polvo final que se va a comercializar.
 
 ## Fluidograma de Procesos Integrado
 
-```
-ARREA DE MATERIAS PRIMAS
-↓
-[Grano/Harina] → Molienda → Tamizado inicial → Harina fina (0.1-1mm)
-↓
-AJUSTE DE pH
-↓
-[NaOH] + [H₂O tratada] → Mezcla en Tanque alcalinización → Extractante (pH 8.5-9.0)
-↓
-ETAPA 1: EXTRACCIÓN ALCALINA
-↓
-Harina + Extractante → [Tanque agitado 50-60°C, 45-60 min] → Lodo proteico alcalino
-↓
-ETAPA 1.2: SEPARACIÓN SÓLIDO-LÍQUIDO
-↓
-Lodo proteico → [Centrífuga decantadora O Filtro prensa] → Extracto proteico + Okara
-                                                      ↓
-                                                    SUBPRODUCTO
-                                                    (Alimento animal)
-↓
-ETAPA 2: NEUTRALIZACIÓN
-↓
-Extracto proteico (pH 8.5-9.0) + [HCl] → [Tanque neutralización con pH-metro en línea]
-                                         → Extracto neutralizado (pH 7.0)
-↓
-ETAPA 2.2: PASTEURIZACIÓN
-↓
-Extracto neutralizado → [Intercambiador de placas: 75-85°C, 15-30 seg] → Extracto pasteurizado
-                    ↓                                                    ↓
-               [Agua fría 4°C]                          Remoción de patógenos
-↓
-ETAPA 3: CONCENTRACIÓN
-↓
-Extracto pasteurizado (10% sólidos) → [Evaporador vacío: 50-60°C] → Concentrado (20-25% sólidos)
-                                      ↓
-                                  VAPOR CONDENSADO
-                                  (Recuperación agua)
-↓
-ETAPA 4: PRECIPITACIÓN ISOELÉCTRICA
-↓
-Concentrado (pH 7.0) + [HCl lento] → [Tanque precipitación: pH 4.5] → Lodo proteico precipitado
-↓
-ETAPA 4.2: CENTRIFUGACIÓN
-↓
-Lodo precipitado → [Decanter horizontal: 1500-2000g] → Proteína separada (pasta) + Suero residual
-                                                   ↓
-                                                SUERO
-                                         (Posible concentración
-                                         secundaria o residuos)
-↓
-ETAPA 5: SECADO
-↓
-Proteína separada → [Spray Dryer: 180-200°C entrada] → Polvo proteico (<5% humedad)
-                   ↓
-              AIRE HUMEDO SALIDA (80-90°C)
-↓
-Molienda y Tamizado Final
-↓
-Polvo uniformizado (100-200 mesh)
-↓
-ETAPA 6: ENVASADO
-↓
-Polvo → [Bolsas kraft + PE o Doypack] → Palletizado
-        → Almacenamiento (15-25°C, HR<70%)
+```mermaid
+flowchart TD
+    %% Definición de estilos
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000
+    classDef input fill:#eceff1,stroke:#607d8b,stroke-width:2px,color:#000
+    classDef reagent fill:#f3e5f5,stroke:#8e24aa,stroke-width:1px,color:#000
+    classDef product fill:#f1f8e9,stroke:#689f38,stroke-width:3px,color:#000
+    classDef byproduct fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000,stroke-dasharray: 5 5
+    classDef utility fill:#e8eaf6,stroke:#3f51b5,stroke-width:1px,color:#000
+    classDef innovation fill:#fff9c4,stroke:#fbc02d,stroke-width:3px,color:#000
+
+    %% Materias Primas y Reactivos
+    Soya([Grano/Harina de Soya]):::input
+    Agua([Agua Tratada]):::reagent
+    NaOH([NaOH - Alcalinizante]):::reagent
+    HCl1([HCl - Neutralizante]):::reagent
+    HCl2([HCl - Acidificante]):::reagent
+    AguaFria([Agua Fría 4°C]):::utility
+
+    %% Preparación y Extracción
+    subgraph Fase1 [Área de Materias Primas y Ajuste pH]
+        MOL[Molienda]:::process
+        TAM1[Tamizado Inicial]:::process
+        TAL[Tanque Alcalinización]:::process
+    end
+
+    Soya --> MOL --> TAM1 -->|Harina fina 0.1-1mm| EXT
+    Agua --> TAL
+    NaOH --> TAL
+    TAL -->|Extractante pH 8.5-9.0| EXT
+
+    subgraph Fase2 [Etapa 1: Extracción Alcalina y Separación]
+        EXT[Tanque Agitado<br/>50-60°C, 45-60 min]:::process
+        SEP1{Centrífuga / Filtro}:::process
+        OKA[(Okara<br/>Alimento animal)]:::byproduct
+    end
+
+    EXT -->|Lodo proteico alcalino| SEP1
+    SEP1 -->|Subproducto sólido| OKA
+    SEP1 -->|Extracto proteico pH 8.5-9.0| NEU
+
+    subgraph Fase3 [Etapa 2: Neutralización y Pasteurización]
+        NEU[Tanque Neutralización]:::process
+        PAST[Intercambiador Placas<br/>75-85°C, 15-30 s]:::process
+    end
+
+    HCl1 --> NEU
+    NEU -->|Extracto neutralizado pH 7.0| PAST
+    AguaFria --> PAST
+    PAST -->|Remoción patógenos| OI
+
+    subgraph Fase4 [Etapa 3: Concentración e Innovación]
+        OI{Ósmosis Inversa<br/>Pre-concentración}:::innovation
+        EVAP[Evaporador al Vacío<br/>50-60°C]:::process
+        VAP[(Vapor Condensado<br/>Recuperación)]:::utility
+        AGUA_OI[(Permeado OI<br/>Agua recuperada)]:::utility
+    end
+
+    PAST -.->|Extracto 10% sólidos| OI
+    OI -.->|Permeado limpio| AGUA_OI
+    OI -.->|Retenido preconcentrado| EVAP
+    EVAP -->|Agua evaporada| VAP
+    EVAP -->|Concentrado 20-25% sólidos| PREC
+
+    subgraph Fase5 [Etapa 4: Precipitación Isoeléctrica]
+        PREC[Tanque Precipitación<br/>pH 4.5]:::process
+        SEP2{Decanter Horizontal<br/>1500-2000g}:::process
+        SUERO[(Suero residual<br/>Posible recuperación)]:::byproduct
+    end
+
+    HCl2 --> PREC
+    PREC -->|Lodo precipitado pH 4.5| SEP2
+    SEP2 -->|Suero líquido| SUERO
+    SEP2 -->|Proteína separada en pasta| SEC
+
+    subgraph Fase6 [Etapa 5 y 6: Secado y Envasado]
+        SEC[Spray Dryer<br/>Inlet: 180-200°C<br/>Outlet: 80-90°C]:::process
+        TAM2[Molienda y Tamizado Final]:::process
+        ENV[Envasado y Palletizado<br/>HR<70%, 15-25°C]:::process
+        FIN([Polvo de Proteína Aislada<br/>Humedad < 5% , 100-200 mesh]):::product
+    end
+
+    SEC -->|Polvo seco| TAM2
+    TAM2 -->|Uniformizado| ENV
+    ENV --> FIN
 ```
 
 ## Cronograma y presentación
@@ -330,4 +354,32 @@ El desarrollo del proyecto contempla la realización de cálculos y análisis re
 - **Eficiencia total de proceso:** 78-86% de proteína grano → polvo final.
 - **Consumo de agua:** 50-100 L agua/kg proteína final (incluyendo lavados).
 - **Consumo energético:** ~3-5 MJ/kg proteína final (principalmente en evaporación y secado por atomización).
+
+## Entregables del final
+
+### Documentación técnica y teórica
+- Fundamento teórico del proceso y operaciones unitarias involucradas
+- Diagrama de flujo del proceso integrado
+- Identificación y descripción detallada de todas las operaciones unitarias
+- Características técnicas y modos de operación de cada etapa
+- Balance de materia y energía del proceso completo
+
+### Especificaciones de diseño y operación
+- Capacidad de producción proyectada (kg/h de proteína aislada)
+- Materia prima de entrada (cantidad y especificaciones de soya/arveja)
+- Energía requerida y consumo estimado (MJ/kg producto)
+- Sistema de captación y tratamiento de agua acorde a la capacidad de producción
+- Diseño del agitador para la etapa de lixiviación alcalina
+- Diseño del intercambiador de calor para pasteurización
+- Selección de equipo para evaporación al vacío
+
+### Operaciones unitarias específicas
+- Diseño detallado de una operación principal del proceso (lixiviación, precipitación isoeléctrica o evaporación)
+- Análisis técnico de una operación complementaria (secado, molienda, tamizado o filtración)
+- Estudio de una operación innovadora no vista en semestres anteriores (ej. ósmosis inversa, electrodiálisis)
+- Especificaciones de envasado y estrategia de entrega del producto final
+
+### Prototipos y visualización
+- Maqueta física o modelo conceptual del proceso (o de una etapa crítica)
+- Modelo 3D de un equipo importante (tanque de extracción, intercambiador, secador atomizador)
 

@@ -17,22 +17,61 @@ Calcular la carga térmica $Q$, el caudal de agua requerido $\dot{m}_c$, la LMTD
 
 ### 3) Fórmulas (síntesis)
 - Balance energético (fluido caliente):
-  $$Q = \dot{m}_h\; C_{p,h}\; (T_{h,in} - T_{h,out})$$
+  
+$$
+Q = \dot{m}_h\; C_{p,h}\; (T_{h,in} - T_{h,out})
+$$
+
   (Si $C_p$ está en kJ/kg·K multiplicar por 1000 para obtener W)
 - Caudal de agua requerido:
-  $$\dot{m}_c = \frac{Q}{C_{p,c}\; (T_{c,out} - T_{c,in})}$$
+  
+$$
+\dot{m}_c = \frac{Q}{C_{p,c}\; (T_{c,out} - T_{c,in})}
+$$
+
 - LMTD (contracorriente):
-  $$\Delta T_1 = T_{h,in} - T_{c,out} \qquad \Delta T_2 = T_{h,out} - T_{c,in}$$
-  $$\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln\left(\dfrac{\Delta T_1}{\Delta T_2}\right)}$$
+  
+$$
+\Delta T_1 = T_{h,in} - T_{c,out} \qquad \Delta T_2 = T_{h,out} - T_{c,in}
+$$
+
+  
+$$
+\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln\left(\dfrac{\Delta T_1}{\Delta T_2}\right)}
+$$
+
 - Área requerida:
-  $$A = \frac{Q}{U\;F\;\Delta T_{lm}}$$
+  
+$$
+A = \frac{Q}{U\;F\;\Delta T_{lm}}
+$$
+
 - NTU / Efectividad (verificación):
-  $$C_h = \dot{m}_h C_{p,h},\quad C_c = \dot{m}_c C_{p,c}$$
-  $$C_{min} = \min(C_h,C_c),\quad C_r = \dfrac{C_{min}}{C_{max}}$$
-  $$\mathrm{NTU} = \dfrac{U\;A}{C_{min}}$$
+  
+$$
+C_h = \dot{m}_h C_{p,h},\quad C_c = \dot{m}_c C_{p,c}
+$$
+
+  
+$$
+C_{min} = \min(C_h,C_c),\quad C_r = \dfrac{C_{min}}{C_{max}}
+$$
+
+  
+$$
+\mathrm{NTU} = \dfrac{U\;A}{C_{min}}
+$$
+
   Para contracorriente ($C_r\neq 1$):
-  $$\varepsilon = \frac{1 - e^{-\mathrm{NTU}(1-C_r)}}{1 - C_r\; e^{-\mathrm{NTU}(1-C_r)}}$$
-  $$Q_{NTU} = \varepsilon\; C_{min}\; (T_{h,in} - T_{c,in})$$
+  
+$$
+\varepsilon = \frac{1 - e^{-\mathrm{NTU}(1-C_r)}}{1 - C_r\; e^{-\mathrm{NTU}(1-C_r)}}
+$$
+
+  
+$$
+Q_{NTU} = \varepsilon\; C_{min}\; (T_{h,in} - T_{c,in})
+$$
 
 ### 4) Plantilla sugerida para Excel
 Se recomiendan dos hojas: `Inputs` y `Calculos`.
@@ -59,14 +98,26 @@ Este documento contiene las mismas fórmulas y guías que el fichero de referenc
 - Parámetros de diseño: U = 2500 W/m²·K, F = 1 (contracorriente ideal)
 
 ### 2) Balance energético
-$$Q = \dot{m}_h\; C_{p,h}\; (T_{h,in} - T_{h,out})$$
+
+$$
+Q = \dot{m}_h\; C_{p,h}\; (T_{h,in} - T_{h,out})
+$$
 
 ### 3) Caudal necesario del agua
-$$\dot{m}_c = \frac{Q}{C_{p,c}\; (T_{c,out} - T_{c,in})}$$
+
+$$
+\dot{m}_c = \frac{Q}{C_{p,c}\; (T_{c,out} - T_{c,in})}
+$$
 
 ### 4) LMTD y Área
-$$\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln(\Delta T_1/\Delta T_2)}$$
-$$A = \frac{Q}{U\,F\,\Delta T_{lm}}$$
+
+$$
+\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln(\Delta T_1/\Delta T_2)}
+$$
+
+$$
+A = \frac{Q}{U\,F\,\Delta T_{lm}}
+$$
 
 ### 5) NTU/efectividad (verificación)
 Ver sección del otro archivo (idéntica) para fórmulas y pasos de Excel.
