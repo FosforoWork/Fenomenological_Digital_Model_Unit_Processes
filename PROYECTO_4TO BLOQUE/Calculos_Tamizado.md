@@ -41,7 +41,7 @@ $$
 Fraccion en pasante 100 mesh (finos):
 
 $$
-\frac{m_{&lt;100}}{m_{entrada}}=\alpha
+\frac{m_{<100}}{m_{entrada}}=\alpha
 $$
 
 Fraccion en especificacion 100-200:
@@ -53,7 +53,7 @@ $$
 Fraccion rechazada (retenida en 100):
 
 $$
-\frac{m_{&gt;100}}{m_{entrada}}=\gamma
+\frac{m_{>100}}{m_{entrada}}=\gamma
 $$
 
 Balance:
@@ -111,11 +111,11 @@ Con distribucion Rosin-Rammler estimada:
 Primera malla (100 mesh):
 
 $$
-m_{&lt;100}=364.6\times0.05=18.2\ \text{kg/h}
+m_{<100}=364.6\times0.05=18.2\ \text{kg/h}
 $$
 
 $$
-m_{&gt;100}=364.6\times0.95=346.4\ \text{kg/h}
+m_{>100}=364.6\times0.95=346.4\ \text{kg/h}
 $$
 
 Segunda malla (200 mesh, sobre material &gt;100):
@@ -125,7 +125,7 @@ m_{200-100}=346.4\times0.94=325.6\ \text{kg/h}
 $$
 
 $$
-m_{&gt;200}=346.4\times0.06=20.8\ \text{kg/h}
+m_{>200}=346.4\times0.06=20.8\ \text{kg/h}
 $$
 
 **Salida final:**
@@ -157,7 +157,7 @@ $$
 Criterio empirico de carga superficial para polvos secos:
 
 $$
-q_{sup}=5\text{ a }10\ \text{t/(m}^2 \cdot \text{h)}
+q_{sup}=5\text{ a }10\ \text{t/(m}^2\cdot\text{h)}
 $$
 
 Para 364.6 kg/h = 0.3646 t/h:

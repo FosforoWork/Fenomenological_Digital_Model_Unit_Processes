@@ -158,7 +158,7 @@ $$Q = \dot{m} \cdot C_p \cdot \Delta T \quad [\text{W ó kJ/h}]$$
 
 ### 5.2 Diferencia de Temperatura Logarítmica Media (LMTD)
 
-$$\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln\left(\dfrac{\Delta T_1}{\Delta T_2}\right)} \quad [\text{K}]$$
+$$\Delta T_{lm} = \frac{\Delta T_1 - \Delta T_2}{\ln\left(\frac{\Delta T_1}{\Delta T_2}\right)} \quad [\text{K}]$$
 
 - $\Delta T_1 = T_{h,entrada} - T_{c,salida}$
 - $\Delta T_2 = T_{h,salida} - T_{c,entrada}$

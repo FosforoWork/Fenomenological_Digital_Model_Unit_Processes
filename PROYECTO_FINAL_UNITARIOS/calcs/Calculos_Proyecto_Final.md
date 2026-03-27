@@ -56,10 +56,10 @@ Esta version eleva el realismo del modelo con los siguientes criterios de diseno
 |---|---:|---|
 | Eficiencia de extraccion proteica (Etapa 1) | 88% | Literatura para extraccion alcalina sin precalentamiento: rango 85–92% segun tiempo/T. Valor conservador típico industrial |
 | Recuperacion proteica en precipitacion (Etapa 4) | 98% | Estándar aislado de soya; pérdida 2% por solubilidad residual a pH isoelectrico |
-| Humedad de pasta post-centrifugacion | 50% | Centrifuga decantadora sanitaria típica; <50% requiere otros métodos (filtro-prensa) |
-| Humedad final de polvo | 5% | Estándar aislado proteico en polvo; <5% critica para estabilidad microbiologica y agua disponible |
-| pH de extraccion | 8.75 | Alcalinidad minima para solubilizacion proteica; pH > 10 riesgo de hidrolisis; pH < 8.5 extraccion incompleta |
-| Temperatura de extraccion | 55 C | Equilibrio: T > 65°C riesgo desnaturalizacion; T < 50°C cinetica lenta; 55°C optimo para proceso |
+| Humedad de pasta post-centrifugacion | 50% | Centrifuga decantadora sanitaria típica; &lt;50% requiere otros métodos (filtro-prensa) |
+| Humedad final de polvo | 5% | Estándar aislado proteico en polvo; &lt;5% critica para estabilidad microbiologica y agua disponible |
+| pH de extraccion | 8.75 | Alcalinidad minima para solubilizacion proteica; pH &gt; 10 riesgo de hidrolisis; pH &lt; 8.5 extraccion incompleta |
+| Temperatura de extraccion | 55 C | Equilibrio: T &gt; 65°C riesgo desnaturalizacion; T &lt; 50°C cinetica lenta; 55°C optimo para proceso |
 | Pasteurizacion | 80 C por 22 s | HTST standard (High Temperature Short Time); inactivacion bacteriana ~6 log CFU; preserva proteina |
 | Evaporacion multiple efecto | 2 efectos | Economia de vapor 1.85 kg/kg; 3+ efectos sin ganancia significativa para caudal 12.4 m3/h |
 | Presion de referencia en evaporacion | 0.40 bar abs | Compromiso: T baja (48°C) para producto termolabil vs ΔT suficiente (22 K/efecto) para transferencia |
@@ -705,6 +705,12 @@ Este documento complementa esta seccion con:
 | Bombas de transferencia | Presion descarga | Manometro/transmisor | 0-6 bar | Confirmar punto de operacion |
 | Molino/criba | Corriente de motor | Medidor de corriente | 0-150% | Proteger por sobrecarga |
 
+### 3.11.1 Variables con mayor impacto en el registro temporal
+
+En el registro de tendencias en el tiempo, las variables de control que mas modifican la dinamica del proceso son pH, temperatura, caudal, nivel, vacio/presion y contenido de solidos-humedad, porque cambian de forma directa la velocidad de reaccion, separacion y secado.
+
+Desde el dimensionamiento de equipos, los parametros que mas afectan esas curvas temporales son volumen util (V/Q y tiempo de residencia), area de transferencia (A y U), capacidad nominal con margen y potencia instalada (agitacion/bombeo), ya que determinan la inercia del sistema, el tiempo de respuesta y la amplitud de las oscilaciones.
+
 ## 3.12 Operacion innovadora: preconcentracion por osmosis inversa (OI)
 
 Objetivo tecnico de la OI en este caso base:
@@ -776,7 +782,7 @@ $$
 | Flujo cruzado | 1.0-2.0 m/s | Polarizacion de concentracion y fouling acelerado |
 | Temperatura de alimentacion | 20-35 C | Baja T reduce flujo; alta T acelera ensuciamiento |
 | pH de alimentacion | 6.5-8.5 | pH extremo reduce vida util de membrana |
-| SDI (indice ensuciamiento) | < 4 | Ensuciamiento rapido y caida de recuperacion |
+| SDI (indice ensuciamiento) | &lt; 4 | Ensuciamiento rapido y caida de recuperacion |
 
 ### 3.12.5 Limitaciones y criterio de implementacion
 
@@ -1366,11 +1372,11 @@ Se adopta una matriz cualitativa 3x3:
 | % solidos fuera de especificacion | Control termico/recirculacion inadecuado | Sobrecarga en secador y desvio de humedad final | M | A | Alto | Lazo CC-301 con setpoint 23% | Reprocesar corriente fuera de especificacion | % solidos salida evaporador | Operador evaporacion |
 | DeltaP alto en intercambiador | Fouling hidraulico por solidos finos | Caida de transferencia y riesgo de parada | M | M | Medio | Monitoreo dPC-201 y limpieza programada | Bypass temporal + CIP extraordinario | DeltaP HX-201 | Supervisor mantenimiento |
 | Alta T salida spray dryer | Exceso de carga termica/aire inestable | Degradacion de producto y riesgo operativo | B | A | Alto | Control TC-501 e interlock de alta T | Corte de quemador y purga de camara | T outlet SD-501 | Operador secado |
-| Humedad final >5% | Variacion alimentacion o secado insuficiente | Riesgo microbiologico y rechazo de lote | M | A | Alto | Monitoreo MC-501 por lote | Re-secado o bloqueo de liberacion | Humedad final (%) | Aseguramiento de calidad |
+| Humedad final &gt;5% | Variacion alimentacion o secado insuficiente | Riesgo microbiologico y rechazo de lote | M | A | Alto | Monitoreo MC-501 por lote | Re-secado o bloqueo de liberacion | Humedad final (%) | Aseguramiento de calidad |
 | Falla de centrifuga post-lixiviacion | Desgaste mecanico/taponamiento | Perdida de capacidad y acumulacion en linea | M | M | Medio | Mantenimiento por horas de servicio | Redireccion a equipo paralelo | Vibracion y torque | Mantenimiento mecanico |
 | Falla de centrifuga post-precipitacion | Operacion fuera de curva | Aumento de humedad de pasta y costo de secado | M | M | Medio | Control de carga y limpieza interna | Reprocesar pasta en segundo paso | Humedad de pasta (%) | Jefe de turno |
 | Variacion precio de soya | Mercado internacional/estacionalidad | Reduccion de margen operativo | A | A | Alto | Contratos semestrales y compras escalonadas | Ajuste de precio de venta y mezcla de proveedores | USD/ton soya | Compras + finanzas |
-| Precio de venta bajo escenario objetivo | Presion comercial/competencia | Caida de utilidad operativa | M | A | Alto | Politica de precio minimo > USD 1.70/kg | Reenfocar canal y formato comercial | Precio neto USD/kg | Comercial |
+| Precio de venta bajo escenario objetivo | Presion comercial/competencia | Caida de utilidad operativa | M | A | Alto | Politica de precio minimo &gt; USD 1.70/kg | Reenfocar canal y formato comercial | Precio neto USD/kg | Comercial |
 | Indisponibilidad energetica | Fallas red/equipo termico | Paradas no programadas y perdida de lote | B | A | Alto | Redundancia minima y plan de contingencia | Parada segura y arranque secuencial | Horas de indisponibilidad | Utilidades |
 | Incumplimiento de inocuidad | Desviacion de T/humedad o higiene | Rechazo de lote y riesgo reputacional | B | A | Alto | HACCP, limpieza y control microbiologico | Retencion y trazabilidad de lote | UFC, aw, humedad | Calidad |
 
