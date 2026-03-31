@@ -912,7 +912,7 @@ def apply_visual_theme_css(theme: dict) -> None:
             }}
 
             div[data-baseweb="tab-list"] {{
-                gap: 0.35rem;
+                gap: 0.6rem;
             }}
             div[data-baseweb="tab"] {{
                 border: 1px solid {theme['border']};
@@ -992,14 +992,20 @@ def apply_visual_theme_css(theme: dict) -> None:
             }}
 
             .status-pill {{
-                border: 1px solid {theme['border']};
-                background: {theme['card_bg']};
-                color: {theme['text']};
+                width: 12px;
+                height: 12px;
                 border-radius: 999px;
-                padding: 8px 12px;
-                font-size: 0.88rem;
                 display: inline-block;
-                margin-top: 8px;
+                margin-top: 10px;
+                border: 1px solid {theme['border']};
+            }}
+
+            .status-pill.status-running {{
+                background: {theme['status']['verde']};
+            }}
+
+            .status-pill.status-paused {{
+                background: {theme['status']['rojo']};
             }}
 
             .kpi-meta {{
@@ -1778,9 +1784,9 @@ with tab_operacion:
             st.rerun()
 
         if st.session_state.running:
-            st.markdown("<div class='status-pill'>Estado: simulacion en ejecucion</div>", unsafe_allow_html=True)
+            st.markdown("<span class='status-pill status-running' title='Simulacion en ejecucion'></span>", unsafe_allow_html=True)
         else:
-            st.markdown("<div class='status-pill'>Estado: simulacion pausada</div>", unsafe_allow_html=True)
+            st.markdown("<span class='status-pill status-paused' title='Simulacion pausada o sin ejecutar'></span>", unsafe_allow_html=True)
 
         st.subheader("Modificacion")
         render_sales_modification_panel()
