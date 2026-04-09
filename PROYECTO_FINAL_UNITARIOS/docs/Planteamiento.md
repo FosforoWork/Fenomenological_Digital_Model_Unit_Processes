@@ -1,6 +1,33 @@
 
 # Planteamiento del problema — Proyecto final: Procesos Unitarios
 
+Algunos puntos a tomar en cuenta
+
+Introduccion - Que es el proyecto, que se va a hacer, para que sirve, porque es importante, etc.
+Informacion sobre la materia prima hasta el producto final
+Cuanta materia prima se utiliza, cuanto producto se obtiene
+Procesos unitarios involucrados
+Calculos Hidricos
+Intercambiador de calor
+Proceso Unitario - etc
+Operacion Unitaria innovadora o no vista.
+
+Desarrollo
+Transporte de agua
+Que es el transporte de fluidos, cantidad de bombas, cantidad de codos, tuberias, calculos de justificacion
+
+Intercambiador de calor
+Que es un intercambiador de calor, calor necesario, tipo de intercambiador, calculos de justificacion.
+
+Operacion Unitaria, que es, como se hace, que equipo se utiliza, calculos de justificacion.
+
+Algunos procesos deben tener su grafica
+
+Para el proceso innovador, debe tener algo mas de teoria, explicar porque es innovador, que ventajas tiene, que desventajas, etc.
+Justificacion y calculos, tambien si es que tiene grafica o no
+
+Conclusion general del trabajo que se realizo, explicacion del proceso, caracteristicas resumidas de los equipos. 
+
 ## Título
 Producción de proteína aislada de soya o arveja
 

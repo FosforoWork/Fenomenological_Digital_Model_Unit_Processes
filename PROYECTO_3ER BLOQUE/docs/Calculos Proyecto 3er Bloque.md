@@ -1,572 +1,696 @@
-# Calculos preliminares integrados - Proyecto 3er Bloque
+# Calculos integrados recalculados - Proyecto 3er Bloque
 
-## 1. Base de calculo y criterios de referencia
+Fecha de recalculo: 2026-04-06  
+Fuente oficial de datos: hoja consolidada del bloque (tablas ESL, ELL, destilacion y recirculacion).
 
-Este documento integra calculos preliminares de tres etapas:
+## 1. Base de calculo unificada
 
-1. Extraccion solido-liquido (ESL)
-2. Extraccion liquido-liquido (ELL)
+Este documento fija una sola cadena de calculo:
+
+1. ESL (extraccion solido-liquido)
+2. ELL (extraccion liquido-liquido)
 3. Destilacion al vacio
+4. Recirculacion y balance global
 
-Se usan como referencia metodologica los criterios del proyecto final consolidado:
+Criterios de consistencia aplicados:
 
-- Balance en estado estacionario.
-- Factores de seguridad de diseno preliminar ($f_s=1.2$).
-- Tiempos de residencia de referencia para mezclado/separacion.
-- Verificacion de cierres de masa y cumplimiento de restricciones de recuperacion y energia.
+- Base horaria obligatoria para el bloque: 8 h/d.
+- Unidades explicitas por ecuacion y por tabla.
+- Cierre de masa por etapa y cierre global.
+- Meta de recuperacion de acetato en destilacion: eta >= 99.3% (exacta o superior).
+- Tabla de equilibrio oficial para McCabe-Thiele: version del caso de diseno actual.
 
-### 1.1 Datos de entrada (3er bloque)
+## 2. Etapa 1 - ESL recalculada
 
-| Etapa | Parametro | Valor |
-|---|---|---:|
-| ESL | Capacidad de alimentacion | 1500 kg/d |
-| ESL | Contenido de soluto en alimentacion | 10% p/p |
-| ESL | Humedad de alimentacion | 12% p/p |
-| ESL | Relacion solvente/solido, S/F | 3.2 kg/kg |
-| ESL | Retencion de solvente en inerte | 1.1 kg/kg inerte |
-| ESL | Coeficiente aparente de equilibrio, KE | 1.5 |
-| ESL | Eficiencia global de extraccion | 72% |
-| ELL | Coeficiente de distribucion, KD | 2.0 |
-| ELL | Relacion solvente/alimentacion, S/F | 0.55 kg/kg |
-| ELL | Eficiencia de etapa | 80% |
-| Destilacion | $x_F$ | 0.42 |
-| Destilacion | $x_D$ | 0.90 |
-| Destilacion | $x_B$ | 0.04 |
-| Destilacion | Eficiencia de platos | 65% |
-| Destilacion | Recuperacion minima requerida | 94% |
-| Destilacion | Consumo maximo de vapor | 2.2 kg/kg producto |
+### 2.1 Datos de entrada
 
-## 2. Etapa 1 - Extraccion solido-liquido (ESL)
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Capacidad diaria | 1500 | kg/d |
+| Tiempo de operacion | 8 | h/d |
+| Flujo de alimentacion, F | 187.50 | kg/h |
+| Soluto en alimentacion | 10.0 | % p/p |
+| Humedad en alimentacion | 12.0 | % p/p |
+| S/F inicial | 3.2 | kg/kg |
+| Retencion de solucion en inerte | 1.1 | kg/kg inerte |
+| Eficiencia de extraccion real | 72.0 | % |
+| Constante de equilibrio, Ke | 1.5 | - |
 
-### 2.1 Descomposicion de alimentacion
-
-Base diaria: $F_s=1500$ kg/d.
-
-Soluto en alimentacion:
+Descomposicion de F:
 
 $$
-m_{sol,in}=0.10(1500)=150\ \text{kg/d}
-$$
-
-Agua inicial por humedad:
-
-$$
-m_{H2O,in}=0.12(1500)=180\ \text{kg/d}
-$$
-
-Solido inerte:
-
-$$
-m_{inerte}=1500-150-180=1170\ \text{kg/d}
-$$
-
-Masa seca total (inerte + soluto):
-
-$$
-m_{seca}=1500-180=1320\ \text{kg/d}
-$$
-
-### 2.2 Solvente de extraccion y recuperacion de soluto
-
-Con $S/F=3.2$ kg solvente/kg solido:
-
-$$
-m_{solv,1}=3.2(1320)=4224\ \text{kg/d}
-$$
-
-Soluto extraido (eficiencia 72%):
-
-$$
-m_{sol,ext}=0.72(150)=108\ \text{kg/d}
-$$
-
-Soluto remanente en torta:
-
-$$
-m_{sol,res}=150-108=42\ \text{kg/d}
-$$
-
-Retencion de solvente en inerte:
-
-$$
-m_{ret}=1.1(1170)=1287\ \text{kg/d}
-$$
-
-### 2.3 Balance preliminar de corrientes de salida
-
-Corriente liquida extracto de ESL:
-
-$$
-m_{ext,ESL}=(m_{solv,1}+m_{H2O,in})-m_{ret}+m_{sol,ext}
+\dot m_{sol,in} = 0.10(187.50) = 18.75\ \text{kg/h}
 $$
 
 $$
-m_{ext,ESL}=(4224+180)-1287+108=3225\ \text{kg/d}
-$$
-
-Corriente de torta/solido agotado:
-
-$$
-m_{torta}=m_{inerte}+m_{sol,res}+m_{ret}=1170+42+1287=2499\ \text{kg/d}
-$$
-
-Verificacion de cierre:
-
-$$
-m_{in}=1500+4224=5724\ \text{kg/d}
+\dot m_{H2O,in} = 0.12(187.50) = 22.50\ \text{kg/h}
 $$
 
 $$
-m_{out}=3225+2499=5724\ \text{kg/d}\ \checkmark
+\dot m_{inerte} = 187.50 - 18.75 - 22.50 = 146.25\ \text{kg/h}
 $$
 
-### 2.4 Indicadores y dimensionamiento preliminar ESL
-
-Recuperacion de soluto en ESL:
+Flujo de solvente fresco a ESL:
 
 $$
-\eta_{ESL}=\frac{108}{150}=0.72=72\%
+\dot m_{solv,1} = 3.2(187.50) = 600.00\ \text{kg/h}
 $$
 
-Concentracion masica de soluto en extracto ESL:
+### 2.2 Balance de masa de ESL
+
+Masa de solucion que entra a la zona liquida:
 
 $$
-x_{sol,ext}=\frac{108}{3225}=0.0335\ (3.35\%\ p/p)
+\dot m_{solucion,in} = \dot m_{solv,1} + \dot m_{H2O,in} + \dot m_{sol,in}
+= 600.00 + 22.50 + 18.75 = 641.25\ \text{kg/h}
 $$
 
-Operacion en 8 h/dia (base de diseno del bloque):
+Solucion retenida en la torta:
 
 $$
-\dot m_{in,ESL}=\frac{5724}{8}=715.5\ \text{kg/h}
+L = 1.1(146.25) = 160.875\ \text{kg/h}
 $$
 
-Tomando $\rho_{mezcla}=1060$ kg/m3, $\tau=0.9$ h y $f_s=1.2$ (criterio de referencia del proyecto final):
+Soluto en solucion retenida:
 
 $$
-\dot V_{ESL}=\frac{715.5}{1060}=0.675\ \text{m}^3/\text{h}
+\dot m_{sol,L} = 5.25\ \text{kg/h}
+$$
+
+Solvente + humedad retenidos:
+
+$$
+\dot m_{solv+H2O,L} = 160.875 - 5.25 = 155.625\ \text{kg/h}
+$$
+
+Corriente de extracto liquido:
+
+$$
+V = 641.25 - 160.875 = 480.375\ \text{kg/h}
+$$
+
+Soluto en extracto real (72% de recuperacion en ESL):
+
+$$
+\dot m_{sol,V} = 0.72(18.75) = 13.50\ \text{kg/h}
+$$
+
+Fracciones masicas finales:
+
+$$
+y_1 = \frac{13.50}{480.375} = 0.02810\ (2.810\%)
 $$
 
 $$
-V_{tanque,ESL}=\dot V_{ESL}\tau f_s=0.675(0.9)(1.2)=0.729\ \text{m}^3
+x_1 = \frac{5.25}{160.875} = 0.03263\ (3.263\%)
 $$
 
-Con geometria preliminar $H/D=0.85$:
+Cierre de masa de etapa ESL:
 
 $$
-V=\frac{\pi D^2}{4}(0.85D)\Rightarrow D\approx1.03\ \text{m},\ H\approx0.88\ \text{m}
+\text{Entrada} = 187.50 + 600.00 = 787.50\ \text{kg/h}
 $$
 
-Estimacion rapida de agitacion ($P/V\approx1$ kW/m3):
-
 $$
-P_{ESL}\approx0.73\ \text{kW}\ \Rightarrow\ \text{seleccion preliminar: }1.1\ \text{kW}
+\text{Salida} = 480.375 + (146.25 + 160.875) = 787.50\ \text{kg/h}
 $$
 
-## 3. Etapa 2 - Extraccion liquido-liquido (ELL)
+### 2.3 Analisis de etapa ideal (referencia de equilibrio)
 
-Se toma como alimentacion a ELL la corriente liquida de ESL.
+Con $Ke = y/x = 1.5$, $V=480.375$ y $L=160.875$:
+
+$$
+V\,y^* + L\,x^* = \dot m_{sol,in} = 18.75
+$$
+
+$$
+y^* = 1.5x^* \Rightarrow x^* = 0.0213,\ y^* = 0.0319
+$$
+
+Soluto recuperado en etapa ideal:
+
+$$
+\dot m_{sol,V}^{ideal} = V y^* = 15.33\ \text{kg/h}
+$$
+
+Recuperacion ideal equivalente:
+
+$$
+\eta_{ESL}^{ideal} = \frac{15.33}{18.75} = 81.8\% \approx 82\%
+$$
+
+### 2.4 Dimensionamiento preliminar de equipo ESL
+
+Supuestos de diseno para el tanque de extraccion ESL:
+
+- Densidad de mezcla: $\rho_{ESL}=1060$ kg/m3.
+- Tiempo de residencia de diseno: $\tau=0.90$ h.
+- Factor de seguridad volumetrico: $f_s=1.20$.
+- Relacion geometrica preliminar: $H/D=0.85$.
+- Criterio energetico de agitacion: $P/V=1.0$ kW/m3.
+
+Caudal masico total a ESL:
+
+$$
+\dot m_{ESL,in}=787.50\ \text{kg/h}
+$$
+
+Caudal volumetrico de mezcla:
+
+$$
+\dot V_{ESL}=\frac{\dot m_{ESL,in}}{\rho_{ESL}}=\frac{787.50}{1060}=0.7429\ \text{m}^3/\text{h}
+$$
+
+Volumen de diseno del tanque:
+
+$$
+V_{ESL}=\dot V_{ESL}\,\tau\,f_s=0.7429(0.90)(1.20)=0.802\ \text{m}^3
+$$
+
+Para tanque cilindrico con $H=0.85D$:
+
+$$
+V=\frac{\pi D^2}{4}(0.85D)=0.6676D^3
+$$
+
+$$
+D=\left(\frac{V_{ESL}}{0.6676}\right)^{1/3}=1.06\ \text{m},\quad H=0.85D=0.90\ \text{m}
+$$
+
+Potencia de agitacion preliminar:
+
+$$
+P_{ESL}=\left(\frac{P}{V}\right)V_{ESL}=1.0(0.802)=0.80\ \text{kW}
+$$
+
+Seleccion recomendada de motor:
+
+$$
+P_{motor,ESL}=1.10\ \text{kW}
+$$
+
+## 3. Etapa 2 - ELL recalculada
 
 ### 3.1 Datos de entrada a ELL
 
-| Variable | Valor |
-|---|---:|
-| Alimentacion a ELL, $F_{ELL}$ | 3225 kg/d |
-| Soluto de entrada a ELL | 108 kg/d |
-| KD | 2.0 |
-| S/F | 0.55 |
-| Eficiencia de etapa | 80% |
+La alimentacion de ELL se conecta de forma explicita con la salida de ESL:
 
-Solvente fresco de ELL:
+| Variable | Valor | Unidad |
+|---|---:|---|
+| Alimentacion desde ESL, F_ELL | 480.375 | kg/h |
+| Soluto en F_ELL | 13.50 | kg/h |
+| Fraccion de soluto en F_ELL (Yf) | 0.02810 | - |
+| Solvente fresco ELL, S | 264.21 | kg/h |
+| Composicion de solvente fresco (Xs, Ys) | 1.000, 0.000 | - |
+| Masa total mezclada, Mt | 744.585 | kg/h |
+| Eficiencia de etapa real | 80.0 | % |
 
-$$
-m_{solv,2}=0.55(3225)=1773.75\ \text{kg/d}
-$$
-
-### 3.2 Recuperacion ideal y recuperacion real
-
-Fraccion remanente ideal en refinado para una etapa:
+Coordenadas del punto de mezcla global:
 
 $$
-\phi=\frac{x_R}{x_F}=\frac{1}{1+K_D(S/F)}=\frac{1}{1+2(0.55)}=0.47619
-$$
-
-Soluto en refinado ideal:
-
-$$
-m_{sol,R}^{ideal}=108(0.47619)=51.43\ \text{kg/d}
-$$
-
-Soluto extraido ideal:
-
-$$
-m_{sol,E}^{ideal}=108-51.43=56.57\ \text{kg/d}
-$$
-
-Aplicando eficiencia de etapa (80%) sobre la extraccion ideal:
-
-$$
-m_{sol,E}^{real}=0.80(56.57)=45.26\ \text{kg/d}
+X_M = \frac{S}{M_t} = \frac{264.21}{744.585} = 0.3548\ (35.48\%)
 $$
 
 $$
-m_{sol,R}^{real}=108-45.26=62.74\ \text{kg/d}
+Y_M = \frac{13.50}{744.585} = 0.0181\ (1.81\%)
 $$
 
-Recuperacion real en ELL:
+### 3.2 Reparto por linea de equilibrio (base ideal)
+
+Valores de la linea de reparto seleccionada para el punto de mezcla:
+
+- Extracto ideal: $X_E=0.8810$, $Y_E=0.0212$
+- Refinado ideal: $X_R=0.0106$, $Y_R=0.0162$
+
+Aplicando regla de la palanca:
 
 $$
-\eta_{ELL}=\frac{45.26}{108}=41.9\%
-$$
-
-Recuperacion acumulada frente al soluto inicial del solido:
-
-$$
-\eta_{acum,ESL+ELL}=\frac{45.26}{150}=30.2\%
-$$
-
-### 3.3 Balance preliminar de fases en ELL
-
-Masa de extracto organico (aprox. sin solubilidad cruzada):
-
-$$
-m_{E,ELL}=m_{solv,2}+m_{sol,E}^{real}=1773.75+45.26=1819.01\ \text{kg/d}
-$$
-
-Masa de refinado:
-
-$$
-m_{R,ELL}=3225-45.26=3179.74\ \text{kg/d}
-$$
-
-Verificacion de cierre:
-
-$$
-m_{in}=3225+1773.75=4998.75\ \text{kg/d}
+\dot m_E = 294.50\ \text{kg/h}
 $$
 
 $$
-m_{out}=1819.01+3179.74=4998.75\ \text{kg/d}\ \checkmark
+\dot m_R = M_t - \dot m_E = 450.08\ \text{kg/h}
 $$
 
-### 3.4 Dimensionamiento preliminar de mixer-settler
-
-Operacion en 8 h/dia:
+Soluto ideal por fase (ajustado a cierre con redondeo de hoja):
 
 $$
-\dot m_{in,ELL}=\frac{4998.75}{8}=624.84\ \text{kg/h}
+\dot m_{sol,E}^{ideal} = 6.23\ \text{kg/h}
 $$
 
-Con $\rho_{mix}=950$ kg/m3:
-
 $$
-\dot V_{ELL}=\frac{624.84}{950}=0.658\ \text{m}^3/\text{h}
+\dot m_{sol,R}^{ideal} = 7.27\ \text{kg/h}
 $$
 
-Tomando criterios de referencia del bloque de extraccion:
+Recuperacion ideal en ELL:
 
+$$
+\eta_{ELL}^{ideal} = \frac{6.23}{13.50} = 46.15\%
+$$
+
+### 3.3 Ajuste a etapa real (80%)
+
+Se corrige el recuperado ideal con eficiencia de etapa:
+
+$$
+\dot m_{sol,E}^{real} = 0.80(6.23) = 4.98\ \text{kg/h}
+$$
+
+$$
+\dot m_{sol,R}^{real} = 13.50 - 4.98 = 8.52\ \text{kg/h}
+$$
+
+Fracciones reales de soluto por fase (consistentes con los caudales de fase):
+
+$$
+Y_E^{real} = \frac{4.98}{294.50} = 0.0169\ (1.69\%)
+$$
+
+$$
+Y_R^{real} = \frac{8.52}{450.08} = 0.0189\ (1.89\%)
+$$
+
+Verificacion de cierre de masa en ELL (con redondeo de tabla):
+
+- Entrada total: $480.375 + 264.21 = 744.585$ kg/h
+- Salida total: $294.50 + 450.08 = 744.58$ kg/h
+
+La diferencia es solo por redondeo de dos decimales en corrientes reportadas.
+
+### 3.4 Corriente puente a destilacion
+
+La corriente de extracto de ELL define la alimentacion de la destilacion:
+
+$$
+F_{dest} = \dot m_E = 294.50\ \text{kg/h}
+$$
+
+Con esta definicion se elimina la incongruencia anterior de usar una base hipotetica desconectada.
+
+### 3.5 Dimensionamiento preliminar de equipo ELL (mixer-settler)
+
+Supuestos de diseno para contacto y separacion ELL:
+
+- Densidad media de mezcla liquida: $\rho_{ELL}=950$ kg/m3.
 - Tiempo de mezcla: $\tau_m=5$ min.
 - Tiempo de decantacion: $\tau_d=20$ min.
-- Factor de seguridad: $f_s=1.2$.
+- Factor de seguridad volumetrico: $f_s=1.20$.
+- Velocidad superficial de diseno en decantador: $v_s=1.0$ m/h.
+- Criterio de agitacion en mezclador: $P/V=1.0$ kW/m3.
+
+Flujo masico total a ELL:
+
+$$
+\dot m_{ELL,in}=744.585\ \text{kg/h}
+$$
+
+Caudal volumetrico de mezcla:
+
+$$
+\dot V_{ELL}=\frac{\dot m_{ELL,in}}{\rho_{ELL}}=\frac{744.585}{950}=0.7838\ \text{m}^3/\text{h}
+$$
 
 Volumen de mezclador:
 
 $$
-V_m=\dot V_{ELL}\left(\frac{5}{60}\right)f_s=0.658\left(\frac{5}{60}\right)(1.2)=0.0658\ \text{m}^3
+V_m=\dot V_{ELL}\left(\frac{\tau_m}{60}\right)f_s=0.7838\left(\frac{5}{60}\right)(1.20)=0.078\ \text{m}^3
 $$
 
 Volumen de decantador:
 
 $$
-V_d=\dot V_{ELL}\left(\frac{20}{60}\right)f_s=0.263\ \text{m}^3
+V_d=\dot V_{ELL}\left(\frac{\tau_d}{60}\right)f_s=0.7838\left(\frac{20}{60}\right)(1.20)=0.314\ \text{m}^3
 $$
 
-Area de decantacion para $v_s=1.0$ m/h:
+Area de decantacion:
 
 $$
-A_d=\frac{\dot V_{ELL}}{v_s}=0.658\ \text{m}^2
+A_d=\frac{\dot V_{ELL}}{v_s}=\frac{0.7838}{1.0}=0.784\ \text{m}^2
 $$
 
-Potencia de mezcla preliminar con $P/V\approx1$ kW/m3:
+Diametro equivalente (decantador circular):
 
 $$
-P_{ELL}\approx0.066\ \text{kW}\ \Rightarrow\ \text{seleccion preliminar: }0.18\ \text{kW}
+D_d=\sqrt{\frac{4A_d}{\pi}}=0.999\ \text{m}\approx1.00\ \text{m}
 $$
 
-## 4. Etapa 3 - Destilacion al vacio (guiada por tablas)
-
-### 4.1 Base y especificaciones de diseno
-
-Para la etapa de destilacion se adopta base molar estandar:
+Altura util de decantador:
 
 $$
-F=100\ \text{kmol/h},\ x_F=0.42,\ x_D=0.90,\ x_B=0.04
+H_{d,util}=\frac{V_d}{A_d}=\frac{0.314}{0.784}=0.40\ \text{m}
 $$
 
-Condiciones operativas de vacio y diseno:
+Potencia de agitacion en mezclador:
 
 $$
-P\approx300\ \text{mmHg},\ \alpha=2.5,\ R=2,\ q=1
+P_m=\left(\frac{P}{V}\right)V_m=1.0(0.078)=0.078\ \text{kW}
 $$
 
-### 4.2 Balance de masa y recuperacion
-
-Producto de tope:
+Seleccion recomendada de motor de mezclado:
 
 $$
-D=\frac{F(x_F-x_B)}{x_D-x_B}=\frac{100(0.42-0.04)}{0.90-0.04}=44.186\ \text{kmol/h}
+P_{motor,ELL}=0.18\ \text{kW}
 $$
 
-Producto de fondo:
+## 4. Etapa 3 - Destilacion al vacio recalculada
+
+### 4.1 Datos de diseno
+
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Alimentacion, F | 294.50 | kg/h |
+| Fraccion de acetato en F, xF | 0.42 | - |
+| Fraccion de acetato en destilado, xD | 0.90 | - |
+| Recuperacion objetivo de acetato, eta | 99.3 | % |
+| Volatilidad relativa, alpha | 2.50 | - |
+| Reflujo, R | 2.00 | - |
+| Condicion termica de alimentacion, q | 1.00 | - |
+
+Acetato en alimentacion:
 
 $$
-B=F-D=55.814\ \text{kmol/h}
+\dot m_{A,F} = F x_F = 294.50(0.42) = 123.69\ \text{kg/h}
 $$
 
-Recuperacion del componente ligero en destilado:
+### 4.2 Balance de masa de columna
+
+Acetato recuperado en destilado con meta 99.3%:
 
 $$
-Rec=\frac{Dx_D}{Fx_F}=\frac{44.186(0.90)}{100(0.42)}=94.68\%
+\dot m_{A,D} = 0.993\,\dot m_{A,F} = 122.83\ \text{kg/h}
 $$
 
-Cumple recuperacion minima requerida (94%).
-
-### 4.3 Numero minimo de etapas (Fenske)
+Flujo de destilado:
 
 $$
-N_{min}=\frac{\ln\left[\left(\frac{x_D}{1-x_D}\right)\left(\frac{1-x_B}{x_B}\right)\right]}{\ln(\alpha)}
+D = \frac{\dot m_{A,D}}{x_D} = \frac{122.83}{0.90} = 136.47\ \text{kg/h}
+$$
+
+Flujo de fondos:
+
+$$
+B = F - D = 294.50 - 136.47 = 158.03\ \text{kg/h}
+$$
+
+Fraccion de acetato en fondos:
+
+$$
+x_B = \frac{\dot m_{A,F} - D x_D}{B} = 0.0055
+$$
+
+Recuperacion lograda:
+
+$$
+\eta_A = \frac{D x_D}{F x_F} = 99.3\%\ \text{(cumple)}
+$$
+
+### 4.3 Numero de etapas
+
+Numero minimo de etapas por Fenske:
+
+$$
+N_{min} = \frac{\ln\left[\left(\frac{x_D}{1-x_D}\right)\left(\frac{1-x_B}{x_B}\right)\right]}{\ln(\alpha)}
+= 8.067
+$$
+
+Parametros de diseno usados en hoja:
+
+- $R_{min}=1.141$
+- Parametro $X=0.29$
+- Aproximacion de Eduljee: 0.38
+- McCabe-Thiele aproximado: $N_t=13.64$ platos teoricos
+
+Conversion a platos reales:
+
+- Sin rehervidor: $12.64$ platos
+- Con eficiencia de platos ($E_M=65\%$): $12.64/0.65 = 19.45$
+- Adoptado: 20 platos reales + rehervidor -> 21 etapas reales totales
+
+### 4.4 McCabe-Thiele (tabla de escalones)
+
+Lineas de operacion:
+
+$$
+\text{LOR: } y = 0.6667x + 0.3000
 $$
 
 $$
-N_{min}=\frac{\ln[(0.90/0.10)(0.96/0.04)]}{\ln(2.5)}=\frac{\ln(216)}{\ln(2.5)}=5.87
-$$
-
-### 4.4 Tabla de equilibrio de referencia para McCabe-Thiele
-
-| x (liquido) | y (vapor) |
-|---:|---:|
-| 0.000 | 0.000 |
-| 0.050 | 0.210 |
-| 0.100 | 0.340 |
-| 0.200 | 0.510 |
-| 0.300 | 0.630 |
-| 0.400 | 0.720 |
-| 0.500 | 0.790 |
-| 0.600 | 0.850 |
-| 0.700 | 0.890 |
-| 0.800 | 0.920 |
-| 0.900 | 0.950 |
-| 0.956 | 0.956 |
-
-Linea de enriquecimiento para $R=2$:
-
-$$
-y_R=\frac{R}{R+1}x+\frac{x_D}{R+1}=0.667x+0.300
-$$
-
-Con $q=1$, la interseccion de ambas lineas de operacion se fija en $x_F=0.42$:
-
-$$
-y_F=0.667(0.42)+0.300=0.580
-$$
-
-La linea de agotamiento se obtiene con los puntos $(x_B,x_B)$ y $(x_F,y_F)$:
-
-$$
-y_S=\frac{0.580-0.040}{0.420-0.040}(x-0.040)+0.040
+\text{q-line (q=1): } x = 0.42\ \text{con}\ y_F = 0.58
 $$
 
 $$
-y_S=1.421x-0.0169
+\text{LOA: } y = 1.39x - 0.0021
 $$
 
-### 4.5 McCabe-Thiele aproximado (escalonamiento punto a punto)
+Tabla de etapas calculadas:
 
-Se usa interpolacion lineal en la tabla de equilibrio para hallar $x_n$ desde cada $y_n$.
-
-| Etapa $n$ | $y_n$ (linea op.) | $x_n$ (equilibrio) | Seccion |
+| Etapa | y vapor | x liquido | Zona |
 |---:|---:|---:|---|
-| 1 | 0.9000 | 0.7333 | Enriquecimiento |
-| 2 | 0.7889 | 0.4984 | Enriquecimiento |
-| 3 | 0.6323 | 0.3026 | Enriquecimiento -> cruce de alimentacion |
-| 4 | 0.4133 | 0.1431 | Agotamiento |
-| 5 | 0.1865 | 0.0444 | Agotamiento |
-| 6 | 0.0462 | 0.0110 | Agotamiento |
+| 1 | 0.9000 | 0.7830 | Enriquecimiento |
+| 2 | 0.8217 | 0.6480 | Enriquecimiento |
+| 3 | 0.7322 | 0.5220 | Enriquecimiento |
+| 4 | 0.6483 | 0.4240 | Enriquecimiento |
+| 5 | 0.5829 | 0.3590 | Agotamiento |
+| 6 | 0.4949 | 0.2820 | Agotamiento |
+| 7 | 0.3882 | 0.2020 | Agotamiento |
+| 8 | 0.2784 | 0.1340 | Agotamiento |
+| 9 | 0.1832 | 0.0820 | Agotamiento |
+| 10 | 0.1120 | 0.0480 | Agotamiento |
+| 11 | 0.0644 | 0.0270 | Agotamiento |
+| 12 | 0.0350 | 0.0143 | Agotamiento |
+| 13 | 0.0177 | 0.0072 | Agotamiento |
+| 14 | 0.0078 | 0.0031 | Agotamiento |
 
-Comentarios de escalonamiento:
+### 4.5 Flujos internos, energia y dimensionamiento
 
-- El cruce de alimentacion ocurre entre las etapas 2 y 3 (desde el tope).
-- El valor objetivo de fondo $x_B=0.04$ cae entre $x_5=0.0444$ y $x_6=0.0110$.
-
-Fraccion de ultima etapa:
-
-$$
-f_{ult}=\frac{x_5-x_B}{x_5-x_6}=\frac{0.0444-0.0400}{0.0444-0.0110}=0.132
-$$
-
-Numero de etapas teoricas por escalonamiento:
-
-$$
-N_t\approx5+0.132=5.13\ \text{(sin rehervidor)}
-$$
-
-Incluyendo rehervidor como etapa de equilibrio adicional:
+Flujos internos:
 
 $$
-N_{t,total}\approx6.13\ \Rightarrow\ \text{adoptar }7\ \text{etapas teoricas}
-$$
-
-Etapas reales con eficiencia de platos $E_M=65\%$:
-
-$$
-N_{real}=\frac{7}{0.65}=10.77\ \Rightarrow\ \text{adoptar }11\ \text{platos reales}
-$$
-
-### 4.6 Flujos internos y cargas termicas preliminares
-
-Flujos internos en seccion de enriquecimiento:
-
-$$
-L=RD=2(44.186)=88.37\ \text{kmol/h}
-
-## 5. Visualizacion de curvas de destilacion por terminal (CLI)
-
-Script implementado en:
-
-- `PROYECTO_3ER BLOQUE/python/curvas_destilacion_cli.py`
-
-Ejemplo de ejecucion (muestra tabla de etapas y abre grafica interactiva):
-
-```bash
-python "PROYECTO_3ER BLOQUE/python/curvas_destilacion_cli.py"
-```
-
-Ejecucion sin abrir ventana y exportando HTML:
-
-```bash
-python "PROYECTO_3ER BLOQUE/python/curvas_destilacion_cli.py" --no-show --html "PROYECTO_3ER BLOQUE/media/images/curvas_destilacion_test.html"
-```
-
-Ajuste de parametros de operacion desde terminal:
-
-```bash
-python "PROYECTO_3ER BLOQUE/python/curvas_destilacion_cli.py" --R 2.5 --xF 0.42 --xD 0.92 --xB 0.05 --q 1
-```
-
-Exportacion PNG (requiere `kaleido`):
-
-```bash
-python "PROYECTO_3ER BLOQUE/python/curvas_destilacion_cli.py" --no-show --png "PROYECTO_3ER BLOQUE/media/images/curvas_destilacion.png"
-```
+L = RD = 2(136.47) = 272.95\ \text{kg/h}
 $$
 
 $$
-V=(R+1)D=3(44.186)=132.56\ \text{kmol/h}
-$$
-
-Para $q=1$:
-
-$$
-L'=L+F=188.37\ \text{kmol/h},\quad V'=V=132.56\ \text{kmol/h}
-$$
-
-Estimacion energetica preliminar (base de mezcla ligera tipo etanol-agua):
-
-- $\overline M_V\approx43.27$ kg/kmol
-- $\lambda_{mix}\approx850$ kJ/kg
-- $\lambda_{vapor}\approx2200$ kJ/kg
-
-$$
-\dot m_V=132.56(43.27)=5736\ \text{kg/h}
+V = L + D = 409.42\ \text{kg/h}
 $$
 
 $$
-Q_{cond}\approx\dot m_V\lambda_{mix}=5736(850)=4.88\times10^6\ \text{kJ/h}=1354\ \text{kW}
+L' = L + F = 567.45\ \text{kg/h},\quad V' = V = 409.42\ \text{kg/h}
 $$
 
-$$
-Q_{reb}\approx Q_{cond}
-$$
-
-Consumo de vapor vivo:
+Cargas termicas con $\lambda = 366$ kJ/kg:
 
 $$
-\dot m_{vapor}=\frac{Q_{reb}}{\lambda_{vapor}}=\frac{4.88\times10^6}{2200}=2216\ \text{kg/h}
+Q_{cond} = Q_{reb} = \frac{V\lambda}{3600} = 41.62\ \text{kW}
 $$
 
-Flujo de producto de tope en masa:
+Consumo de vapor de caldera con $\lambda_{vapor}=2200$ kJ/kg:
 
 $$
-\dot m_D=D\overline M_D=44.186(43.27)=1912\ \text{kg/h}
+\dot m_{vapor} = \frac{Q_{reb}\,3600}{\lambda_{vapor}} = 68.11\ \text{kg/h}
 $$
 
 Consumo especifico de vapor:
 
 $$
-CE_v=\frac{\dot m_{vapor}}{\dot m_D}=\frac{2216}{1912}=1.16\ \text{kg/kg producto}
+CE_v = \frac{68.11}{136.47} = 0.50\ \text{kg/kg}
 $$
 
-Cumple restriccion de consumo maximo ($1.16 < 2.2$ kg/kg).
-
-### 4.7 Diametro y altura preliminar de columna
-
-Estimacion de caudal volumetrico de vapor en cabeza (gas ideal, $T\approx333$ K, $P\approx0.395$ atm):
+Verificacion de restriccion:
 
 $$
-Q_V\approx\frac{\dot nRT}{P}=2.56\ \text{m}^3/\text{s}
+CE_v = 0.50 < 2.2\ \text{kg/kg}\ \text{(cumple)}
 $$
 
-Densidad de vapor:
+Dimensionamiento hidraulico:
+
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Temperatura de operacion (300 mmHg) | 51.32 | C |
+| Densidad de vapor | 1.31 | kg/m3 |
+| Densidad de liquido a T de operacion | 861.34 | kg/m3 |
+| Flujo volumetrico de vapor | 313.43 | m3/h |
+| Flujo volumetrico de vapor | 0.0871 | m3/s |
+| K de inundacion | 0.09 | m/s |
+| Velocidad de inundacion | 2.31 | m/s |
+| Velocidad operativa | 1.85 | m/s |
+| Area de columna | 0.0471 | m2 |
+| Diametro de columna | 0.2450 | m |
+| Platos reales adoptados | 20 | platos |
+| Espaciamiento entre platos | 0.50 | m |
+| Holgura adicional | 2.5 | m |
+| Altura total de columna | 12.0 | m |
+
+## 5. Recirculacion de solventes y balance global
+
+### 5.1 Recirculacion
+
+| Variable | Valor | Unidad |
+|---|---:|---|
+| Alimentacion a destilacion | 294.50 | kg/h |
+| Acetato en F | 123.69 | kg/h |
+| Acetato recuperado en destilado | 122.83 | kg/h |
+| Solvente requerido en ELL, S | 264.21 | kg/h |
+| Reposicion de solvente fresco | 141.38 | kg/h |
+| Impurezas en corriente de cabeza | 13.65 | kg/h |
+| Ajuste de refinado ELL | 463.73 | kg/h |
+
+Relacion de reposicion:
 
 $$
-\rho_V\approx0.63\ \text{kg/m}^3
+\dot m_{makeup} = 264.21 - 122.83 = 141.38\ \text{kg/h}
 $$
 
-Con $\rho_L\approx850$ kg/m3 y $C=0.11$ m/s (Souders-Brown):
+### 5.2 Balance global del bloque
+
+Entradas externas:
 
 $$
-u_f=C\sqrt{\frac{\rho_L-\rho_V}{\rho_V}}=4.06\ \text{m/s}
+\dot m_{in,global} = 187.50 + 600.00 + 141.38 = 928.88\ \text{kg/h}
+$$
+
+Salidas externas:
+
+$$
+\dot m_{out,global} = 307.13 + 158.03 + 463.73 = 928.88\ \text{kg/h}
+$$
+
+Cierre global:
+
+$$
+\text{Cierre} = 100\%
+$$
+
+Indicador reportado de consumo global de solvente:
+
+$$
+CGS = 4.69\ \text{kg/kg}
+$$
+
+## 6. Analisis economico simplificado (materiales y consumos operativos)
+
+Base economica de esta iteracion:
+
+- Moneda de reporte: USD.
+- Horas de operacion anual: 2920 h/ano.
+- Verificacion de anualizacion: $H_{anual}=8\ \text{h/dia}\times365\ \text{d/ano}=2920\ \text{h/ano}$.
+- Tarifa termica equivalente: 0.035 USD/kWh.
+- Tarifa electrica: 0.10 USD/kWh.
+- Precio de materia prima (flor de Jamaica): 0.80 USD/kg.
+- Precio de reposicion de solvente (acetato de etilo): 1.25 USD/kg.
+
+### 6.1 Consumos fisicos base del bloque
+
+| Concepto | Simbolo | Valor | Unidad |
+|---|---|---:|---|
+| Consumo de vapor | $\dot m_{vapor}$ | 68.11 | kg/h |
+| Electricidad auxiliar ESL | $P_{ESL}$ | 1.10 | kW |
+| Electricidad auxiliar ELL | $P_{ELL}$ | 0.18 | kW |
+| Potencia auxiliar total | $P_{aux}$ | 1.28 | kW |
+| Reposicion de solvente ELL | $\dot m_{solv}$ | 141.38 | kg/h |
+| Materia prima (alimentacion) | $\dot m_{MP}$ | 187.50 | kg/h |
+| Producto de referencia (destilado) | $\dot m_D$ | 136.47 | kg/h |
+
+### 6.2 Costos de operacion por utilidad/material
+
+Potencia termica equivalente de vapor:
+
+$$
+P_{term}=\frac{\dot m_{vapor}\lambda_{vapor}}{3600}=\frac{68.11(2200)}{3600}=41.62\ \text{kW}
+$$
+
+Costo de vapor:
+
+$$
+C_{vapor,h}=P_{term}(0.035)=41.62(0.035)=1.46\ \text{USD/h}
 $$
 
 $$
-u_{dis}=0.70u_f=2.84\ \text{m/s}
+C_{vapor,a}=C_{vapor,h}(2920)=4{,}263.20\ \text{USD/ano}
+$$
+
+Costo de electricidad auxiliar:
+
+$$
+C_{elec,h}=P_{aux}(0.10)=1.28(0.10)=0.128\ \text{USD/h}
 $$
 
 $$
-A=\frac{Q_V}{u_{dis}}=\frac{2.56}{2.84}=0.901\ \text{m}^2
+C_{elec,a}=C_{elec,h}(2920)=373.76\ \text{USD/ano}
+$$
+
+Costo de reposicion de solvente:
+
+$$
+C_{solv,h}=\dot m_{solv}(1.25)=141.38(1.25)=176.73\ \text{USD/h}
 $$
 
 $$
-D_{col}=\sqrt{\frac{4A}{\pi}}=1.07\ \text{m}\ \Rightarrow\ \text{diametro nominal: }1.1\ \text{m}
+C_{solv,a}=C_{solv,h}(2920)=516{,}051.60\ \text{USD/ano}
 $$
 
-Altura preliminar (platos reales + holguras):
+Costo de materia prima:
 
 $$
-H_{activa}=11(0.45)=4.95\ \text{m}
+C_{MP,h}=\dot m_{MP}(0.80)=187.50(0.80)=150.00\ \text{USD/h}
 $$
 
 $$
-H_{total}\approx6.5\text{ a }7.5\ \text{m}
+C_{MP,a}=C_{MP,h}(2920)=438{,}000.00\ \text{USD/ano}
 $$
 
-## 5. Resumen integrado de resultados preliminares
+### 6.3 OPEX total anual y costo unitario
 
-| Etapa | Resultado clave 1 | Resultado clave 2 | Resultado clave 3 |
-|---|---|---|---|
-| ESL | Soluto extraido: 108 kg/d | Recuperacion: 72% | Tanque preliminar: 0.73 m3 (motor 1.1 kW) |
-| ELL | Soluto recuperado real: 45.26 kg/d | Recuperacion etapa: 41.9% | Mixer-settler: $V_m=0.066$ m3, $V_d=0.263$ m3 |
-| Destilacion vacio | Recuperacion de ligero: 94.68% | $N_{real}\approx11$ platos | $D_{col}\approx1.1$ m, $CE_v\approx1.16$ kg/kg |
+$$
+C_{OPEX,a}=C_{vapor,a}+C_{elec,a}+C_{solv,a}+C_{MP,a}
+$$
 
-## 6. Verificaciones de cumplimiento
+$$
+C_{OPEX,a}=958{,}688.56\ \text{USD/ano}
+$$
 
-1. Cierre de masa ESL: conforme.
-2. Cierre de masa ELL: conforme.
-3. Recuperacion minima en destilacion: cumple (94.68% >= 94%).
-4. Consumo maximo de vapor: cumple (1.16 < 2.2 kg/kg producto).
-5. Operacion de destilacion al vacio: consistente con criterio de tablas y diseno preliminar.
+Costo horario total:
 
-## 7. Observaciones para siguiente iteracion
+$$
+C_{OPEX,h}=\frac{C_{OPEX,a}}{2920}=328.32\ \text{USD/h}
+$$
 
-1. Refinar ESL/ELL con datos experimentales de particion real y arrastre de fases para reducir incertidumbre en recuperacion global.
-2. En destilacion, realizar sensibilidad de diseno variando $R$ (por ejemplo 1.6, 2.0 y 2.4) para optimizar compromiso entre numero de platos y consumo de vapor.
-3. En el cierre global del bloque, conectar explicitamente la composicion de la corriente de ELL con la alimentacion real a destilacion cuando se defina el diagrama de proceso final.
+Produccion anual de referencia en destilado:
+
+$$
+M_{D,a}=\dot m_D(2920)=136.47(2920)=398{,}492.40\ \text{kg/ano}
+$$
+
+Costo operativo unitario:
+
+$$
+c_{op,D}=\frac{C_{OPEX,a}}{M_{D,a}}=2.41\ \text{USD/kg destilado}
+$$
+
+Resumen de costos anuales:
+
+| Concepto | Costo anual (USD) | Participacion (%) |
+|---|---:|---:|
+| Vapor | 4,263.20 | 0.44 |
+| Electricidad auxiliar ESL+ELL | 373.76 | 0.04 |
+| Reposicion de solvente | 516,051.60 | 53.83 |
+| Materia prima | 438,000.00 | 45.69 |
+| **OPEX total** | **958,688.56** | **100.00** |
+
+Alcance: este analisis es de OPEX operativo simplificado y no incluye CAPEX, depreciacion, impuestos, mantenimiento ni costo de personal.
+
+## 7. Verificacion de incongruencias cerradas
+
+1. Recuperacion de acetato: antes 94.684%, ahora 99.3% (cumple meta del planteamiento).
+2. Coherencia de equilibrio: se usa una sola base oficial (alpha=2.5 y tabla correspondiente).
+3. Conexion de etapas: la entrada a destilacion se toma directamente desde el extracto ELL ($F=294.50$ kg/h).
+4. Energia de columna: se conserva una unica base termica consistente ($Q_{cond}=Q_{reb}=41.62$ kW).
+
+## 8. Resumen de resultados clave
+
+| Bloque | Resultado principal |
+|---|---|
+| ESL | $V=480.375$ kg/h, $y_1=2.810\%$, cierre de masa conforme |
+| ELL | $M_t=744.585$ kg/h, $E=294.50$ kg/h, $R=450.08$ kg/h |
+| Destilacion | $D=136.47$ kg/h, $B=158.03$ kg/h, $x_B=0.0055$ |
+| Cumplimiento | Recuperacion acetato = 99.3%, $CE_v=0.50$ kg/kg |
+| Global | Entradas = Salidas = 928.88 kg/h, cierre = 100% |
