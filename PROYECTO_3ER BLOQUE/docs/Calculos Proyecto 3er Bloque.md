@@ -1,24 +1,26 @@
-# Calculos integrados recalculados - Proyecto 3er Bloque
+﻿# Calculos integrados recalculados - Proyecto 3er Bloque
 
-Fecha de recalculo: 2026-04-06  
-Fuente oficial de datos: hoja consolidada del bloque (tablas ESL, ELL, destilacion y recirculacion).
+Fecha de recalculo: 2026-04-10  
+Fuente oficial de datos: hoja consolidada del bloque (tablas ESL, ELL, dos destilaciones y recirculacion).
 
 ## 1. Base de calculo unificada
 
-Este documento fija una sola cadena de calculo:
+Este documento fija una sola cadena de calculo para el caso integrado:
 
 1. ESL (extraccion solido-liquido)
 2. ELL (extraccion liquido-liquido)
-3. Destilacion al vacio
-4. Recirculacion y balance global
+3. Destilacion 1: Etanol-Agua (desde refinado ELL)
+4. Destilacion 2: Acetato-Flor de Jamaica (desde extracto ELL)
+5. Recirculacion dual y balance global
+6. Analisis economico simplificado
 
 Criterios de consistencia aplicados:
 
 - Base horaria obligatoria para el bloque: 8 h/d.
 - Unidades explicitas por ecuacion y por tabla.
 - Cierre de masa por etapa y cierre global.
-- Meta de recuperacion de acetato en destilacion: eta >= 99.3% (exacta o superior).
-- Tabla de equilibrio oficial para McCabe-Thiele: version del caso de diseno actual.
+- Trazabilidad explicita de corrientes ELL -> Destilacion 1 y ELL -> Destilacion 2.
+- Conservacion de los valores de hoja cuando una misma etapa reporta simultaneamente base composicional y base de masa de soluto.
 
 ## 2. Etapa 1 - ESL recalculada
 
@@ -205,7 +207,9 @@ La alimentacion de ELL se conecta de forma explicita con la salida de ESL:
 | Masa total mezclada, Mt | 744.585 | kg/h |
 | Eficiencia de etapa real | 80.0 | % |
 
-Coordenadas del punto de mezcla global:
+### 3.2 Punto de mezcla y linea de reparto
+
+Coordenadas del punto de mezcla global (base grafica de hoja):
 
 $$
 X_M = \frac{S}{M_t} = \frac{264.21}{744.585} = 0.3548\ (35.48\%)
@@ -215,77 +219,51 @@ $$
 Y_M = \frac{13.50}{744.585} = 0.0181\ (1.81\%)
 $$
 
-### 3.2 Reparto por linea de equilibrio (base ideal)
+Valores reportados de la linea de reparto usada en la hoja:
 
-Valores de la linea de reparto seleccionada para el punto de mezcla:
+- Punto de mezcla: $M=(35.484,\ 1.813)$
+- Extracto grafico: $E=(88.0961,\ 2.1154)$
+- Refinado grafico: $R=(1.0577,\ 1.6154)$
 
-- Extracto ideal: $X_E=0.8810$, $Y_E=0.0212$
-- Refinado ideal: $X_R=0.0106$, $Y_R=0.0162$
-
-Aplicando regla de la palanca:
-
-$$
-\dot m_E = 294.50\ \text{kg/h}
-$$
+Con regla de la palanca reportada:
 
 $$
-\dot m_R = M_t - \dot m_E = 450.08\ \text{kg/h}
+\dot m_E = 294.50\ \text{kg/h},\qquad \dot m_R = 450.08\ \text{kg/h}
 $$
 
-Soluto ideal por fase (ajustado a cierre con redondeo de hoja):
+### 3.3 Parametros ELL de etapa real (base de hoja)
+
+| Parametro ELL (etapa real) | Valor | Unidad |
+|---|---:|---|
+| Punto de mezcla global (X) | 35.48 | % |
+| Punto de mezcla global (Y) | 1.81 | % |
+| Masa total (Mt) | 744.58 | kg/h |
+| Corriente de extracto (E) | 294.50 | kg/h |
+| Solvente en extracto real (Xe) | 88.10 | % |
+| Soluto en extracto real (Ye) | 2.12 | % |
+| Masa soluto en extracto ideal | 6.23 | kg/h |
+| Masa soluto en extracto real | 4.98 | kg/h |
+| Corriente de refinado (R) | 450.08 | kg/h |
+| Solvente en refinado real (Xr) | 1.06 | % |
+| Soluto en refinado real (Yr) | 1.62 | % |
+| Masa soluto en refinado ideal | 7.27 | kg/h |
+| Masa soluto en refinado real | 8.52 | kg/h |
+
+Nota de trazabilidad: se conserva simultaneamente la base composicional (Xe, Ye, Xr, Yr) y la base de masas de soluto (ideal/real) tal como fue entregada en la hoja consolidada.
+
+### 3.4 Corrientes puente a destilacion dual
+
+Desde ELL se definen dos alimentaciones de destilacion:
 
 $$
-\dot m_{sol,E}^{ideal} = 6.23\ \text{kg/h}
-$$
-
-$$
-\dot m_{sol,R}^{ideal} = 7.27\ \text{kg/h}
-$$
-
-Recuperacion ideal en ELL:
-
-$$
-\eta_{ELL}^{ideal} = \frac{6.23}{13.50} = 46.15\%
-$$
-
-### 3.3 Ajuste a etapa real (80%)
-
-Se corrige el recuperado ideal con eficiencia de etapa:
-
-$$
-\dot m_{sol,E}^{real} = 0.80(6.23) = 4.98\ \text{kg/h}
-$$
-
-$$
-\dot m_{sol,R}^{real} = 13.50 - 4.98 = 8.52\ \text{kg/h}
-$$
-
-Fracciones reales de soluto por fase (consistentes con los caudales de fase):
-
-$$
-Y_E^{real} = \frac{4.98}{294.50} = 0.0169\ (1.69\%)
+F_{dest,EA} = \dot m_R = 450.08\ \text{kg/h}
 $$
 
 $$
-Y_R^{real} = \frac{8.52}{450.08} = 0.0189\ (1.89\%)
+F_{dest,AC} = \dot m_E = 294.50\ \text{kg/h}
 $$
 
-Verificacion de cierre de masa en ELL (con redondeo de tabla):
-
-- Entrada total: $480.375 + 264.21 = 744.585$ kg/h
-- Salida total: $294.50 + 450.08 = 744.58$ kg/h
-
-La diferencia es solo por redondeo de dos decimales en corrientes reportadas.
-
-### 3.4 Corriente puente a destilacion
-
-La corriente de extracto de ELL define la alimentacion de la destilacion:
-
-$$
-F_{dest} = \dot m_E = 294.50\ \text{kg/h}
-$$
-
-Con esta definicion se elimina la incongruencia anterior de usar una base hipotetica desconectada.
+Con esta definicion se mantiene una conexion fisica explicita entre etapas.
 
 ### 3.5 Dimensionamiento preliminar de equipo ELL (mixer-settler)
 
@@ -334,12 +312,6 @@ $$
 D_d=\sqrt{\frac{4A_d}{\pi}}=0.999\ \text{m}\approx1.00\ \text{m}
 $$
 
-Altura util de decantador:
-
-$$
-H_{d,util}=\frac{V_d}{A_d}=\frac{0.314}{0.784}=0.40\ \text{m}
-$$
-
 Potencia de agitacion en mezclador:
 
 $$
@@ -352,221 +324,305 @@ $$
 P_{motor,ELL}=0.18\ \text{kW}
 $$
 
-## 4. Etapa 3 - Destilacion al vacio recalculada
+## 4. Etapa 3A - Destilacion etanol-agua (desde refinado ELL)
 
 ### 4.1 Datos de diseno
 
 | Parametro | Valor | Unidad |
 |---|---:|---|
-| Alimentacion, F | 294.50 | kg/h |
-| Fraccion de acetato en F, xF | 0.42 | - |
-| Fraccion de acetato en destilado, xD | 0.90 | - |
-| Recuperacion objetivo de acetato, eta | 99.3 | % |
-| Volatilidad relativa, alpha | 2.50 | - |
-| Reflujo, R | 2.00 | - |
+| Alimentacion, F | 450.08 | kg/h |
+| Fraccion de etanol en F, xF | 0.42 | - |
+| Fraccion de etanol en destilado, xD | 0.90 | - |
+| Recuperacion de etanol | 0.9468 | - |
+| Fraccion de etanol en fondos, xB | 0.0400 | - |
+| Volatilidad relativa, alpha | 3.39 | - |
+| Reflujo, R | 0.79 | - |
+| Reflujo minimo, Rmin | 0.53 | - |
 | Condicion termica de alimentacion, q | 1.00 | - |
 
-Acetato en alimentacion:
+Etanol en alimentacion:
 
 $$
-\dot m_{A,F} = F x_F = 294.50(0.42) = 123.69\ \text{kg/h}
+\dot m_{EtOH,F} = F x_F = 450.08(0.42) = 189.03\ \text{kg/h}
 $$
 
 ### 4.2 Balance de masa de columna
 
-Acetato recuperado en destilado con meta 99.3%:
+Flujos reportados:
 
 $$
-\dot m_{A,D} = 0.993\,\dot m_{A,F} = 122.83\ \text{kg/h}
+D = 198.87\ \text{kg/h},\qquad B = 251.21\ \text{kg/h}
 $$
 
-Flujo de destilado:
+Etanol en destilado:
 
 $$
-D = \frac{\dot m_{A,D}}{x_D} = \frac{122.83}{0.90} = 136.47\ \text{kg/h}
+\dot m_{EtOH,D} = D x_D = 198.87(0.90) = 178.98\ \text{kg/h}
 $$
 
-Flujo de fondos:
+Recuperacion de etanol:
 
 $$
-B = F - D = 294.50 - 136.47 = 158.03\ \text{kg/h}
+\eta_{EtOH} = \frac{D x_D}{F x_F} = \frac{178.98}{189.03} = 0.9468\ (94.68\%)
 $$
 
-Fraccion de acetato en fondos:
+Fraccion de etanol en fondos (verificacion):
 
 $$
-x_B = \frac{\dot m_{A,F} - D x_D}{B} = 0.0055
+x_B = \frac{F x_F - D x_D}{B} = 0.0400
 $$
 
-Recuperacion lograda:
+### 4.3 Numero de etapas y McCabe-Thiele
+
+Numero minimo de etapas por Fenske (hoja):
 
 $$
-\eta_A = \frac{D x_D}{F x_F} = 99.3\%\ \text{(cumple)}
+N_{min} = 4.402\ \text{platos}
 $$
 
-### 4.3 Numero de etapas
+Resultados de diseno por hoja:
 
-Numero minimo de etapas por Fenske:
+- Parametro de flujo: $X=0.1474$
+- Aproximacion de Eduljee: $0.4966$
+- Numero de etapas por McCabe-Thiele (aprox): $9.73$ platos teoricos
+- Sin rehervidor: $8.73$ platos
+- Con eficiencia de platos: $13.43$ platos
+- Con rehervidor: $15.00$ platos reales totales
 
-$$
-N_{min} = \frac{\ln\left[\left(\frac{x_D}{1-x_D}\right)\left(\frac{1-x_B}{x_B}\right)\right]}{\ln(\alpha)}
-= 8.067
-$$
-
-Parametros de diseno usados en hoja:
-
-- $R_{min}=1.141$
-- Parametro $X=0.29$
-- Aproximacion de Eduljee: 0.38
-- McCabe-Thiele aproximado: $N_t=13.64$ platos teoricos
-
-Conversion a platos reales:
-
-- Sin rehervidor: $12.64$ platos
-- Con eficiencia de platos ($E_M=65\%$): $12.64/0.65 = 19.45$
-- Adoptado: 20 platos reales + rehervidor -> 21 etapas reales totales
-
-### 4.4 McCabe-Thiele (tabla de escalones)
-
-Lineas de operacion:
+Lineas de operacion usadas en grafico:
 
 $$
-\text{LOR: } y = 0.6667x + 0.3000
+\text{LOR: } y = 0.44x + 0.50
 $$
 
 $$
-\text{q-line (q=1): } x = 0.42\ \text{con}\ y_F = 0.58
+\text{q-line (q=1): } x = 0.42\ \text{(interseccion en } y=0.688\text{)}
 $$
 
 $$
-\text{LOA: } y = 1.39x - 0.0021
+\text{LOA: } y = 1.70x - 0.0282
 $$
 
-Tabla de etapas calculadas:
+Tabla de equilibrio usada (etanol-agua):
 
-| Etapa | y vapor | x liquido | Zona |
+| x (liquido) | y (vapor) |
+|---:|---:|
+| 0.000 | 0.000 |
+| 0.050 | 0.210 |
+| 0.100 | 0.340 |
+| 0.200 | 0.510 |
+| 0.300 | 0.630 |
+| 0.400 | 0.720 |
+| 0.500 | 0.790 |
+| 0.600 | 0.850 |
+| 0.700 | 0.890 |
+| 0.800 | 0.920 |
+| 0.900 | 0.950 |
+| 0.956 | 0.956 |
+
+Tabla de escalonamiento reportada:
+
+| Etapa | y vapor | x liquido | Fase |
 |---:|---:|---:|---|
-| 1 | 0.9000 | 0.7830 | Enriquecimiento |
-| 2 | 0.8217 | 0.6480 | Enriquecimiento |
-| 3 | 0.7322 | 0.5220 | Enriquecimiento |
-| 4 | 0.6483 | 0.4240 | Enriquecimiento |
-| 5 | 0.5829 | 0.3590 | Agotamiento |
-| 6 | 0.4949 | 0.2820 | Agotamiento |
-| 7 | 0.3882 | 0.2020 | Agotamiento |
-| 8 | 0.2784 | 0.1340 | Agotamiento |
-| 9 | 0.1832 | 0.0820 | Agotamiento |
-| 10 | 0.1120 | 0.0480 | Agotamiento |
-| 11 | 0.0644 | 0.0270 | Agotamiento |
-| 12 | 0.0350 | 0.0143 | Agotamiento |
-| 13 | 0.0177 | 0.0072 | Agotamiento |
-| 14 | 0.0078 | 0.0031 | Agotamiento |
+| 1 | 0.900 | 0.733 | Enriquecimiento |
+| 2 | 0.826 | 0.560 | Enriquecimiento |
+| 3 | 0.750 | 0.443 | Enriquecimiento |
+| 4 | 0.698 | 0.375 | Agotamiento |
+| 5 | 0.611 | 0.285 | Agotamiento |
+| 6 | 0.457 | 0.169 | Agotamiento |
+| 7 | 0.259 | 0.069 | Agotamiento |
+| 8 | 0.089 | 0.021 | Agotamiento |
 
-### 4.5 Flujos internos, energia y dimensionamiento
+### 4.4 Flujos internos, energia y dimensionamiento
 
-Flujos internos:
+Flujos internos reportados:
 
-$$
-L = RD = 2(136.47) = 272.95\ \text{kg/h}
-$$
+| Seccion | Liquido (kg/h) | Vapor (kg/h) |
+|---|---:|---:|
+| Rectificacion | 157.70 | 356.58 |
+| Agotamiento | 607.78 | 356.58 |
 
-$$
-V = L + D = 409.42\ \text{kg/h}
-$$
-
-$$
-L' = L + F = 567.45\ \text{kg/h},\quad V' = V = 409.42\ \text{kg/h}
-$$
-
-Cargas termicas con $\lambda = 366$ kJ/kg:
-
-$$
-Q_{cond} = Q_{reb} = \frac{V\lambda}{3600} = 41.62\ \text{kW}
-$$
-
-Consumo de vapor de caldera con $\lambda_{vapor}=2200$ kJ/kg:
-
-$$
-\dot m_{vapor} = \frac{Q_{reb}\,3600}{\lambda_{vapor}} = 68.11\ \text{kg/h}
-$$
-
-Consumo especifico de vapor:
-
-$$
-CE_v = \frac{68.11}{136.47} = 0.50\ \text{kg/kg}
-$$
-
-Verificacion de restriccion:
-
-$$
-CE_v = 0.50 < 2.2\ \text{kg/kg}\ \text{(cumple)}
-$$
-
-Dimensionamiento hidraulico:
+Dimensionamiento hidraulico (columna etanol-agua):
 
 | Parametro | Valor | Unidad |
 |---|---:|---|
+| Temperatura de ebullicion agua-etanol | 351.35 | K |
+| Temperatura de operacion (1 atm) | 78.20 | C |
+| Presion | 1.00 | atm |
+| Densidad de vapor | 1.50 | kg/m3 |
+| Densidad de liquido a T operativa | 743.00 | kg/m3 |
+| Flujo volumetrico de vapor | 237.62 | m3/h |
+| Flujo volumetrico de vapor | 0.0660 | m3/s |
+| K de inundacion | 0.09 | m/s |
+| Velocidad de inundacion | 2.00 | m/s |
+| Velocidad operativa | 1.60 | m/s |
+| Area de columna | 0.0412 | m2 |
+| Diametro de columna | 0.2291 | m |
+| Platos reales adoptados | 15.00 | platos |
+| Espaciamiento entre platos | 0.50 | m |
+| Holgura adicional | 2.50 | m |
+| Altura total de columna | 9.50 | m |
+
+Resumen termico (hoja):
+
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Calor en condensador | 89.10 | kW |
+| Calor en rehervidor | 222.86 | kW |
+| Masa de vapor de caldera | 364.68 | kg/h |
+| Consumo especifico de vapor | 1.83 | kg/kg |
+
+## 5. Etapa 3B - Destilacion acetato-flor de jamaica (desde extracto ELL)
+
+### 5.1 Datos de diseno
+
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Alimentacion, F | 294.50 | kg/h |
+| Masa de acetato en F | 259.45 | kg/h |
+| Masa de soluto en F | 6.23 | kg/h |
+| xF reportado | 0.9766 | - |
+| xD reportado | 0.9990 | - |
+| Recuperacion objetivo | 0.993 | - |
+| xB reportado | 0.0426 | - |
+| Volatilidad relativa, alpha | 2.50 | - |
+| Reflujo, R | 2.00 | - |
+
+Constantes de Antoine para acetato de etilo (hoja):
+
+| Constante | Valor |
+|---|---:|
+| A | 7.10179 |
+| B | 1244.951 |
+| C | 217.881 |
+
+### 5.2 Balance de masa de columna
+
+Flujos reportados:
+
+$$
+D = 257.89\ \text{kg/h},\qquad B = 36.62\ \text{kg/h}
+$$
+
+Recuperacion de acetato reportada:
+
+$$
+\eta_{Ac} = 99.3\%
+$$
+
+Se conserva la base composicional reportada de la hoja ($x_F$, $x_D$, $x_B$) para trazabilidad con la memoria original de calculo.
+
+### 5.3 Numero de etapas y desempeno
+
+Resultados de hoja para diseno de columna:
+
+- Numero minimo de etapas (Fenske): $N_{min}=10.94$
+- Reflujo minimo: $R_{min}=0.61$
+- Parametro de flujo: $0.46$
+- Aproximacion de Eduljee: $0.27$
+- Numero de etapas teoricas: $15.24$
+- Sin rehervidor: $14.24$ platos
+- Con eficiencia de platos: $21.91$ platos
+- Con rehervidor: $23.00$ etapas reales
+
+### 5.4 Flujos internos, energia y dimensionamiento
+
+Flujos internos reportados:
+
+| Seccion | Liquido (kg/h) | Vapor (kg/h) |
+|---|---:|---:|
+| Rectificacion | 515.78 | 773.66 |
+| Agotamiento | 810.28 | 773.66 |
+
+Dimensionamiento hidraulico (columna acetato):
+
+| Parametro | Valor | Unidad |
+|---|---:|---|
+| Temperatura de ebullicion acetato | 324.4669 | K |
 | Temperatura de operacion (300 mmHg) | 51.32 | C |
+| Presion reportada | 0.394736842 | mmHg |
 | Densidad de vapor | 1.31 | kg/m3 |
-| Densidad de liquido a T de operacion | 861.34 | kg/m3 |
-| Flujo volumetrico de vapor | 313.43 | m3/h |
-| Flujo volumetrico de vapor | 0.0871 | m3/s |
+| Densidad de liquido a T operativa | 861.34 | kg/m3 |
+| Flujo volumetrico de vapor | 592.27 | m3/h |
+| Flujo volumetrico de vapor | 0.1645 | m3/s |
 | K de inundacion | 0.09 | m/s |
 | Velocidad de inundacion | 2.31 | m/s |
 | Velocidad operativa | 1.85 | m/s |
-| Area de columna | 0.0471 | m2 |
-| Diametro de columna | 0.2450 | m |
-| Platos reales adoptados | 20 | platos |
+| Area de columna | 0.0891 | m2 |
+| Diametro de columna | 0.3367 | m |
+| Platos reales adoptados | 22.00 | platos |
 | Espaciamiento entre platos | 0.50 | m |
-| Holgura adicional | 2.5 | m |
-| Altura total de columna | 12.0 | m |
+| Holgura adicional | 2.50 | m |
+| Altura total de columna | 13.00 | m |
 
-## 5. Recirculacion de solventes y balance global
+Resumen termico (hoja):
 
-### 5.1 Recirculacion
-
-| Variable | Valor | Unidad |
+| Parametro | Valor | Unidad |
 |---|---:|---|
-| Alimentacion a destilacion | 294.50 | kg/h |
-| Acetato en F | 123.69 | kg/h |
-| Acetato recuperado en destilado | 122.83 | kg/h |
-| Solvente requerido en ELL, S | 264.21 | kg/h |
-| Reposicion de solvente fresco | 141.38 | kg/h |
-| Impurezas en corriente de cabeza | 13.65 | kg/h |
-| Ajuste de refinado ELL | 463.73 | kg/h |
+| Lambda de diseno | 366 | kJ/kg |
+| Calor en condensador | 78.66 | kW |
+| Calor en rehervidor | 78.66 | kW |
 
-Relacion de reposicion:
+## 6. Recirculacion de solventes y balance global
 
-$$
-\dot m_{makeup} = 264.21 - 122.83 = 141.38\ \text{kg/h}
-$$
+### 6.1 Recuperacion de solventes
 
-### 5.2 Balance global del bloque
+| Recuperacion Etanol-Agua | Valor | Unidad |
+|---|---:|---|
+| Solvente requerido | 600.00 | kg/h |
+| Solvente recuperado | 198.87 | kg/h |
+| Reposicion para ELL | 401.1283 | kg/h |
 
-Entradas externas:
+| Recuperacion Acetato | Valor | Unidad |
+|---|---:|---|
+| Solvente requerido | 264.21 | kg/h |
+| Solvente recuperado | 257.89 | kg/h |
+| Reposicion para ELL | 6.32 | kg/h |
 
-$$
-\dot m_{in,global} = 187.50 + 600.00 + 141.38 = 928.88\ \text{kg/h}
-$$
-
-Salidas externas:
+Verificacion de reposicion:
 
 $$
-\dot m_{out,global} = 307.13 + 158.03 + 463.73 = 928.88\ \text{kg/h}
+\dot m_{makeup,EA}=600.00-198.87=401.13\ \text{kg/h}
 $$
 
-Cierre global:
-
 $$
-\text{Cierre} = 100\%
+\dot m_{makeup,AC}=264.21-257.89=6.32\ \text{kg/h}
 $$
 
-Indicador reportado de consumo global de solvente:
+### 6.2 Balance global del bloque
+
+Balance global sin recirculacion interna (base de requerimientos de solvente):
+
+| Indicador | Valor | Unidad |
+|---|---:|---|
+| Entradas globales | 1051.71 | kg/h |
+| Salidas globales | 1051.71 | kg/h |
+| Cierre | 100.00 | % |
+
+Balance global con recirculacion cerrada (base de reposicion):
+
+| Indicador | Valor | Unidad |
+|---|---:|---|
+| Entradas netas | 594.95 | kg/h |
+| Salidas netas | 594.95 | kg/h |
+| Cierre | 100.00 | % |
+
+### 6.3 Indicador global de consumo de solvente
+
+Consumo global de solvente (hoja):
 
 $$
-CGS = 4.69\ \text{kg/kg}
+CGS=2.17\ \text{kg/kg}
 $$
 
-## 6. Analisis economico simplificado (materiales y consumos operativos)
+Una forma operativa coherente con la base del bloque es:
+
+$$
+CGS = \frac{\dot m_{makeup,EA}+\dot m_{makeup,AC}}{F_{ESL}}
+=\frac{401.1283+6.32}{187.50}=2.17\ \text{kg/kg}
+$$
+
+## 7. Analisis economico simplificado (materiales y utilidades)
 
 Base economica de esta iteracion:
 
@@ -576,36 +632,32 @@ Base economica de esta iteracion:
 - Tarifa termica equivalente: 0.035 USD/kWh.
 - Tarifa electrica: 0.10 USD/kWh.
 - Precio de materia prima (flor de Jamaica): 0.80 USD/kg.
-- Precio de reposicion de solvente (acetato de etilo): 1.25 USD/kg.
+- Precio de reposicion de solvente: 1.25 USD/kg.
 
-### 6.1 Consumos fisicos base del bloque
+### 7.1 Consumos fisicos base
 
 | Concepto | Simbolo | Valor | Unidad |
 |---|---|---:|---|
-| Consumo de vapor | $\dot m_{vapor}$ | 68.11 | kg/h |
+| Carga termica total en rehervidores | $Q_{reb,tot}$ | 301.52 | kW |
 | Electricidad auxiliar ESL | $P_{ESL}$ | 1.10 | kW |
 | Electricidad auxiliar ELL | $P_{ELL}$ | 0.18 | kW |
 | Potencia auxiliar total | $P_{aux}$ | 1.28 | kW |
-| Reposicion de solvente ELL | $\dot m_{solv}$ | 141.38 | kg/h |
-| Materia prima (alimentacion) | $\dot m_{MP}$ | 187.50 | kg/h |
-| Producto de referencia (destilado) | $\dot m_D$ | 136.47 | kg/h |
+| Reposicion total de solvente | $\dot m_{solv}$ | 407.45 | kg/h |
+| Materia prima (alimentacion ESL) | $\dot m_{MP}$ | 187.50 | kg/h |
+| Destilado etanol-agua | $\dot m_{D,EA}$ | 198.87 | kg/h |
+| Destilado acetato | $\dot m_{D,AC}$ | 257.89 | kg/h |
+| Destilado total de referencia | $\dot m_{D,tot}$ | 456.76 | kg/h |
 
-### 6.2 Costos de operacion por utilidad/material
+### 7.2 Costos de operacion por utilidad/material
 
-Potencia termica equivalente de vapor:
-
-$$
-P_{term}=\frac{\dot m_{vapor}\lambda_{vapor}}{3600}=\frac{68.11(2200)}{3600}=41.62\ \text{kW}
-$$
-
-Costo de vapor:
+Costo termico horario:
 
 $$
-C_{vapor,h}=P_{term}(0.035)=41.62(0.035)=1.46\ \text{USD/h}
+C_{vapor,h}=Q_{reb,tot}(0.035)=301.52(0.035)=10.55\ \text{USD/h}
 $$
 
 $$
-C_{vapor,a}=C_{vapor,h}(2920)=4{,}263.20\ \text{USD/ano}
+C_{vapor,a}=C_{vapor,h}(2920)=30{,}815.34\ \text{USD/ano}
 $$
 
 Costo de electricidad auxiliar:
@@ -621,11 +673,11 @@ $$
 Costo de reposicion de solvente:
 
 $$
-C_{solv,h}=\dot m_{solv}(1.25)=141.38(1.25)=176.73\ \text{USD/h}
+C_{solv,h}=\dot m_{solv}(1.25)=407.45(1.25)=509.31\ \text{USD/h}
 $$
 
 $$
-C_{solv,a}=C_{solv,h}(2920)=516{,}051.60\ \text{USD/ano}
+C_{solv,a}=C_{solv,h}(2920)=1{,}487{,}186.30\ \text{USD/ano}
 $$
 
 Costo de materia prima:
@@ -638,59 +690,62 @@ $$
 C_{MP,a}=C_{MP,h}(2920)=438{,}000.00\ \text{USD/ano}
 $$
 
-### 6.3 OPEX total anual y costo unitario
+### 7.3 OPEX total anual y costo unitario
 
 $$
 C_{OPEX,a}=C_{vapor,a}+C_{elec,a}+C_{solv,a}+C_{MP,a}
 $$
 
 $$
-C_{OPEX,a}=958{,}688.56\ \text{USD/ano}
+C_{OPEX,a}=1{,}956{,}375.40\ \text{USD/ano}
 $$
 
 Costo horario total:
 
 $$
-C_{OPEX,h}=\frac{C_{OPEX,a}}{2920}=328.32\ \text{USD/h}
+C_{OPEX,h}=\frac{C_{OPEX,a}}{2920}=670.00\ \text{USD/h}
 $$
 
-Produccion anual de referencia en destilado:
+Produccion anual de referencia en destilados combinados:
 
 $$
-M_{D,a}=\dot m_D(2920)=136.47(2920)=398{,}492.40\ \text{kg/ano}
+M_{D,a}=\dot m_{D,tot}(2920)=456.76(2920)=1{,}333{,}739.20\ \text{kg/ano}
 $$
 
-Costo operativo unitario:
+Costo operativo unitario combinado:
 
 $$
-c_{op,D}=\frac{C_{OPEX,a}}{M_{D,a}}=2.41\ \text{USD/kg destilado}
+c_{op,D} = \frac{C_{OPEX,a}}{M_{D,a}}=1.47\ \text{USD/kg destilado}
 $$
 
 Resumen de costos anuales:
 
 | Concepto | Costo anual (USD) | Participacion (%) |
 |---|---:|---:|
-| Vapor | 4,263.20 | 0.44 |
-| Electricidad auxiliar ESL+ELL | 373.76 | 0.04 |
-| Reposicion de solvente | 516,051.60 | 53.83 |
-| Materia prima | 438,000.00 | 45.69 |
-| **OPEX total** | **958,688.56** | **100.00** |
+| Vapor (dos columnas) | 30,815.34 | 1.58 |
+| Electricidad auxiliar ESL+ELL | 373.76 | 0.02 |
+| Reposicion total de solvente | 1,487,186.30 | 76.02 |
+| Materia prima | 438,000.00 | 22.39 |
+| **OPEX total** | **1,956,375.40** | **100.00** |
 
 Alcance: este analisis es de OPEX operativo simplificado y no incluye CAPEX, depreciacion, impuestos, mantenimiento ni costo de personal.
 
-## 7. Verificacion de incongruencias cerradas
+## 8. Verificacion de coherencia cerrada
 
-1. Recuperacion de acetato: antes 94.684%, ahora 99.3% (cumple meta del planteamiento).
-2. Coherencia de equilibrio: se usa una sola base oficial (alpha=2.5 y tabla correspondiente).
-3. Conexion de etapas: la entrada a destilacion se toma directamente desde el extracto ELL ($F=294.50$ kg/h).
-4. Energia de columna: se conserva una unica base termica consistente ($Q_{cond}=Q_{reb}=41.62$ kW).
+1. Conexion de etapas: la rama de refinado ELL alimenta la destilacion etanol-agua y la rama de extracto ELL alimenta la destilacion acetato.
+2. Distilacion dual: se elimina la base de columna unica y se reportan dos trenes con sus propias etapas, energia y dimensionamiento.
+3. Recirculacion dual: se separa reposicion de etanol y reposicion de acetato; los balances globales cierran al 100% en ambas bases reportadas.
+4. ELL etapa real: se preservan los valores de hoja tanto en base composicional como en base de masa de soluto para asegurar trazabilidad academica.
+5. Economia: se mantiene la estructura de precios unitarios del informe previo y se recalcula con los nuevos caudales y cargas de dos columnas.
 
-## 8. Resumen de resultados clave
+## 9. Resumen de resultados clave
 
 | Bloque | Resultado principal |
 |---|---|
 | ESL | $V=480.375$ kg/h, $y_1=2.810\%$, cierre de masa conforme |
 | ELL | $M_t=744.585$ kg/h, $E=294.50$ kg/h, $R=450.08$ kg/h |
-| Destilacion | $D=136.47$ kg/h, $B=158.03$ kg/h, $x_B=0.0055$ |
-| Cumplimiento | Recuperacion acetato = 99.3%, $CE_v=0.50$ kg/kg |
-| Global | Entradas = Salidas = 928.88 kg/h, cierre = 100% |
+| Destilacion Etanol-Agua | $D=198.87$ kg/h, $B=251.21$ kg/h, $\eta_{EtOH}=94.68\%$, 15 etapas reales |
+| Destilacion Acetato | $D=257.89$ kg/h, $B=36.62$ kg/h, $\eta_{Ac}=99.3\%$, 23 etapas reales |
+| Recirculacion | Makeup etanol $=401.13$ kg/h, makeup acetato $=6.32$ kg/h |
+| Global | Entradas = Salidas = 1051.71 kg/h, cierre = 100% |
+| Economia | OPEX = 1,956,375.40 USD/ano, costo unitario = 1.47 USD/kg |
