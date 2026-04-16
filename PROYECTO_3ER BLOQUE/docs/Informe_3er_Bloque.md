@@ -9,30 +9,32 @@ Documentos de referencia:
 
 ## 1. Introduccion
 
-Este informe consolida la ingenieria del 3er bloque para la cadena:
+El Proyecto del 3er bloque, segun el planteamiento oficial, consiste en disenar una planta industrial para obtener extracto concentrado de compuestos naturales a partir de flor de Jamaica, con operacion continua de 8 h/d y capacidad base de 1500 kg/d. La ruta de proceso integra ESL, ELL, destilacion al vacio y recirculacion de solventes.
 
-ESL -> ELL -> (Destilacion Etanol-Agua + Destilacion Acetato-Flor de Jamaica) -> Recirculacion dual.
+Ademas de desarrollar los calculos, el proyecto exige demostrar trazabilidad completa entre operaciones unitarias, consistencia entre documento maestro e informe, y verificacion de desempeno tecnico con indicadores medibles.
 
-En esta version se integran cuatro componentes:
+Requisitos obligatorios del planteamiento:
 
-1. Cumplimiento tecnico de separacion por etapas.
-2. Trazabilidad de corrientes entre operaciones unitarias.
-3. Verificacion de balances de masa por etapa y globales.
-4. Analisis economico simplificado de materiales y utilidades.
+- Pureza minima en destilado: xD >= 0.90.
+- Recuperacion global minima del proceso: eta_global >= 25.0%.
+- Recuperacion minima de acetato en destilacion: eta >= 99.3%.
+- Consumo especifico de vapor: CE_v < 2.2 kg/kg.
+- Cierre de masa por etapa y cierre global de 100% +/- 0.1%.
+- Trazabilidad explicita de corrientes ELL -> Destilacion, sin supuestos desconectados.
 
 ## 2. Objetivos
 
 ### 2.1 Objetivo general
 
-Verificar y documentar un diseno coherente del bloque de separacion que cumpla simultaneamente criterios de masa, recuperacion y operacion para dos trenes de destilacion.
+Disenar y verificar un esquema integrado de separacion para flor de Jamaica que cumpla simultaneamente metas de pureza, recuperacion, consumo de vapor y cierre de balances de materia.
 
 ### 2.2 Objetivos especificos
 
-1. Mantener la recuperacion de etanol en su columna de recuperacion en 94.68%.
-2. Mantener pureza minima de destilado etanol-agua en 90.0%.
-3. Mantener recuperacion de acetato en 99.3% en la columna de acetato.
-4. Cuantificar recirculacion dual y reposicion de solventes.
-5. Recalcular costos operativos simplificados en USD con la nueva base integrada.
+1. Elaborar el diagrama de bloques y el diagrama de flujo integrado del tren ESL-ELL-Destilacion-Recirculacion.
+2. Resolver balances por etapa (ESL, ELL y ambas destilaciones) y validar cierre global del sistema.
+3. Verificar el cumplimiento de indicadores obligatorios del planteamiento (pureza, recuperaciones y CE_v).
+4. Cuantificar recirculacion de solventes, reposicion y consumo global de solvente.
+5. Reportar resultados tecnicos y economicos clave (OPEX y costo unitario) en coherencia con el documento maestro.
 
 ## 3. Alcance y criterios contractuales
 
