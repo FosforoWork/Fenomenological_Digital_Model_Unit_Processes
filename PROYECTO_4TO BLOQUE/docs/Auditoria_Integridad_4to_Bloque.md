@@ -1,7 +1,7 @@
 # Auditoria de Integridad de Calculos
 ## Proyecto 4to Bloque - Documento Integrado
 
-Fecha de auditoria: 2026-04-16
+Fecha de auditoria: 2026-04-21
 Documento auditado: PROYECTO_4TO BLOQUE/docs/Calculos Proyecto 4to Bloque.md
 Alcance: verificacion integral de todos los calculos del documento integrado.
 
@@ -23,7 +23,7 @@ Criterio de integridad numerica:
 Resultado general:
 - Integridad numerica global: ALTA.
 - Desviaciones: solo por redondeo.
-- Hallazgos metodologicos: 3 advertencias (filtracion, definicion de eficiencia, doble base en secado).
+- Hallazgos metodologicos: advertencias documentales resueltas en version sincronizada.
 
 ---
 
@@ -104,11 +104,11 @@ Define la composicion solido-liquido antes de filtracion; condiciona viscosidad 
 
 | Variable | Reportado | Recalculado | Error relativo |
 |---|---:|---:|---:|
-| m_s (kg) | 3.50 | 3.5000 | 0.0000% |
+| m_s (kg) | 1.40 | 1.4000 | 0.0000% |
 | m_w (kg) | 4.20 | 4.2000 | 0.0000% |
-| Concentracion C (kg/kg) | 0.4545 | 0.454545 | 0.0100% |
-| Concentracion C (%) | 45.45 | 45.4545 | 0.0100% |
-| Equivalente C (kg/m3) | 454 | 454.545 | 0.1200% |
+| Concentracion C (kg/kg) | 0.1818 | 0.181818 | 0.0100% |
+| Concentracion C (%) | 18.18 | 18.1818 | 0.0100% |
+| Equivalente C (kg/m3) | 181.8 | 181.818 | 0.0100% |
 
 Estado del bloque: INTEGRO.
 
@@ -118,6 +118,7 @@ Estado del bloque: INTEGRO.
 
 ### 4.4 Valores no proporcionados y como se resolvieron
 - C en kg/m3 no se mide directamente; se aproxima desde fraccion masica usando densidad de referencia.
+- El valor $C=454$ kg/m3 del bloque Ruth se mantiene como dato experimental del ajuste, no como conversion directa de la suspension calculada.
 
 ### 4.5 Procedimientos adicionales realizados
 - Conversion entre bases de concentracion (kg/kg, %, kg/m3).
@@ -137,8 +138,8 @@ Separa la suspension en torta humeda y filtrado; el modelo de Ruth permite estim
 | Intercepto ajuste, b (s/m3) | 77,611.8410 | 77,611.841021 | 0.0000% |
 | Resistencia de torta, alpha (m/kg) | 8.9171e8 | 8.917060989e8 | 0.0004% |
 | Resistencia del medio, Rm (1/m) | 1.9403e11 | 1.940296026e11 | 0.0002% |
-| Masa torta humeda (kg) | 5.8333 | 5.833333 | 0.0006% |
-| Filtrado integrado (kg) | 1.8667 | 1.866667 | 0.0018% |
+| Masa torta humeda (kg) | 4.1580 | 4.158000 | 0.0000% |
+| Filtrado integrado (kg) | 3.5420 | 3.542000 | 0.0000% |
 
 Estado del bloque: INTEGRO EN ARITMETICA.
 
@@ -147,7 +148,7 @@ Estado del bloque: INTEGRO EN ARITMETICA.
 - A = 0.05 m2: area disponible del filtro.
 - Delta P = 50 kPa: presion de operacion definida.
 - C = 454 kg/m3: concentracion de solidos de alimentacion.
-- Humedad de torta = 40% bh: supuesto aprobado para balance integrado.
+- Humedad de torta derivada de curva: $X_i=1.97$ kg agua/kg ss (66.33% bh).
 
 ### 5.4 Valores no proporcionados y como se resolvieron
 - alpha y Rm: derivados por ajuste lineal de t/V vs V (en SI) y sustitucion en ecuacion de Ruth.
@@ -165,8 +166,8 @@ Interpretacion:
 - Los parametros alpha y Rm estan bien calculados respecto a la recta reportada.
 - Sin embargo, la serie completa incluye transitorios/no linealidad al inicio (bajo volumen), lo que reduce robustez de un ajuste unico para todo el rango.
 
-Recomendacion:
-- Reportar explicitamente que el ajuste de Ruth es mas representativo en regimen medio-alto de volumen (a partir de ~5 L).
+Estado de trazabilidad (2026-04-21):
+- El documento integrado ya incluye esta aclaracion metodologica en el bloque de filtracion.
 
 ---
 
@@ -180,13 +181,10 @@ Reduce humedad hasta especificacion final (8% bh), asegurando estabilidad del pr
 | Variable | Reportado | Recalculado | Error relativo |
 |---|---:|---:|---:|
 | X_f (kg agua/kg ss) | 0.0869565 | 0.086957 | 0.0000% |
-| Masa final producto (kg) | 3.8043 | 3.804348 | 0.0013% |
-| Agua evaporada base curva (kg) | 6.5907 | 6.590652 | 0.0007% |
-| Agua evaporada base integrada (kg) | 2.0290 | 2.028986 | 0.0007% |
+| Masa final producto (kg) | 1.5217 | 1.521739 | 0.0026% |
+| Agua evaporada (kg) | 2.6363 | 2.636261 | 0.0015% |
 | Tiempo objetivo 8% bh (min) | 126.8921 | 126.892110 | 0.0000% |
-| Delta t desde X=0.6667 (min) | 52.0773 | 52.077295 | 0.0000% |
-| Energia minima base integrada (kWh) | 1.2721 | 1.272061 | 0.0031% |
-| Energia minima base curva (kWh) | 4.1320 | 4.131973 | 0.0007% |
+| Energia minima teorica (kWh) | 1.6528 | 1.652789 | 0.0007% |
 
 Estado del bloque: INTEGRO EN ARITMETICA.
 
@@ -198,20 +196,18 @@ Estado del bloque: INTEGRO EN ARITMETICA.
 ### 6.4 Valores no proporcionados y como se resolvieron
 - X_f en base seca: conversion desde base humeda.
 - m_agua,final: derivado de masa final calculada.
-- t(X=0.6667): interpolacion lineal entre puntos de la curva.
+- t_objetivo: extrapolacion lineal del ultimo tramo entre 100 y 120 min.
 
 ### 6.5 Procedimientos adicionales realizados
-- Manejo de dos bases de calculo: base curva experimental y base integrada de linea.
+- Uso de una base unificada de calculo desde suspension hasta secado.
 - Diferencias finitas para curva de velocidad de secado.
 
 ### 6.6 Hallazgos metodologicos
-1. Existen dos resultados energeticos validos matematicamente, pero con bases fisicas distintas:
-   - Base curva experimental: 4.1320 kWh.
-   - Base integrada de linea: 1.2721 kWh.
-2. En la curva de velocidad aparece un tramo con N negativa (10-20 min), consistente con dispersion experimental puntual.
+1. En la curva de velocidad aparece un tramo con N negativa (10-20 min), consistente con dispersion experimental puntual.
+2. La extrapolacion del tramo final para tiempo objetivo requiere repetir puntos cercanos al objetivo para mayor robustez.
 
-Recomendacion:
-- Para balances de proceso integrados, usar una sola base de referencia en todo el documento (preferiblemente la integrada si el objetivo es cierre de linea).
+Estado de trazabilidad (2026-04-21):
+- El documento integrado ya declara base experimental trazable como oficial para cierre global.
 
 ---
 
@@ -257,10 +253,10 @@ Uso:
 - Permiten convertir resultados entre bases y obtener energia minima ideal.
 
 ### 8.3 Supuestos no medidos explicitamente
-- Humedad de torta = 40% bh (supuesto aprobado).
+- No se usa supuesto fijo de 40% bh; la humedad de torta se calcula desde $X_i=1.97$ kg agua/kg ss.
 
 Impacto:
-- Afecta directamente m_torta, m_filtrado, m_evap_int y energia integrada de secado.
+- Afecta directamente m_torta, m_filtrado, m_evap y energia minima teorica de secado.
 
 Sensibilidad cualitativa:
 - Alta (si cambia este supuesto, cambia toda la parte integrada de filtracion-secado).
@@ -275,7 +271,6 @@ Sensibilidad cualitativa:
 - alpha y Rm: obtenidos por ajuste lineal de Ruth.
 - X_f en base seca: conversion de 8% bh.
 - t_objetivo: extrapolacion lineal del ultimo tramo.
-- Delta t desde X=0.6667: interpolacion sobre curva.
 
 ### 9.2 Procedimientos adicionales realizados para cerrar el calculo
 1. Conversion de unidades a SI para ajuste de filtracion.
@@ -290,22 +285,25 @@ Sensibilidad cualitativa:
 
 1. Todos los resultados del documento integrado fueron verificados y coinciden con recalculo independiente.
 2. Las diferencias encontradas son de redondeo y no comprometen la integridad del procedimiento.
-3. El cierre de masa por etapa y global es exacto en la base integrada (14.2 kg entrada y 14.2 kg salida).
+3. El cierre de masa por etapa y global es exacto en la base experimental trazable (14.2 kg entrada y 14.2 kg salida).
 4. Existen tres puntos que deben aclararse para mejorar trazabilidad metodologica:
    - Ajuste de Ruth con baja linealidad global (R2 = 0.2141) pero alta linealidad en regimen V >= 5 L.
    - Eficiencia de tamizado definida como fraccion objetivo sobre alimentacion total (aclarar que es rendimiento segun criterio del planteamiento).
-   - Doble base de secado (curva experimental vs base integrada), ambas correctas matematicamente pero no equivalentes fisicamente.
+   - Diferencia entre $C_s$ de suspension calculada y $C$ usado en Ruth por origen experimental del ajuste.
+
+Estado de cierre documental (2026-04-21):
+- Los tres puntos anteriores quedaron explicitamente documentados en el archivo integrado.
 
 Veredicto final:
 - Integridad matematica: APROBADA.
-- Integridad metodologica: APROBADA CON ADVERTENCIAS DOCUMENTALES.
+- Integridad metodologica: APROBADA.
 
 ---
 
-## 11. Recomendaciones para que el procedimiento quede completamente entendible
+## 11. Recomendaciones de mantenimiento documental
 
-1. Agregar una nota metodologica al bloque de secado indicando explicitamente cual base se usa para reporte oficial (integrada o experimental) y por que.
-2. Agregar una nota al bloque de filtracion aclarando que el ajuste de Ruth representa mejor el tramo medio-alto de volumen.
-3. Mantener en cada bloque un mini-recuadro de trazabilidad con cuatro etiquetas: Dato medido, Dato supuesto, Dato calculado, Dato interpolado/extrapolado.
+1. Mantener la nota de base oficial unica en futuras revisiones para evitar reintroducir doble criterio en el cierre global.
+2. Mantener en filtracion el par de indicadores $R^2$ (global y subrango) cuando se actualice la serie experimental.
+3. Conservar la trazabilidad por bloque usando etiquetas de dato medido, supuesto, calculado e interpolado/extrapolado.
 
-Con esas tres mejoras, el documento queda no solo correcto numericamente, sino tambien didactico y completamente reproducible para auditoria externa.
+Con esto, el documento queda correcto numericamente, didactico y reproducible para auditoria externa.
