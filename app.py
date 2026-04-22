@@ -8,7 +8,9 @@ import re
 import time
 import unicodedata
 
+import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 from core.equipment_constraints import EquipmentCapacityError
 from core.equipment_specs import (
@@ -470,7 +472,7 @@ EQUIPMENT_IMPACT_META = {
     "stage_1_slurry_density_kg_m3": {
         "impact": "BAJO/CONDICIONAL",
         "significant": False,
-        "reason": "Ajusta conversion caudal masico-volumetrico para capacidad.",
+        "reason": "Ajusta conersion caudal masico-volumetrico para capacidad.",
     },
     "stage_1_tank_capacity_m3": {
         "impact": "BAJO/CONDICIONAL",
@@ -1030,6 +1032,22 @@ def apply_visual_theme_css(theme: dict) -> None:
                 color: {theme['status']['rojo']};
             }}
 
+            .range-bar {{
+                height: 6px;
+                width: 100%;
+                border-radius: 3px;
+                display: flex;
+                margin-top: -12px;
+                margin-bottom: 15px;
+                background: rgba(0,0,0,0.1);
+                overflow: hidden;
+                border: 1px solid {theme['border']};
+            }}
+            .range-segment {{ height: 100%; }}
+            .range-ideal {{ background: {theme['status']['verde']}; opacity: 0.8; }}
+            .range-warning {{ background: {theme['status']['amarillo']}; opacity: 0.8; }}
+            .range-danger {{ background: {theme['status']['rojo']}; opacity: 0.8; }}
+
             @media (max-width: 1024px) {{
                 .block-container {{
                     padding-top: 0.7rem;
@@ -1206,6 +1224,51 @@ def sync_sales_price_from_widgets() -> None:
     )
 
 
+def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[float, float], tuple[float, float]]:
+    default = DEFAULT_CONTROLS.get(key) or EQUIPMENT_SPEC_DEFAULTS.get(key)
+    if default is None:
+        default = (vmin + vmax) / 2
+
+    # Overrides based on readme.md and process knowledge
+    if key == "extraction_ph": return (8.5, 9.5), (7.0, 11.0)
+    if key == "pasteur_temp_c": return (75.0, 85.0), (70.0, 100.0)
+    if key == "precip_ph": return (4.3, 4.7), (3.5, 5.5)
+    if key == "water_flow_m3_h": return (10.0, 14.0), (5.0, 25.0)
+    if key == "soy_feed_kg_h": return (800.0, 1200.0), (500.0, 5000.0)
+    if key == "ro_tmp_bar": return (20.0, 30.0), (10.0, 40.0)
+    if key == "evap_pressure_bar": return (0.3, 0.5), (0.1, 0.8)
+    if key == "dryer_temp_c": return (70.0, 90.0), (50.0, 150.0)
+
+    # Generic heuristic
+    return (default * 0.9, default * 1.1), (default * 0.7, default * 1.3)
+
+
+def _render_range_bar(key: str, vmin: float, vmax: float):
+    ideal, warning = _get_variable_ranges(key, vmin, vmax)
+    i_min, i_max = ideal
+    w_min, w_max = warning
+
+    points = [
+        (w_min, "danger"),
+        (i_min, "warning"),
+        (i_max, "ideal"),
+        (w_max, "warning"),
+        (vmax, "danger")
+    ]
+
+    html = '<div class="range-bar">'
+    prev = vmin
+    span = max(vmax - vmin, 1e-9)
+    for end_val, ztype in points:
+        actual_end = max(prev, min(end_val, vmax))
+        width = (actual_end - prev) / span * 100
+        if width > 0.01:
+            html += f'<div class="range-segment range-{ztype}" style="width: {width}%"></div>'
+        prev = actual_end
+    html += '</div>'
+    st.markdown(html, unsafe_allow_html=True)
+
+
 def render_equipment_specs_editor() -> None:
     specs = st.session_state.equipment_specs
 
@@ -1221,6 +1284,7 @@ def render_equipment_specs_editor() -> None:
                     step=_get_widget_step(vmin, vmax),
                     key=f"w_eq_{key}",
                 )
+                _render_range_bar(key, float(vmin), float(vmax))
 
     sync_equipment_specs_from_widgets()
 
@@ -1276,45 +1340,92 @@ def render_controls() -> None:
     controls = st.session_state.controls
     with st.expander("Etapa 0 · Preparacion", expanded=True):
         st.number_input("Alimentacion de soya (kg/h)", 100.0, 8000.0, value=controls["soy_feed_kg_h"], step=100.0, key="w_soy_feed_kg_h")
+        _render_range_bar("soy_feed_kg_h", 100.0, 8000.0)
         st.slider("Caudal de agua (m3/h)", 2.0, 30.0, value=controls["water_flow_m3_h"], step=0.1, key="w_water_flow_m3_h")
+        _render_range_bar("water_flow_m3_h", 2.0, 30.0)
         st.slider("Temperatura de agua (C)", 5.0, 90.0, value=controls["water_temp_c"], step=0.5, key="w_water_temp_c")
+        _render_range_bar("water_temp_c", 5.0, 90.0)
 
     with st.expander("Etapa 1 · Extraccion", expanded=False):
         st.slider("pH extraccion", 6.0, 12.0, value=controls["extraction_ph"], step=0.01, key="w_extraction_ph")
+        _render_range_bar("extraction_ph", 6.0, 12.0)
         st.slider("Temperatura extraccion (C)", 20.0, 95.0, value=controls["extraction_temp_c"], step=0.5, key="w_extraction_temp_c")
+        _render_range_bar("extraction_temp_c", 20.0, 95.0)
         st.slider("Tiempo residencia (min)", 5.0, 180.0, value=controls["extraction_residence_min"], step=1.0, key="w_extraction_residence_min")
+        _render_range_bar("extraction_residence_min", 5.0, 180.0)
         st.slider("Velocidad agitacion (RPM)", 10.0, 500.0, value=controls["agitator_rpm"], step=1.0, key="w_agitator_rpm")
+        _render_range_bar("agitator_rpm", 10.0, 500.0)
         st.slider("Ratio solido/liquido (1:x)", 4.0, 30.0, value=controls["solid_liquid_ratio"], step=0.1, key="w_solid_liquid_ratio")
+        _render_range_bar("solid_liquid_ratio", 4.0, 30.0)
 
     with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
         st.slider("Temperatura de pasteurizacion (C)", 50.0, 130.0, value=controls["pasteur_temp_c"], step=0.5, key="w_pasteur_temp_c")
+        _render_range_bar("pasteur_temp_c", 50.0, 130.0)
         st.slider("Retencion termica (s)", 2.0, 180.0, value=controls["pasteur_retention_s"], step=1.0, key="w_pasteur_retention_s")
+        _render_range_bar("pasteur_retention_s", 2.0, 180.0)
 
     with st.expander("Etapa 2.5 · Osmosis inversa", expanded=False):
         st.slider("TMP OI (bar)", 5.0, 45.0, value=controls["ro_tmp_bar"], step=0.1, key="w_ro_tmp_bar")
+        _render_range_bar("ro_tmp_bar", 5.0, 45.0)
         st.slider("Velocidad cruzada OI (m/s)", 0.2, 3.0, value=controls["ro_crossflow_ms"], step=0.05, key="w_ro_crossflow_ms")
+        _render_range_bar("ro_crossflow_ms", 0.2, 3.0)
         st.slider("Temperatura alimentacion OI (C)", 5.0, 60.0, value=controls["ro_feed_temp_c"], step=0.5, key="w_ro_feed_temp_c")
+        _render_range_bar("ro_feed_temp_c", 5.0, 60.0)
         st.slider("pH alimentacion OI", 3.0, 11.0, value=controls["ro_feed_ph"], step=0.01, key="w_ro_feed_ph")
+        _render_range_bar("ro_feed_ph", 3.0, 11.0)
         st.slider("SDI", 1.0, 8.0, value=controls["ro_sdi"], step=0.1, key="w_ro_sdi")
+        _render_range_bar("ro_sdi", 1.0, 8.0)
 
     with st.expander("Etapa 3 · Evaporacion", expanded=False):
         st.slider("Presion evaporador (bar abs)", 0.05, 1.20, value=controls["evap_pressure_bar"], step=0.01, key="w_evap_pressure_bar")
+        _render_range_bar("evap_pressure_bar", 0.05, 1.20)
         st.slider("Temperatura evaporacion (C)", 20.0, 95.0, value=controls["evap_temp_c"], step=0.5, key="w_evap_temp_c")
+        _render_range_bar("evap_temp_c", 20.0, 95.0)
 
     with st.expander("Etapa 4 · Precipitacion y centrifugacion", expanded=False):
         st.slider("pH de precipitacion", 2.5, 7.0, value=controls["precip_ph"], step=0.01, key="w_precip_ph")
+        _render_range_bar("precip_ph", 2.5, 7.0)
         st.slider("Tiempo de precipitacion (min)", 2.0, 120.0, value=controls["precip_time_min"], step=1.0, key="w_precip_time_min")
+        _render_range_bar("precip_time_min", 2.0, 120.0)
         st.slider("Factor G centrifuga", 200.0, 5000.0, value=controls["centrifuge_g"], step=10.0, key="w_centrifuge_g")
+        _render_range_bar("centrifuge_g", 200.0, 5000.0)
         st.slider("Tiempo centrifugacion (min)", 1.0, 120.0, value=controls["centrifuge_time_min"], step=1.0, key="w_centrifuge_time_min")
+        _render_range_bar("centrifuge_time_min", 1.0, 120.0)
 
     with st.expander("Etapa 5 · Secado", expanded=False):
         st.slider("Temperatura de secado (C)", 40.0, 220.0, value=controls["dryer_temp_c"], step=1.0, key="w_dryer_temp_c")
+        _render_range_bar("dryer_temp_c", 40.0, 220.0)
         st.slider("Residencia en secador (min)", 1.0, 180.0, value=controls["dryer_residence_min"], step=1.0, key="w_dryer_residence_min")
+        _render_range_bar("dryer_residence_min", 1.0, 180.0)
 
     sync_controls_from_widgets()
 
 
 def run_step() -> None:
+    # Verificacion de rangos para paro del sistema
+    danger_vars = []
+
+    # Chequeo de Controles
+    for key, value in st.session_state.controls.items():
+        # Obtenemos los rangos de seguridad (ideal, warning)
+        _, warning = _get_variable_ranges(key, 0, 100) # vmin/vmax no afectan al warning en esta funcion
+        w_min, w_max = warning
+        if value < w_min or value > w_max:
+            danger_vars.append(f"Control: {CONTROL_LABELS.get(key, key)} ({value:.2f} fuera de [{w_min}, {w_max}])")
+
+    # Chequeo de Dimensionamiento
+    for key, value in st.session_state.equipment_specs.items():
+        _, warning = _get_variable_ranges(key, 0, 100)
+        w_min, w_max = warning
+        if value < w_min or value > w_max:
+            danger_vars.append(f"Equipo: {EQUIPMENT_SPEC_LABELS.get(key, key)} ({value:.2f} fuera de [{w_min}, {w_max}])")
+
+    if danger_vars:
+        st.session_state.running = False
+        st.session_state.last_run_error = "PARO DEL SISTEMA: Variables en rango de peligro."
+        st.session_state.capacity_issues = [{"equipment": "SEGURIDAD", "message": v, "recommendation": "Ajuste la variable al rango ideal."} for v in danger_vars]
+        return
+
     try:
         result = run_process_model(
             st.session_state.controls,
@@ -1379,13 +1490,19 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
     if key not in df.columns:
         return None
 
-    series = df[key].dropna().tail(STABILITY_WINDOW_POINTS)
-    if series.empty:
+    all_series = df[key].dropna()
+    if all_series.empty:
         return None
 
-    current = float(series.iloc[-1])
-    previous = float(series.iloc[-2]) if len(series) > 1 else current
-    average = float(series.mean())
+    series = all_series.tail(STABILITY_WINDOW_POINTS)
+
+    current = float(all_series.iloc[-1])
+    previous = float(all_series.iloc[-2]) if len(all_series) > 1 else current
+
+    # Promedio dinámico basado en la corrida actual completa
+    average = float(all_series.mean())
+
+    # Desviación estándar de los puntos recientes para estabilidad
     std_dev = float(series.std(ddof=0)) if len(series) > 1 else 0.0
 
     base_error_pct = _error_base_pct_for_key(key)
@@ -1425,6 +1542,43 @@ def _format_kpi_value(value: float, unit: str, decimals: int) -> str:
     return number
 
 
+def _render_kpi_chart(df: pd.DataFrame, key: str, stats: dict, theme: dict) -> None:
+    """Renderiza un mini gráfico de líneas para el KPI."""
+    series = df[key].dropna().tail(30) # Mostrar últimos 30 puntos
+    if len(series) < 2:
+        return
+
+    fig = go.Figure()
+
+    # Bandas de control (límites admisibles)
+    fig.add_hline(y=stats["upper_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.4)
+    fig.add_hline(y=stats["lower_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.4)
+    fig.add_hline(y=stats["average"], line_dash="dot", line_color=theme["muted_text"], opacity=0.6)
+
+    # Línea principal
+    fig.add_trace(go.Scatter(
+        y=series.values,
+        mode="lines",
+        line=dict(color=theme["stage_colors"].get(key, theme["stage_colors"].get("s0", "#38bdf8")), width=2),
+        fill="tonexty",
+        fillcolor=f"rgba(56, 189, 248, 0.1)",
+        hoverinfo="skip"
+    ))
+
+    fig.update_layout(
+        height=80,
+        margin=dict(l=0, r=0, t=5, b=5),
+        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
+        yaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        template=theme["plot_template"]
+    )
+
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+
 def _render_kpi_card(
     df,
     key: str,
@@ -1438,6 +1592,7 @@ def _render_kpi_card(
     compact: bool = False,
 ) -> None:
     stats = _compute_kpi_window_stats(df, key)
+    theme = get_active_theme()
     if not stats:
         st.metric(label, "Sin datos", delta="0.00%")
         st.caption("Ejecuta la simulacion para activar historico.")
@@ -1447,41 +1602,35 @@ def _render_kpi_card(
         st.metric(label, _format_kpi_value(stats["current"], unit, decimals))
         return
 
-    st.metric(
-        label,
-        _format_kpi_value(stats["current"], unit, decimals),
-        delta=_format_pct_delta_es(stats["delta_pct"]),
-    )
-    st.markdown(
-        f"<div class='kpi-meta'>Error independiente: +/- {_format_kpi_value(stats['error_abs'], unit, decimals)}</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<div class='kpi-meta'>Promedio ventana: {_format_kpi_value(stats['average'], unit, decimals)}</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<div class='kpi-meta'>Limite inferior/superior: {_format_kpi_value(stats['lower_limit'], unit, decimals)} / {_format_kpi_value(stats['upper_limit'], unit, decimals)}</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<div class='kpi-meta'>Variacion temporal (desv std): {stats['relative_std_pct']:.2f}%</div>",
-        unsafe_allow_html=True,
-    )
-    if secondary_key:
-        secondary_stats = _compute_kpi_window_stats(df, secondary_key)
-        if secondary_stats:
-            st.markdown(
-                f"<div class='kpi-meta'>{secondary_label}: {_format_kpi_value(secondary_stats['current'], secondary_unit, secondary_decimals)}</div>",
-                unsafe_allow_html=True,
-            )
+    with st.container():
+        st.metric(
+            label,
+            _format_kpi_value(stats["current"], unit, decimals),
+            delta=_format_pct_delta_es(stats["delta_pct"]),
+        )
 
-    status_class = "kpi-stable" if stats["stable"] else "kpi-unstable"
-    status_text = "Variable estable" if stats["stable"] else "Advertencia: variable inestable"
-    st.markdown(
-        f"<div class='kpi-status {status_class}'>{status_text}</div>",
-        unsafe_allow_html=True,
-    )
+        # Gráfico de líneas integrado
+        _render_kpi_chart(df, key, stats, theme)
+
+        st.markdown(
+            f"<div class='kpi-meta'>Error +/- {_format_kpi_value(stats['error_abs'], unit, decimals)} | Prom: {_format_number_es(stats['average'], decimals)}</div>",
+            unsafe_allow_html=True,
+        )
+
+        if secondary_key:
+            secondary_stats = _compute_kpi_window_stats(df, secondary_key)
+            if secondary_stats:
+                st.markdown(
+                    f"<div class='kpi-meta'>{secondary_label}: {_format_kpi_value(secondary_stats['current'], secondary_unit, secondary_decimals)}</div>",
+                    unsafe_allow_html=True,
+                )
+
+        status_class = "kpi-stable" if stats["stable"] else "kpi-unstable"
+        status_text = "Estable" if stats["stable"] else "Inestable"
+        st.markdown(
+            f"<div class='kpi-status {status_class}'>{status_text} | Var: {stats['relative_std_pct']:.2f}%</div>",
+            unsafe_allow_html=True,
+        )
 
 
 def render_kpis() -> None:
@@ -1606,6 +1755,7 @@ def render_production_counters() -> None:
 
 
 def render_fluidograma_tab() -> None:
+    theme = get_active_theme()
     st.subheader("Fluidograma integrado y balance de masa")
     st.caption(
         "Visualizacion dinamica del tren de proceso con corrientes principales, "
@@ -1617,32 +1767,69 @@ def render_fluidograma_tab() -> None:
         st.info("No hay resultados disponibles aun. Ejecuta la simulacion para activar el fluidograma.")
         return
 
-    theme = get_active_theme()
     payload = build_fluidograma_payload(result)
     fig = build_fluidograma_sankey(payload, theme)
 
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Rendimiento por proceso")
+    rend_icons = {
+        "Extraccion proteica": "🧪",
+        "Recuperacion separacion": "🔄",
+        "Calidad post pasteurizacion": "🌡️",
+        "Recuperacion OI": "💧",
+        "Retencion proteica OI": "🛡️",
+        "Eficiencia precipitacion": "⚖️",
+        "Recuperacion centrifuga": "🌀",
+        "Rendimiento global": "🏆",
+    }
+
     rendimiento_cols = st.columns(4)
     for idx, item in enumerate(payload["rendimientos"]):
         col = rendimiento_cols[idx % 4]
+        icon = rend_icons.get(item["label"], "📊")
         with col:
-            col.metric(item["label"], f"{float(item['value_pct']):.2f}%")
+            st.markdown(
+                f"""
+                <div style='border: 1px solid {theme["border"]}; border-radius: 12px; padding: 15px; background: {theme["card_bg"]}; margin-bottom: 10px;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 5px;'>{icon}</div>
+                    <div style='color: {theme["muted_text"]}; font-size: 0.85rem; font-weight: 600;'>{item["label"]}</div>
+                    <div style='color: {theme["text"]}; font-size: 1.4rem; font-weight: 700;'>{float(item['value_pct']):.2f}%</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     st.markdown("### Desperdicios y corrientes laterales")
-    desperdicios = payload["desperdicios"]
-    visible_desp = [item for item in desperdicios if item["label"] != "Proteina perdida en okara"]
-    disp_cols = st.columns(5)
-    for idx, item in enumerate(visible_desp):
-        col = disp_cols[idx % 5]
-        with col:
-            col.metric(item["label"], f"{_format_number_es(float(item['value_kg_h']), 1)} kg/h")
+    desp_icons = {
+        "Okara humedo": "🌾",
+        "Permeado OI": "🚰",
+        "Agua evaporada": "☁️",
+        "Suero residual": "🧪",
+        "Agua removida en secado": "💨",
+        "Proteina perdida en okara": "📉",
+    }
 
-    st.metric(
-        "Proteina perdida en okara",
-        f"{_format_number_es(float(desperdicios[-1]['value_kg_h']), 2)} kg/h",
-    )
+    desperdicios = payload["desperdicios"]
+    disp_cols = st.columns(3)
+    for idx, item in enumerate(desperdicios):
+        col = disp_cols[idx % 3]
+        icon = desp_icons.get(item["label"], "🗑️")
+        with col:
+            st.markdown(
+                f"""
+                <div style='border: 1px solid {theme["border"]}; border-radius: 12px; padding: 15px; background: {theme["card_bg"]}; margin-bottom: 10px; border-left: 4px solid {theme["status"]["rojo"]}66;'>
+                    <div style='display: flex; align-items: center; gap: 10px;'>
+                        <div style='font-size: 1.5rem;'>{icon}</div>
+                        <div>
+                            <div style='color: {theme["muted_text"]}; font-size: 0.8rem;'>{item["label"]}</div>
+                            <div style='color: {theme["text"]}; font-size: 1.1rem; font-weight: 700;'>{_format_number_es(float(item['value_kg_h']), 2)} kg/h</div>
+                        </div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     balance = payload["balance"]
     st.markdown("### Balance de masa global")
