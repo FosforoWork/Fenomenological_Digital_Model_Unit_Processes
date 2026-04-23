@@ -123,7 +123,7 @@ Estos valores se usan como referencia operacional y de validacion en la app:
 
 ## Integracion con la aplicacion Streamlit
 
-La app principal [app.py](../app.py) implementa una sala de control para el caso base y escenarios de sensibilidad:
+La app principal [app.py](../app.py) implementa el **Gemelo Digital AJAX** para el caso base y escenarios de sensibilidad:
 
 - Operacion: ajuste de variables, limites de capacidad y dimensionamiento.
 - Monitoreo: KPIs por etapa con historico.
