@@ -142,26 +142,28 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
     }
 
 
-def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, object]) -> go.Figure:
+def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, object] = None) -> go.Figure:
     """Genera figura Sankey para el fluidograma integrado."""
-    stage_colors = theme.get("stage_colors", {}) if isinstance(theme, Mapping) else {}
-    text_color = theme.get("text", "#0f172a") if isinstance(theme, Mapping) else "#0f172a"
-    card_bg = theme.get("card_bg", "rgba(255,255,255,0.92)") if isinstance(theme, Mapping) else "rgba(255,255,255,0.92)"
+    text_color = "#f8fafc"
+    card_bg = "#1e293b"
+    accent = "#38bdf8"
+    danger = "#ef4444"
+    success = "#10b981"
 
     node_palette = [
-        _hex_to_rgba("#64748b", 0.85),
-        _hex_to_rgba(str(stage_colors.get("s1", "#22c55e")), 0.90),
-        _hex_to_rgba(str(stage_colors.get("s2", "#f59e0b")), 0.90),
-        _hex_to_rgba(str(stage_colors.get("s2_5", "#3b82f6")), 0.90),
-        _hex_to_rgba(str(stage_colors.get("s3", "#fb7185")), 0.90),
-        _hex_to_rgba(str(stage_colors.get("s4", "#f43f5e")), 0.90),
-        _hex_to_rgba(str(stage_colors.get("s5", "#ef4444")), 0.90),
-        _hex_to_rgba("#16a34a", 0.95),
-        _hex_to_rgba("#b45309", 0.90),
-        _hex_to_rgba("#0284c7", 0.90),
-        _hex_to_rgba("#475569", 0.88),
-        _hex_to_rgba("#7c3aed", 0.88),
-        _hex_to_rgba("#0ea5e9", 0.88),
+        _hex_to_rgba("#94a3b8", 0.85), # Alimentacion
+        _hex_to_rgba("#22c55e", 0.90), # S1
+        _hex_to_rgba("#f59e0b", 0.90), # S2
+        _hex_to_rgba("#3b82f6", 0.90), # S2.5
+        _hex_to_rgba("#fb7185", 0.90), # S3
+        _hex_to_rgba("#f43f5e", 0.90), # S4
+        _hex_to_rgba("#ef4444", 0.90), # S5
+        _hex_to_rgba(success, 0.95),   # Producto
+        _hex_to_rgba("#b45309", 0.90), # Okara
+        _hex_to_rgba("#0284c7", 0.90), # Permeado
+        _hex_to_rgba("#475569", 0.88), # Evaporada
+        _hex_to_rgba("#7c3aed", 0.88), # Suero
+        _hex_to_rgba("#0ea5e9", 0.88), # Agua Secado
     ]
 
     links = payload.get("links", [])
@@ -174,11 +176,11 @@ def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, 
     for item in links:
         target = int(item["target"])
         if target >= 8:
-            link_colors.append(_hex_to_rgba("#ef4444", 0.35))
+            link_colors.append(_hex_to_rgba(danger, 0.35))
         elif target == 7:
-            link_colors.append(_hex_to_rgba("#16a34a", 0.40))
+            link_colors.append(_hex_to_rgba(success, 0.40))
         else:
-            link_colors.append(_hex_to_rgba("#38bdf8", 0.28))
+            link_colors.append(_hex_to_rgba(accent, 0.28))
 
     link_custom = [[label, value] for label, value in zip(labels, values)]
 
@@ -211,7 +213,8 @@ def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, 
         margin=dict(l=8, r=8, t=16, b=8),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color=str(text_color), size=13),
+        font=dict(family="Inter", color=str(text_color), size=13),
+        template="plotly_dark"
     )
 
     fig.update_traces(textfont=dict(color=str(text_color), size=13), selector=dict(type="sankey"))

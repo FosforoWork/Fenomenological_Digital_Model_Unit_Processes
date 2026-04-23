@@ -1,4 +1,4 @@
-"""Sala de control en tiempo real para proceso de proteina aislada de soya."""
+"""Gemelo Digital AJAX - Sala de control en tiempo real para proceso de proteina aislada de soya."""
 
 from __future__ import annotations
 
@@ -34,17 +34,17 @@ from visualizaciones.fluidograma_integrado import build_fluidograma_payload, bui
 VISUAL_THEMES = {
     "Contraste Alto": {
         "plot_template": "plotly_dark",
-        "bg_start": "#0a0e27",
-        "bg_end": "#1a1f3a",
-        "bg_glow": "#273469",
+        "bg_start": "#0f172a",
+        "bg_end": "#1e293b",
+        "bg_glow": "#334155",
         "text": "#f8fafc",
-        "muted_text": "#cbd5e1",
-        "card_bg": "rgba(21, 26, 47, 0.82)",
-        "border": "#3d4563",
-        "note_bg": "#28314a",
-        "note_border": "#4a5578",
-        "note_text": "#e0e6ff",
-        "grid": "rgba(148, 163, 184, 0.25)",
+        "muted_text": "#94a3b8",
+        "card_bg": "rgba(30, 41, 59, 0.85)",
+        "border": "#334155",
+        "note_bg": "#1e293b",
+        "note_border": "#334155",
+        "note_text": "#f8fafc",
+        "grid": "rgba(148, 163, 184, 0.20)",
         "stage_colors": {
             "s0": "#38bdf8",
             "s1": "#22c55e",
@@ -55,7 +55,7 @@ VISUAL_THEMES = {
             "s5": "#ef4444",
         },
         "status": {"verde": "#10b981", "amarillo": "#f59e0b", "rojo": "#ef4444"},
-        "aux": ["#22d3ee", "#a78bfa", "#fbbf24"],
+        "aux": ["#38bdf8", "#a78bfa", "#fbbf24"],
     },
     "Brillo Alto": {
         "plot_template": "plotly_white",
@@ -862,8 +862,8 @@ def _build_image_caption(path: Path) -> str:
 
 
 st.set_page_config(
-    page_title="Sala de Control - Proteina Aislada",
-    page_icon="Control",
+    page_title="Gemelo Digital AJAX",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -873,194 +873,216 @@ def get_active_theme() -> dict:
     return VISUAL_THEMES.get(mode, VISUAL_THEMES["Contraste Alto"])
 
 
-def apply_visual_theme_css(theme: dict) -> None:
+def apply_visual_theme_css() -> None:
+    # Palette definition
+    bg_deep = "#0f172a"
+    bg_surface = "#1e293b"
+    text_main = "#f8fafc"
+    text_muted = "#94a3b8"
+    accent = "#38bdf8"
+    border = "#334155"
+
     st.markdown(
         f"""
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
             :root {{
-                --ux-text: {theme['text']};
-                --ux-muted: {theme['muted_text']};
-                --ux-border: {theme['border']};
-                --ux-card: {theme['card_bg']};
-                --ux-note: {theme['note_bg']};
-                --ux-note-border: {theme['note_border']};
-                --ux-note-text: {theme['note_text']};
+                --bg-deep: {bg_deep};
+                --bg-surface: {bg_surface};
+                --text-main: {text_main};
+                --text-muted: {text_muted};
+                --accent: {accent};
+                --border: {border};
+                --font-sans: 'Inter', sans-serif;
+                --font-mono: 'JetBrains Mono', monospace;
             }}
 
-            @keyframes fade-rise {{
-                from {{ opacity: 0; transform: translateY(8px); }}
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
-
-            @keyframes soft-pulse {{
-                0%, 100% {{ box-shadow: 0 4px 16px rgba(15, 23, 42, 0.10); }}
-                50% {{ box-shadow: 0 8px 22px rgba(15, 23, 42, 0.16); }}
-            }}
-
+            /* Base App Styling */
             .stApp {{
-                color: {theme['text']};
-                background: radial-gradient(circle at 12% 10%, {theme['bg_glow']} 0%, {theme['bg_start']} 42%, {theme['bg_end']} 100%);
-            }}
-            .block-container {{
-                padding-top: 1rem;
-                padding-bottom: 1.25rem;
-                max-width: 1380px;
-            }}
-            .stMarkdown, .stCaption, h1, h2, h3, label, p, span {{
-                color: {theme['text']};
-            }}
-            h1 {{
-                letter-spacing: 0.02em;
+                background-color: var(--bg-deep);
+                color: var(--text-main);
+                font-family: var(--font-sans);
             }}
 
-            div[data-baseweb="tab-list"] {{
-                gap: 0.6rem;
-            }}
-            div[data-baseweb="tab"] {{
-                border: 1px solid {theme['border']};
-                border-radius: 10px;
-                background: {theme['card_bg']};
-                transition: transform 140ms ease, border-color 180ms ease, box-shadow 180ms ease;
-            }}
-            div[data-baseweb="tab"][aria-selected="true"] {{
-                transform: translateY(-1px);
-                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+            [data-testid="stSidebar"] {{
+                background-color: var(--bg-surface);
+                border-right: 1px solid var(--border);
             }}
 
+            /* Typography */
+            h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {{
+                font-family: var(--font-sans) !important;
+                color: var(--text-main) !important;
+            }}
+
+            div[data-testid="stMetricValue"] > div {{
+                font-family: var(--font-mono) !important;
+                font-weight: 700 !important;
+                color: var(--accent) !important;
+            }}
+
+            /* Custom Cards for KPIs */
             div[data-testid="stMetric"] {{
-                border: 1px solid {theme['border']};
+                background-color: var(--bg-surface);
+                border: 1px solid var(--border);
                 border-radius: 12px;
-                padding: 10px;
-                background: {theme['card_bg']};
-                animation: fade-rise 280ms ease;
-                transition: transform 140ms ease, box-shadow 160ms ease;
-            }}
-            .stMetric {{
-                border: 1px solid {theme['border']};
-                border-radius: 12px;
-                padding: 10px;
-                background: {theme['card_bg']};
-                box-shadow: 0 6px 20px rgba(15, 23, 42, 0.10);
-            }}
-            div[data-testid="stMetric"]:hover {{
-                transform: translateY(-2px);
-                animation: soft-pulse 1.6s ease-in-out infinite;
-            }}
-            div[data-testid="stMetricLabel"] p {{
-                color: {theme['muted_text']};
-            }}
-            div[data-testid="stMetricValue"] {{
-                color: {theme['text']};
+                padding: 1.25rem !important;
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             }}
 
-            .stButton > button {{
-                border-radius: 10px;
-                border: 1px solid {theme['border']};
-                background: {theme['card_bg']};
-                color: {theme['text']};
-                transition: transform 130ms ease, box-shadow 160ms ease, border-color 180ms ease;
+            div[data-testid="stMetric"]:hover {{
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+                border-color: var(--accent);
             }}
+
+            /* Buttons */
+            .stButton > button {{
+                width: 100%;
+                background-color: var(--bg-surface);
+                color: var(--text-main);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 0.5rem 1rem;
+                font-weight: 600;
+                transition: all 0.2s ease;
+            }}
+
             .stButton > button:hover {{
-                transform: translateY(-1px);
-                box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+                border-color: var(--accent);
+                color: var(--accent);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+            }}
+
+            .stButton > button:active {{
+                transform: translateY(0);
+            }}
+
+            /* Inputs and Sliders */
+            div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="textarea"] {{
+                background-color: var(--bg-deep) !important;
+                border-radius: 8px !important;
+                border: 1px solid var(--border) !important;
+            }}
+
+            div[data-baseweb="input"] input {{
+                color: var(--text-main) !important;
+                font-family: var(--font-mono) !important;
+            }}
+
+            div[role="slider"] {{
+                background-color: var(--accent) !important;
             }}
 
             div[data-testid="stExpander"] {{
-                border: 1px solid {theme['border']};
-                border-radius: 12px;
-                background: {theme['card_bg']};
-                overflow: hidden;
-                animation: fade-rise 280ms ease;
-            }}
-            .note-chip {{
-                border: 1px solid {theme['note_border']};
-                background: {theme['note_bg']};
-                color: {theme['note_text']};
-                border-radius: 10px;
-                padding: 10px 12px;
-                margin-bottom: 10px;
-                font-size: 0.9rem;
-                animation: fade-rise 380ms ease;
+                background-color: var(--bg-surface) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 12px !important;
+                margin-bottom: 1rem !important;
             }}
 
+            div[data-testid="stExpander"] summary:hover {{
+                color: var(--accent) !important;
+            }}
+
+            div[data-testid="stDataFrame"] {{
+                background-color: var(--bg-surface) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 12px !important;
+            }}
+
+            /* Hero Panel & Chips */
             .hero-panel {{
-                border: 1px solid {theme['note_border']};
-                background: linear-gradient(120deg, {theme['note_bg']} 0%, {theme['card_bg']} 100%);
-                color: {theme['note_text']};
+                background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
+                border: 1px solid var(--border);
+                border-left: 4px solid var(--accent);
                 border-radius: 12px;
-                padding: 12px 14px;
-                margin-bottom: 10px;
-                animation: fade-rise 420ms ease;
+                padding: 1.5rem;
+                margin-bottom: 2rem;
             }}
 
+            .note-chip {{
+                background-color: rgba(56, 189, 248, 0.1);
+                border: 1px solid rgba(56, 189, 248, 0.2);
+                color: var(--accent);
+                border-radius: 8px;
+                padding: 0.75rem 1rem;
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+            }}
+
+            /* Tabs Custom Styling (for where still used) */
+            div[data-baseweb="tab-list"] {{
+                background-color: transparent !important;
+                gap: 1rem !important;
+            }}
+
+            div[data-baseweb="tab"] {{
+                background-color: var(--bg-surface) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 8px 8px 0 0 !important;
+                color: var(--text-muted) !important;
+                padding: 0.5rem 1.5rem !important;
+            }}
+
+            div[data-baseweb="tab"][aria-selected="true"] {{
+                border-color: var(--accent) !important;
+                color: var(--accent) !important;
+                background-color: rgba(56, 189, 248, 0.05) !important;
+            }}
+
+            /* Scrollbar */
+            ::-webkit-scrollbar {{
+                width: 8px;
+                height: 8px;
+            }}
+            ::-webkit-scrollbar-track {{
+                background: var(--bg-deep);
+            }}
+            ::-webkit-scrollbar-thumb {{
+                background: var(--border);
+                border-radius: 4px;
+            }}
+            ::-webkit-scrollbar-thumb:hover {{
+                background: var(--text-muted);
+            }}
+
+            /* Animations */
+            @keyframes slideUp {{
+                from {{ opacity: 0; transform: translateY(20px); }}
+                to {{ opacity: 1; transform: translateY(0); }}
+            }}
+
+            .stMarkdown, div[data-testid="stMetric"], .stButton {{
+                animation: slideUp 0.4s ease-out forwards;
+            }}
+
+            /* Status Indicators */
             .status-pill {{
-                width: 12px;
-                height: 12px;
-                border-radius: 999px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
                 display: inline-block;
-                margin-top: 10px;
-                border: 1px solid {theme['border']};
+                margin-right: 8px;
             }}
+            .status-running {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
+            .status-paused {{ background-color: #ef4444; }}
 
-            .status-pill.status-running {{
-                background: {theme['status']['verde']};
-            }}
-
-            .status-pill.status-paused {{
-                background: {theme['status']['rojo']};
-            }}
-
-            .kpi-meta {{
-                font-size: 0.82rem;
-                color: {theme['muted_text']};
-                margin-top: 0.15rem;
-                line-height: 1.25;
-            }}
-
-            .kpi-status {{
-                font-size: 0.82rem;
-                font-weight: 600;
-                margin-top: 0.25rem;
-                margin-bottom: 0.2rem;
-            }}
-
-            .kpi-stable {{
-                color: {theme['status']['verde']};
-            }}
-
-            .kpi-unstable {{
-                color: {theme['status']['rojo']};
-            }}
-
+            /* Range Bar Styling */
             .range-bar {{
-                height: 6px;
-                width: 100%;
-                border-radius: 3px;
-                display: flex;
-                margin-top: -12px;
-                margin-bottom: 15px;
-                background: rgba(0,0,0,0.1);
+                height: 4px;
+                background: var(--border);
+                border-radius: 2px;
+                margin-top: 4px;
                 overflow: hidden;
-                border: 1px solid {theme['border']};
             }}
-            .range-segment {{ height: 100%; }}
-            .range-ideal {{ background: {theme['status']['verde']}; opacity: 0.8; }}
-            .range-warning {{ background: {theme['status']['amarillo']}; opacity: 0.8; }}
-            .range-danger {{ background: {theme['status']['rojo']}; opacity: 0.8; }}
+            .range-ideal {{ background: #10b981; }}
+            .range-warning {{ background: #f59e0b; }}
+            .range-danger {{ background: #ef4444; }}
 
-            @media (max-width: 1024px) {{
-                .block-container {{
-                    padding-top: 0.7rem;
-                    padding-left: 0.8rem;
-                    padding-right: 0.8rem;
-                }}
-                .stButton > button {{
-                    min-height: 2.35rem;
-                }}
-                .hero-panel, .note-chip {{
-                    font-size: 0.86rem;
-                }}
-            }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -1573,7 +1595,8 @@ def _render_kpi_chart(df: pd.DataFrame, key: str, stats: dict, theme: dict) -> N
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         showlegend=False,
-        template=theme["plot_template"]
+        template="plotly_dark",
+        font=dict(family="Inter", color="#f8fafc")
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -1909,9 +1932,9 @@ def render_project_final_tab() -> None:
 
 
 init_state()
-apply_visual_theme_css(get_active_theme())
+apply_visual_theme_css()
 
-st.title("Sala de Control de Procesos Unitarios")
+st.title("Gemelo Digital AJAX")
 st.markdown(
     "<div class='hero-panel'><strong>Centro de Operacion Integrado:</strong> interfaz orientada al seguimiento operativo y de produccion en tiempo real.</div>",
     unsafe_allow_html=True,
@@ -1921,83 +1944,74 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-tab_operacion, tab_monitoreo, tab_validacion, tab_fluidograma, tab_imagenes, tab_proyecto = st.tabs([
-    "Operacion",
-    "Monitoreo",
-    "Validacion",
-    "Fluidograma Integrado",
-    "Imagenes de Equipos",
-    "Proyecto Final",
-])
+with st.sidebar:
+    st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
+    st.markdown("### Navegación")
+    menu = st.radio(
+        "Selecciona una sección:",
+        ["Operación", "Monitoreo", "Validación", "Fluidograma", "Imágenes", "Proyecto Final"],
+        label_visibility="collapsed"
+    )
 
-with tab_operacion:
-    left, right = st.columns([1.55, 1.0], gap="large")
+    st.divider()
+    st.markdown("### Ejecución")
+    st.session_state.interval_s = st.slider("Intervalo (s)", 1, 5, value=int(st.session_state.interval_s), step=1)
+
+    col1, col2 = st.columns(2)
+    if col1.button("Iniciar", use_container_width=True):
+        st.session_state.running = True
+    if col2.button("Pausar", use_container_width=True):
+        st.session_state.running = False
+
+    col3, col4 = st.columns(2)
+    if col3.button("Paso", use_container_width=True):
+        run_step()
+    if col4.button("Reset", use_container_width=True):
+        st.session_state.pending_full_reset = True
+        st.rerun()
+
+    if st.session_state.running:
+        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-running'></span> Ejecutando...</div>", unsafe_allow_html=True)
+    else:
+        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Pausado</div>", unsafe_allow_html=True)
+
+    st.divider()
+    render_sales_modification_panel()
+    render_capacity_issues()
+
+if menu == "Operación":
+    left, right = st.columns([1.5, 1.0], gap="large")
     with left:
         st.subheader("Variables de Control")
-        st.caption(
-            "Mayor impacto temporal: pH, temperatura, caudal, nivel, vacio/presion y solidos-humedad; "
-            "estas variables dominan la velocidad de cambio en los registros por etapa."
-        )
+        st.caption("Afectan la velocidad de cambio en los registros por etapa.")
         render_controls()
-        st.subheader("Dimensiones de Equipos")
-        st.caption(
-            "Mayor impacto temporal por diseno: volumen util (V/Q), area de transferencia (A y U), "
-            "capacidad nominal con margen y potencia instalada; estos parametros fijan inercia y tiempo de respuesta."
-        )
+    with right:
+        st.subheader("Dimensiones y Capacidad")
+        st.caption("Parámetros fijos de inercia y tiempo de respuesta.")
         render_equipment_specs_editor()
         render_capacity_limits_editor()
         render_variable_impact_matrix()
 
-    with right:
-        st.subheader("Modo Visual")
-        st.selectbox(
-            "Selecciona un modo de visualizacion",
-            options=list(VISUAL_THEMES.keys()),
-            key="visual_mode",
-        )
-
-        st.subheader("Ejecucion")
-        st.session_state.interval_s = st.slider("Intervalo de actualizacion (segundos)", 1, 5, value=int(st.session_state.interval_s), step=1)
-        b1, b2 = st.columns(2)
-        b3, b4 = st.columns(2)
-        if b1.button("Iniciar", use_container_width=True):
-            st.session_state.running = True
-        if b2.button("Pausar", use_container_width=True):
-            st.session_state.running = False
-        if b3.button("Paso", use_container_width=True):
-            run_step()
-        if b4.button("Reset", use_container_width=True):
-            st.session_state.pending_full_reset = True
-            st.rerun()
-
-        if st.session_state.running:
-            st.markdown("<span class='status-pill status-running' title='Simulacion en ejecucion'></span>", unsafe_allow_html=True)
-        else:
-            st.markdown("<span class='status-pill status-paused' title='Simulacion pausada o sin ejecutar'></span>", unsafe_allow_html=True)
-
-        st.subheader("Modificacion")
-        render_sales_modification_panel()
-
-        render_capacity_issues()
-
-with tab_monitoreo:
-    st.subheader("Indicadores en Vivo")
+elif menu == "Monitoreo":
+    st.subheader("Panel de Indicadores en Vivo")
     render_kpis()
-    st.subheader("KPIs por Etapa")
+    st.divider()
+    st.subheader("KPIs por Etapa de Proceso")
     render_stage_panels()
 
-with tab_validacion:
-    st.subheader("Validacion de proceso")
+elif menu == "Validación":
+    st.subheader("Validación y Rendimiento")
     render_corroboration()
+    st.divider()
     render_production_counters()
 
-with tab_fluidograma:
+elif menu == "Fluidograma":
     render_fluidograma_tab()
 
-with tab_imagenes:
+elif menu == "Imágenes":
     render_equipment_gallery_tab()
 
-with tab_proyecto:
+elif menu == "Proyecto Final":
     render_project_final_tab()
 
 
