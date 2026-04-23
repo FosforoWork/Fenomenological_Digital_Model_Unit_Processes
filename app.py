@@ -1,4 +1,4 @@
-"""Gemelo Digital AJAX - Sala de control en tiempo real para proceso de proteina aislada de soya."""
+"""Gemelo Digital AJAX (Autonomous Juxtaposition for Analytics X-linkage) - Sala de control en tiempo real para proceso de proteina aislada de soya."""
 
 from __future__ import annotations
 
@@ -1935,6 +1935,7 @@ init_state()
 apply_visual_theme_css()
 
 st.title("Gemelo Digital AJAX")
+st.caption("Autonomous Juxtaposition for Analytics X-linkage")
 st.markdown(
     "<div class='hero-panel'><strong>Centro de Operacion Integrado:</strong> interfaz orientada al seguimiento operativo y de produccion en tiempo real.</div>",
     unsafe_allow_html=True,
