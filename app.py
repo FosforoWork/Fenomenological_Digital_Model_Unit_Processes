@@ -1091,6 +1091,18 @@ def init_state() -> None:
         st.session_state.sparkline_history = {}
     if "pv_controls" not in st.session_state:
         st.session_state.pv_controls = st.session_state.controls.copy()
+
+    # Pre-initialize widget states to avoid duplicate state warning when using 'key'
+    for key, value in st.session_state.controls.items():
+        if f"w_{key}" not in st.session_state:
+            st.session_state[f"w_{key}"] = float(value)
+    for key, value in st.session_state.equipment_specs.items():
+        if f"w_eq_{key}" not in st.session_state:
+            st.session_state[f"w_eq_{key}"] = float(value)
+    for key, value in st.session_state.capacity_limits.items():
+        if f"w_lim_{key}" not in st.session_state:
+            st.session_state[f"w_lim_{key}"] = float(value)
+
     if st.session_state.get("pending_full_reset", False):
         _apply_full_reset()
         st.session_state.pending_full_reset = False
@@ -1221,7 +1233,6 @@ def render_equipment_specs_editor() -> None:
                     get_friendly_name(key),
                     min_value=float(vmin),
                     max_value=float(vmax),
-                    value=float(specs[key]),
                     step=_get_widget_step(vmin, vmax),
                     key=f"w_eq_{key}",
                     on_change=clear_errors,
@@ -1241,7 +1252,6 @@ def render_capacity_limits_editor() -> None:
                 get_friendly_name(key),
                 min_value=float(vmin),
                 max_value=float(vmax),
-                value=float(limits[key]),
                 step=_get_widget_step(vmin, vmax),
                 key=f"w_lim_{key}",
                 on_change=clear_errors,
@@ -1252,11 +1262,11 @@ def render_capacity_limits_editor() -> None:
 
 def render_sales_modification_panel() -> None:
     with st.expander("Modificacion comercial", expanded=True):
+        # We don't pass 'value' if 'key' is already in session_state to avoid warnings
         st.number_input(
             "Costo de venta (Bs/kg)",
             min_value=0.0,
             max_value=200.0,
-            value=float(st.session_state.sales_price_bs_kg),
             step=0.05,
             key="w_sales_price_bs_kg",
             on_change=clear_errors,
@@ -1291,7 +1301,6 @@ def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step
     with col_sp:
         val = st.number_input(
             label, vmin, vmax,
-            value=st.session_state.controls[key],
             step=step,
             key=f"w_{key}",
             on_change=clear_errors
