@@ -29,17 +29,18 @@ from core.sales_economics import (
     compute_sales_stage,
 )
 from core.stage_equations import BASELINE_REFERENCES, run_process_model
-from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey, render_svg_pfd
+from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey
 
 
 VISUAL_THEMES = {
-    "Contraste Alto": {
+    "Exploratorio": {
         "plot_template": "plotly_dark",
         "bg_start": "#0f172a",
         "bg_end": "#1e293b",
         "bg_glow": "#334155",
         "text": "#f8fafc",
         "muted_text": "#94a3b8",
+        "accent": "#38bdf8",
         "card_bg": "rgba(30, 41, 59, 0.85)",
         "border": "#334155",
         "note_bg": "#1e293b",
@@ -58,80 +59,31 @@ VISUAL_THEMES = {
         "status": {"verde": "#10b981", "amarillo": "#f59e0b", "rojo": "#ef4444"},
         "aux": ["#38bdf8", "#a78bfa", "#fbbf24"],
     },
-    "Brillo Alto": {
-        "plot_template": "plotly_white",
-        "bg_start": "#fff8ef",
-        "bg_end": "#e8f3ff",
-        "bg_glow": "#ffe4c4",
-        "text": "#0f172a",
-        "muted_text": "#334155",
-        "card_bg": "rgba(255, 255, 255, 0.92)",
-        "border": "#cbd5e1",
-        "note_bg": "#fffbeb",
-        "note_border": "#fed7aa",
-        "note_text": "#7c2d12",
-        "grid": "rgba(148, 163, 184, 0.35)",
-        "stage_colors": {
-            "s0": "#0284c7",
-            "s1": "#16a34a",
-            "s2": "#d97706",
-            "s2_5": "#2563eb",
-            "s3": "#db2777",
-            "s4": "#dc2626",
-            "s5": "#0f766e",
-        },
-        "status": {"verde": "#059669", "amarillo": "#d97706", "rojo": "#dc2626"},
-        "aux": ["#0ea5e9", "#6366f1", "#f59e0b"],
-    },
-    "Contraste Suave": {
-        "plot_template": "plotly_white",
-        "bg_start": "#f4f4f5",
-        "bg_end": "#e4e4e7",
-        "bg_glow": "#d4d4d8",
-        "text": "#27272a",
-        "muted_text": "#52525b",
-        "card_bg": "rgba(250, 250, 250, 0.86)",
-        "border": "#a1a1aa",
-        "note_bg": "#f5f5f4",
-        "note_border": "#d6d3d1",
-        "note_text": "#44403c",
-        "grid": "rgba(113, 113, 122, 0.22)",
-        "stage_colors": {
-            "s0": "#64748b",
-            "s1": "#4d7c0f",
-            "s2": "#b45309",
-            "s2_5": "#4f46e5",
-            "s3": "#be185d",
-            "s4": "#b91c1c",
-            "s5": "#0f766e",
-        },
-        "status": {"verde": "#4d7c0f", "amarillo": "#b45309", "rojo": "#b91c1c"},
-        "aux": ["#0284c7", "#7c3aed", "#ca8a04"],
-    },
-    "Brillo Bajo": {
+    "Baluarte (CAT)": {
         "plot_template": "plotly_dark",
-        "bg_start": "#0f172a",
-        "bg_end": "#1e293b",
-        "bg_glow": "#334155",
-        "text": "#dbeafe",
-        "muted_text": "#94a3b8",
-        "card_bg": "rgba(30, 41, 59, 0.85)",
-        "border": "#475569",
-        "note_bg": "#1e293b",
-        "note_border": "#334155",
-        "note_text": "#cbd5e1",
-        "grid": "rgba(148, 163, 184, 0.20)",
+        "bg_start": "#000000",
+        "bg_end": "#231F20",
+        "bg_glow": "#333333",
+        "text": "#FFFFFF",
+        "muted_text": "#9B9B9B",
+        "accent": "#FFCD00",
+        "card_bg": "rgba(35, 31, 32, 0.85)",
+        "border": "#444444",
+        "note_bg": "#231F20",
+        "note_border": "#FFCD00",
+        "note_text": "#FFFFFF",
+        "grid": "rgba(255, 205, 0, 0.15)",
         "stage_colors": {
-            "s0": "#0ea5e9",
-            "s1": "#22c55e",
-            "s2": "#eab308",
-            "s2_5": "#60a5fa",
-            "s3": "#f472b6",
-            "s4": "#fb7185",
-            "s5": "#f87171",
+            "s0": "#FFCD00",
+            "s1": "#FFCD00",
+            "s2": "#FFCD00",
+            "s2_5": "#FFCD00",
+            "s3": "#FFCD00",
+            "s4": "#FFCD00",
+            "s5": "#FFCD00",
         },
-        "status": {"verde": "#22c55e", "amarillo": "#eab308", "rojo": "#f87171"},
-        "aux": ["#22d3ee", "#818cf8", "#fbbf24"],
+        "status": {"verde": "#10b981", "amarillo": "#FFCD00", "rojo": "#ef4444"},
+        "aux": ["#FFCD00", "#9B9B9B", "#444444"],
     },
 }
 
@@ -794,22 +746,6 @@ KPI_ERROR_BASE_PCT = {
 
 PROJECT_FINAL_ROOT = Path(__file__).resolve().parent / "PROYECTO_FINAL_UNITARIOS"
 PROJECT_FINAL_README_PATH = PROJECT_FINAL_ROOT / "readme.md"
-PROJECT_FINAL_IMAGES_DIR = PROJECT_FINAL_ROOT / "media" / "images"
-SUPPORTED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
-IMAGE_PROCESS_SEQUENCE = [
-    ("planta industrial", "Vista general de planta"),
-    ("silaje soja", "Etapa 0 - Recepcion y almacenamiento"),
-    ("tamizado y molienda", "Etapa 0 - Molienda y tamizado"),
-    ("tanque agitado", "Etapa 1 - Extraccion alcalina"),
-    ("decantador centrifugo", "Etapa 2A - Separacion solido-liquido"),
-    ("intercambiador de calor", "Etapa 2B - Neutralizacion y pasteurizacion"),
-    ("osmosis inversa", "Etapa 2C - Preconcentracion por osmosis inversa"),
-    ("evaporador de doble efecto", "Etapa 3 - Concentracion por evaporacion"),
-    ("precipitador isoelectrico", "Etapa 4 - Precipitacion isoelectrica"),
-    ("spray dryer", "Etapa 5 - Secado por atomizacion"),
-    ("secado y palletizado", "Etapa 6 - Envasado y palletizado"),
-    ("formato de venta", "Producto final - Presentacion comercial"),
-]
 
 
 @st.cache_data(show_spinner=False)
@@ -822,46 +758,6 @@ def load_project_final_readme() -> str:
         return f"No fue posible leer el README del Proyecto Final: {exc}"
 
 
-def list_project_final_images() -> list[Path]:
-    if not PROJECT_FINAL_IMAGES_DIR.exists():
-        return []
-
-    image_paths = [
-        path
-        for path in PROJECT_FINAL_IMAGES_DIR.iterdir()
-        if path.is_file() and path.suffix.lower() in SUPPORTED_IMAGE_SUFFIXES
-    ]
-    return sorted(image_paths, key=lambda path: (_image_process_rank(path), path.name.lower()))
-
-
-def _normalize_text(value: str) -> str:
-    # Normaliza acentos y puntuacion para hacer matching robusto de nombres de archivo.
-    ascii_text = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", ascii_text.lower())).strip()
-
-
-def _image_process_rank(path: Path) -> int:
-    stem = _normalize_text(path.stem)
-    for idx, (token, _) in enumerate(IMAGE_PROCESS_SEQUENCE):
-        if _normalize_text(token) in stem:
-            return idx
-    return len(IMAGE_PROCESS_SEQUENCE)
-
-
-def _image_process_label(path: Path) -> str:
-    stem = _normalize_text(path.stem)
-    for token, label in IMAGE_PROCESS_SEQUENCE:
-        if _normalize_text(token) in stem:
-            return label
-    return "Equipo complementario"
-
-
-def _build_image_caption(path: Path) -> str:
-    normalized = " ".join(path.stem.replace("_", " ").replace("-", " ").split())
-    name = normalized if normalized else path.name
-    return f"{_image_process_label(path)} | {name}"
-
-
 st.set_page_config(
     page_title="Gemelo Digital AJAX",
     page_icon="⚡",
@@ -870,18 +766,18 @@ st.set_page_config(
 )
 
 def get_active_theme() -> dict:
-    mode = st.session_state.get("visual_mode", "Contraste Alto")
-    return VISUAL_THEMES.get(mode, VISUAL_THEMES["Contraste Alto"])
+    mode = st.session_state.get("visual_mode", "Exploratorio")
+    return VISUAL_THEMES.get(mode, VISUAL_THEMES["Exploratorio"])
 
 
 def apply_visual_theme_css() -> None:
-    # Palette definition
-    bg_deep = "#0f172a"
-    bg_surface = "#1e293b"
-    text_main = "#f8fafc"
-    text_muted = "#94a3b8"
-    accent = "#38bdf8"
-    border = "#334155"
+    theme = get_active_theme()
+    bg_deep = theme["bg_start"]
+    bg_surface = theme["bg_end"]
+    text_main = theme["text"]
+    text_muted = theme["muted_text"]
+    accent = theme["accent"]
+    border = theme["border"]
 
     st.markdown(
         f"""
@@ -1230,7 +1126,7 @@ def init_state() -> None:
     else:
         st.session_state.interval_s = int(max(1, min(5, st.session_state.interval_s)))
     if "visual_mode" not in st.session_state:
-        st.session_state.visual_mode = "Contraste Alto"
+        st.session_state.visual_mode = "Exploratorio"
     if "sales_price_bs_kg" not in st.session_state:
         st.session_state.sales_price_bs_kg = float(DEFAULT_SALES_PRICE_BS_PER_KG)
     if "w_sales_price_bs_kg" not in st.session_state:
@@ -2010,10 +1906,9 @@ def render_production_counters() -> None:
 
 def render_fluidograma_tab() -> None:
     theme = get_active_theme()
-    st.subheader("Fluidograma integrado y balance de masa")
+    st.subheader("Balance de Masa (Sankey)")
     st.caption(
-        "Visualizacion dinamica del tren de proceso con corrientes principales, "
-        "desperdicios y cierre de masa en tiempo real."
+        "Distribución de flujos y balance de masa en tiempo real."
     )
 
     result = st.session_state.last_result
@@ -2022,132 +1917,10 @@ def render_fluidograma_tab() -> None:
         return
 
     payload = build_fluidograma_payload(result)
-
-    # Renderizar PFD en SVG (Nueva visualización principal)
-    st.markdown("### Diagrama de Flujo de Proceso (PFD)")
-    svg_html = render_svg_pfd(payload, theme)
-    bg_color = theme.get("bg_start", "#0f172a")
-    st.markdown(
-        f"<div style='background: {bg_color}; padding: 20px; border-radius: 12px; border: 1px solid {theme['border']}; margin-bottom: 2rem;'>{svg_html}</div>",
-        unsafe_allow_html=True
-    )
-
-    with st.expander("Ver Diagrama Sankey (Balance Detallado)"):
-        fig = build_fluidograma_sankey(payload, theme)
-        st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("### Rendimiento por proceso")
-    rend_icons = {
-        "Extraccion proteica": "🧪",
-        "Recuperacion separacion": "🔄",
-        "Calidad post pasteurizacion": "🌡️",
-        "Recuperacion OI": "💧",
-        "Retencion proteica OI": "🛡️",
-        "Eficiencia precipitacion": "⚖️",
-        "Recuperacion centrifuga": "🌀",
-        "Rendimiento global": "🏆",
-    }
-
-    rendimiento_cols = st.columns(4)
-    for idx, item in enumerate(payload["rendimientos"]):
-        col = rendimiento_cols[idx % 4]
-        icon = rend_icons.get(item["label"], "📊")
-        with col:
-            st.markdown(
-                f"""
-                <div style='border: 1px solid {theme["border"]}; border-radius: 12px; padding: 15px; background: {theme["card_bg"]}; margin-bottom: 10px;'>
-                    <div style='font-size: 1.5rem; margin-bottom: 5px;'>{icon}</div>
-                    <div style='color: {theme["muted_text"]}; font-size: 0.85rem; font-weight: 600;'>{item["label"]}</div>
-                    <div style='color: {theme["text"]}; font-size: 1.4rem; font-weight: 700;'>{float(item['value_pct']):.2f}%</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-    st.markdown("### Desperdicios y corrientes laterales")
-    desp_icons = {
-        "Okara humedo": "🌾",
-        "Permeado OI": "🚰",
-        "Agua evaporada": "☁️",
-        "Suero residual": "🧪",
-        "Agua removida en secado": "💨",
-        "Proteina perdida en okara": "📉",
-    }
-
-    desperdicios = payload["desperdicios"]
-    disp_cols = st.columns(3)
-    for idx, item in enumerate(desperdicios):
-        col = disp_cols[idx % 3]
-        icon = desp_icons.get(item["label"], "🗑️")
-        with col:
-            st.markdown(
-                f"""
-                <div style='border: 1px solid {theme["border"]}; border-radius: 12px; padding: 15px; background: {theme["card_bg"]}; margin-bottom: 10px; border-left: 4px solid {theme["status"]["rojo"]}66;'>
-                    <div style='display: flex; align-items: center; gap: 10px;'>
-                        <div style='font-size: 1.5rem;'>{icon}</div>
-                        <div>
-                            <div style='color: {theme["muted_text"]}; font-size: 0.8rem;'>{item["label"]}</div>
-                            <div style='color: {theme["text"]}; font-size: 1.1rem; font-weight: 700;'>{_format_number_es(float(item['value_kg_h']), 2)} kg/h</div>
-                        </div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-    balance = payload["balance"]
-    st.markdown("### Balance de masa global")
-    b1, b2, b3, b4 = st.columns(4)
-    b1.metric("Entrada total", f"{_format_number_es(float(balance['mass_in_kg_h']), 1)} kg/h")
-    b2.metric("Salida total", f"{_format_number_es(float(balance['mass_out_kg_h']), 1)} kg/h")
-    b3.metric("Error de balance", f"{float(balance['mass_balance_error_pct']):+.3f}%")
-    b4.metric("Cierre de masa", f"{float(balance['mass_balance_closure_pct']):.3f}%")
-
-    closure = float(balance["mass_balance_closure_pct"])
-    if closure >= 99.5:
-        st.markdown("<div class='kpi-status kpi-stable'>Cierre de masa dentro del criterio documental (>= 99.5%).</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div class='kpi-status kpi-unstable'>Advertencia: cierre de masa por debajo del criterio documental.</div>", unsafe_allow_html=True)
-
-    st.caption(
-        "Convencion de unidades: corrientes acuosas convertidas a kg/h con densidad 1000 kg/m3, "
-        "coherente con el modelo de etapas."
-    )
+    fig = build_fluidograma_sankey(payload, theme)
+    st.plotly_chart(fig, use_container_width=True)
 
 
-def render_equipment_gallery_tab() -> None:
-    st.subheader("Imagenes de equipos y planta")
-
-    image_paths = list_project_final_images()
-    if not image_paths:
-        st.info("No se encontraron imagenes en PROYECTO_FINAL_UNITARIOS/media/images.")
-        return
-
-    st.caption(
-        "Orden de visualizacion segun el Informe Simplificado: "
-        "Etapa 0 -> Etapa 1 -> Etapa 2A -> Etapa 2B -> Etapa 2C -> Etapa 3 -> Etapa 4 -> Etapa 5 -> Etapa 6 -> Producto final. "
-        f"Total de imagenes detectadas: {len(image_paths)}"
-    )
-
-    plant_images = [path for path in image_paths if "planta" in path.stem.lower()]
-    equipment_images = [path for path in image_paths if path not in plant_images]
-
-    st.markdown("### Vista general de planta")
-    if plant_images:
-        for path in plant_images:
-            st.image(str(path), caption=_build_image_caption(path), width="stretch")
-    else:
-        st.caption("No se detecto una imagen de planta por nombre; se muestran todas como equipos.")
-
-    st.markdown("### Equipos del proceso")
-    if not equipment_images:
-        st.caption("No hay imagenes de equipos adicionales disponibles.")
-        return
-
-    cols = st.columns(3)
-    for idx, path in enumerate(equipment_images):
-        with cols[idx % 3]:
-            st.image(str(path), caption=_build_image_caption(path), width="stretch")
 
 
 def render_project_final_tab() -> None:
@@ -2190,7 +1963,7 @@ with st.sidebar:
     st.markdown("### Navegación")
     menu = st.radio(
         "Selecciona una sección:",
-        ["Operación", "Monitoreo", "Validación", "Fluidograma", "Imágenes", "Proyecto Final"],
+        ["Operación", "Monitoreo", "Validación", "Fluidograma", "Proyecto Final"],
         label_visibility="collapsed"
     )
 
@@ -2215,6 +1988,14 @@ with st.sidebar:
         st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-running'></span> Ejecutando...</div>", unsafe_allow_html=True)
     else:
         st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Pausado</div>", unsafe_allow_html=True)
+
+    st.divider()
+    with st.expander("⚙️ Configuración"):
+        st.selectbox(
+            "Tema de interfaz",
+            options=list(VISUAL_THEMES.keys()),
+            key="visual_mode"
+        )
 
     st.divider()
     render_sales_modification_panel()
@@ -2248,9 +2029,6 @@ elif menu == "Validación":
 
 elif menu == "Fluidograma":
     render_fluidograma_tab()
-
-elif menu == "Imágenes":
-    render_equipment_gallery_tab()
 
 elif menu == "Proyecto Final":
     render_project_final_tab()
