@@ -927,9 +927,34 @@ def apply_visual_theme_css() -> None:
                 background-color: var(--bg-surface);
                 border: 1px solid var(--border);
                 border-radius: 12px;
-                padding: 1.25rem !important;
+                padding: 1rem !important;
                 transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }}
+
+            .kpi-meta {{
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+            }}
+
+            .kpi-status {{
+                font-size: 0.75rem;
+                font-weight: 600;
+                margin-top: 4px;
+                padding: 2px 8px;
+                border-radius: 4px;
+                display: inline-block;
+            }}
+
+            .kpi-stable {{
+                background-color: rgba(16, 185, 129, 0.1);
+                color: #10b981;
+            }}
+
+            .kpi-unstable {{
+                background-color: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
             }}
 
             div[data-testid="stMetric"]:hover {{
@@ -1184,6 +1209,7 @@ def _apply_full_reset() -> None:
     st.session_state.production_elapsed_s = 0.0
     st.session_state.production_protein_kg = 0.0
     st.session_state.production_bags_1kg = 0.0
+    st.session_state.sparkline_history = {}
 
 
 def init_state() -> None:
@@ -1225,6 +1251,8 @@ def init_state() -> None:
         st.session_state.production_protein_kg = 0.0
     if "production_bags_1kg" not in st.session_state:
         st.session_state.production_bags_1kg = 0.0
+    if "sparkline_history" not in st.session_state:
+        st.session_state.sparkline_history = {}
     if st.session_state.get("pending_full_reset", False):
         _apply_full_reset()
         st.session_state.pending_full_reset = False
@@ -1536,7 +1564,30 @@ def run_step() -> None:
         equipment_specs=st.session_state.equipment_specs,
         capacity_limits=st.session_state.capacity_limits,
     )
-    st.session_state.log.append(_inject_independent_error(snapshot))
+
+    # Generate actual and predicted (both with noise for realism as requested)
+    actual_noisy = _inject_independent_error(snapshot)
+    predicted_noisy = _inject_independent_error(snapshot)
+
+    st.session_state.log.append(actual_noisy)
+
+    # Update sparkline history (last 60 seconds)
+    # snapshot is flattened by build_snapshot, so we can iterate top-level keys
+    max_points = 60 // st.session_state.interval_s
+    for key in actual_noisy:
+        if not (key.startswith("stage_") or key.startswith("capacity_")) or not isinstance(actual_noisy[key], (int, float)):
+            continue
+
+        if key not in st.session_state.sparkline_history:
+            st.session_state.sparkline_history[key] = []
+
+        st.session_state.sparkline_history[key].append({
+            "actual": actual_noisy[key],
+            "predicted": predicted_noisy[key]
+        })
+
+        if len(st.session_state.sparkline_history[key]) > max_points:
+            st.session_state.sparkline_history[key] = st.session_state.sparkline_history[key][-max_points:]
 
 
 def _error_base_pct_for_key(key: str) -> float:
@@ -1547,7 +1598,8 @@ def _inject_independent_error(snapshot: dict) -> dict:
     """Inyecta ruido independiente por ciclo para evitar valores planos en monitoreo."""
     noisy_snapshot = snapshot.copy()
     for key, value in snapshot.items():
-        if not key.startswith("stage_") or not isinstance(value, (int, float)):
+        # Inject error only for process and capacity variables
+        if not (key.startswith("stage_") or key.startswith("capacity_")) or not isinstance(value, (int, float)):
             continue
 
         base_error_pct = _error_base_pct_for_key(key)
@@ -1645,42 +1697,62 @@ def _format_kpi_value(value: float, unit: str, decimals: int) -> str:
     return number
 
 
-def _render_kpi_chart(df: pd.DataFrame, key: str, stats: dict, theme: dict) -> None:
-    """Renderiza un mini gráfico de líneas para el KPI."""
-    series = df[key].dropna().tail(30) # Mostrar últimos 30 puntos
-    if len(series) < 2:
+def _render_kpi_chart(key: str, stats: dict, theme: dict, chart_key: str | None = None) -> None:
+    """Renderiza un mini gráfico de líneas (sparkline) para el KPI con modo exploratorio."""
+    history = st.session_state.get("sparkline_history", {}).get(key, [])
+    if len(history) < 2:
         return
+
+    actual_values = [h["actual"] for h in history]
+    predicted_values = [h["predicted"] for h in history]
 
     fig = go.Figure()
 
-    # Bandas de control (límites admisibles)
-    fig.add_hline(y=stats["upper_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.4)
-    fig.add_hline(y=stats["lower_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.4)
-    fig.add_hline(y=stats["average"], line_dash="dot", line_color=theme["muted_text"], opacity=0.6)
-
-    # Línea principal
+    # Predicción del modelo (línea punteada) - Modo Exploratorio
     fig.add_trace(go.Scatter(
-        y=series.values,
+        y=predicted_values,
         mode="lines",
-        line=dict(color=theme["stage_colors"].get(key, theme["stage_colors"].get("s0", "#38bdf8")), width=2),
-        fill="tonexty",
-        fillcolor=f"rgba(56, 189, 248, 0.1)",
+        name="Predicción",
+        line=dict(color=theme["muted_text"], width=1, dash="dot"),
         hoverinfo="skip"
     ))
 
+    # Valor actual (línea sólida)
+    # Extract stage (e.g., stage_1 -> s1)
+    stage_key = "s0"
+    parts = key.split("_")
+    if len(parts) > 1 and parts[0] == "stage":
+        stage_id = parts[1]
+        if stage_id in ["0", "1", "2", "3", "4", "5"]:
+            stage_key = f"s{stage_id}"
+        elif stage_id == "2" and len(parts) > 2 and parts[2] == "5":
+            stage_key = "s2_5"
+
+    color = theme["stage_colors"].get(stage_key, theme["stage_colors"].get("s0", "#38bdf8"))
+    fig.add_trace(go.Scatter(
+        y=actual_values,
+        mode="lines",
+        name="Actual",
+        line=dict(color=color, width=2),
+        hoverinfo="skip"
+    ))
+
+    # Bandas de control (límites admisibles)
+    fig.add_hline(y=stats["upper_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.3)
+    fig.add_hline(y=stats["lower_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.3)
+
     fig.update_layout(
-        height=80,
-        margin=dict(l=0, r=0, t=5, b=5),
+        height=60,
+        margin=dict(l=0, r=0, t=0, b=0),
         xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
         yaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         showlegend=False,
         template="plotly_dark",
-        font=dict(family="Inter", color="#f8fafc")
     )
 
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=chart_key or f"spark_{key}")
 
 
 def _render_kpi_card(
@@ -1694,6 +1766,7 @@ def _render_kpi_card(
     secondary_unit: str = "",
     secondary_decimals: int = 2,
     compact: bool = False,
+    card_id: str | None = None,
 ) -> None:
     stats = _compute_kpi_window_stats(df, key)
     theme = get_active_theme()
@@ -1714,7 +1787,7 @@ def _render_kpi_card(
         )
 
         # Gráfico de líneas integrado
-        _render_kpi_chart(df, key, stats, theme)
+        _render_kpi_chart(key, stats, theme, chart_key=f"spark_{card_id or key}")
 
         st.markdown(
             f"<div class='kpi-meta'>Error +/- {_format_kpi_value(stats['error_abs'], unit, decimals)} | Prom: {_format_number_es(stats['average'], decimals)}</div>",
@@ -1749,25 +1822,32 @@ def _render_kpi_card(
 
 
 def render_kpis() -> None:
+    df = st.session_state.log.to_dataframe()
     result = st.session_state.last_result
-    stage_5 = result["stage_5"]
-    stage_2_5 = result["stage_2_5_ro"]
-    stage_3 = result["stage_3"]
     capacity = result.get("capacity", {})
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Proteina final (kg/h)", f"{stage_5['protein_final_kg_h']:.1f}")
-    c2.metric("Rendimiento global (%)", f"{stage_5['overall_yield_pct']:.1f}")
-    c3.metric("Recuperacion OI (%)", f"{stage_2_5['ro_recovery_pct']:.1f}")
-    c4.metric("Agua evaporada (m3/h)", f"{stage_3['evaporated_water_m3_h']:.2f}")
+    with c1:
+        _render_kpi_card(df, "stage_5_protein_final_kg_h", "Proteina final", "kg/h", 1, card_id="top_protein")
+    with c2:
+        _render_kpi_card(df, "stage_5_overall_yield_pct", "Rendimiento global", "%", 1, card_id="top_yield")
+    with c3:
+        _render_kpi_card(df, "stage_2_5_ro_ro_recovery_pct", "Recuperacion OI", "%", 1, card_id="top_ro")
+    with c4:
+        _render_kpi_card(df, "stage_3_evaporated_water_m3_h", "Agua evaporada", "m3/h", 2, card_id="top_evap")
+
     st.caption("Baselines documentales: extraccion 88%, OI 25%, pasteurizacion 80 C/22 s, evaporacion 0.40 bar.")
 
     if capacity:
         u1, u2, u3, u4 = st.columns(4)
-        u1.metric("Uso tanque E0 (%)", f"{capacity.get('stage_0_tank_utilization_pct', 0.0):.1f}")
-        u2.metric("Uso intercambiador (%)", f"{capacity.get('stage_2_hex_thermal_load_pct', 0.0):.1f}")
-        u3.metric("Flujo OI (LMH)", f"{capacity.get('stage_2_5_ro_flux_lmh', 0.0):.1f}")
-        u4.metric("Uso secador (%)", f"{capacity.get('stage_5_dryer_load_pct', 0.0):.1f}")
+        with u1:
+            _render_kpi_card(df, "capacity_stage_0_tank_utilization_pct", "Uso tanque E0", "%", 1)
+        with u2:
+            _render_kpi_card(df, "capacity_stage_2_hex_thermal_load_pct", "Uso intercambiador", "%", 1)
+        with u3:
+            _render_kpi_card(df, "capacity_stage_2_5_ro_flux_lmh", "Flujo OI", "LMH", 1)
+        with u4:
+            _render_kpi_card(df, "capacity_stage_5_dryer_load_pct", "Uso secador", "%", 1)
 
 
 def render_stage_panels() -> None:
