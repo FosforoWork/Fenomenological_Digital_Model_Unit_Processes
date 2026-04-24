@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from core.labels import get_friendly_name
+
 
 class EquipmentCapacityError(ValueError):
     """Error de bloqueo cuando una restriccion de capacidad no se cumple."""
@@ -57,7 +59,7 @@ def evaluate_capacity_constraints(
                     f"Volumen requerido {required_tank_0_m3:.2f} m3 excede volumen util "
                     f"{available_tank_0_m3:.2f} m3"
                 ),
-                recommendation=f"Incrementa stage_0_tank_capacity_m3 a >= {suggested_tank:.2f} m3",
+                recommendation=f"Incrementa {get_friendly_name('stage_0_tank_capacity_m3')} a >= {suggested_tank:.2f} m3",
             )
         )
 
@@ -74,7 +76,7 @@ def evaluate_capacity_constraints(
                     f"Carga de bomba {stage_0['pump_kw']:.2f} kW excede limite operativo "
                     f"{pump_motor_kw * capacity_limits['pump_max_load_fraction']:.2f} kW"
                 ),
-                recommendation=f"Incrementa stage_0_pump_motor_kw a >= {suggested_motor_kw:.2f} kW",
+                recommendation=f"Incrementa {get_friendly_name('stage_0_pump_motor_kw')} a >= {suggested_motor_kw:.2f} kW",
             )
         )
 
@@ -98,7 +100,7 @@ def evaluate_capacity_constraints(
                     f"Volumen requerido {required_tank_1_m3:.2f} m3 excede volumen util "
                     f"{available_tank_1_m3:.2f} m3"
                 ),
-                recommendation=f"Incrementa stage_1_tank_capacity_m3 a >= {suggested_tank_1:.2f} m3",
+                recommendation=f"Incrementa {get_friendly_name('stage_1_tank_capacity_m3')} a >= {suggested_tank_1:.2f} m3",
             )
         )
 
@@ -121,7 +123,7 @@ def evaluate_capacity_constraints(
                     f"Area de placas {hex_area_m2:.2f} m2 fuera de banda eficiente "
                     f"[{capacity_limits['stage_2_hex_min_area_m2']:.2f}, {capacity_limits['stage_2_hex_max_area_m2']:.2f}] m2"
                 ),
-                recommendation="Ajusta stage_2_hex_area_m2 dentro de la banda eficiente configurada",
+                recommendation=f"Ajusta {get_friendly_name('stage_2_hex_area_m2')} dentro de la banda eficiente configurada",
             )
         )
 
@@ -142,7 +144,7 @@ def evaluate_capacity_constraints(
                     f"{available_hex_kw * capacity_limits['stage_2_hex_max_thermal_load_fraction']:.1f} kW"
                 ),
                 recommendation=(
-                    f"Incrementa stage_2_hex_area_m2 a >= {suggested_area:.2f} m2, "
+                    f"Incrementa {get_friendly_name('stage_2_hex_area_m2')} a >= {suggested_area:.2f} m2, "
                     "aumenta U o reduce carga termica"
                 ),
             )
@@ -162,7 +164,7 @@ def evaluate_capacity_constraints(
                     f"[{capacity_limits['stage_2_5_ro_min_flux_lmh']:.2f}, {capacity_limits['stage_2_5_ro_max_flux_lmh']:.2f}] LMH"
                 ),
                 recommendation=(
-                    f"Aumenta stage_2_5_ro_membrane_area_m2 a >= {suggested_area:.2f} m2 "
+                    f"Aumenta {get_friendly_name('stage_2_5_ro_membrane_area_m2')} a >= {suggested_area:.2f} m2 "
                     "o ajusta TMP/crossflow"
                 ),
             )
@@ -181,7 +183,7 @@ def evaluate_capacity_constraints(
                     f"Carga de evaporacion {stage_3['evaporator_boiling_removed_m3_h']:.2f} m3/h "
                     f"excede limite operativo {evap_capacity * capacity_limits['stage_3_evap_max_load_fraction']:.2f} m3/h"
                 ),
-                recommendation=f"Incrementa stage_3_evap_capacity_m3_h a >= {suggested_evap:.2f} m3/h",
+                recommendation=f"Incrementa {get_friendly_name('stage_3_evap_capacity_m3_h')} a >= {suggested_evap:.2f} m3/h",
             )
         )
 
@@ -198,7 +200,7 @@ def evaluate_capacity_constraints(
                     f"Caudal de alimentacion {stage_4['slurry_precip_m3_h']:.2f} m3/h excede limite operativo "
                     f"{centrifuge_capacity * capacity_limits['stage_4_2_centrifuge_max_load_fraction']:.2f} m3/h"
                 ),
-                recommendation=f"Incrementa stage_4_2_centrifuge_capacity_m3_h a >= {suggested_cent:.2f} m3/h",
+                recommendation=f"Incrementa {get_friendly_name('stage_4_2_centrifuge_capacity_m3_h')} a >= {suggested_cent:.2f} m3/h",
             )
         )
 
@@ -215,7 +217,7 @@ def evaluate_capacity_constraints(
                     f"Remocion de agua {stage_5['dryer_water_removed_kg_h']:.1f} kg/h excede limite operativo "
                     f"{dryer_capacity * capacity_limits['stage_5_dryer_max_load_fraction']:.1f} kg/h"
                 ),
-                recommendation=f"Incrementa stage_5_dryer_evap_capacity_kg_h a >= {suggested_dryer:.1f} kg/h",
+                recommendation=f"Incrementa {get_friendly_name('stage_5_dryer_evap_capacity_kg_h')} a >= {suggested_dryer:.1f} kg/h",
             )
         )
 
@@ -232,7 +234,7 @@ def evaluate_capacity_constraints(
                     f"Carga de polvo {specific_powder_load:.2f} kg/h/m3 excede limite "
                     f"{capacity_limits['stage_5_max_powder_rate_kg_h_m3']:.2f} kg/h/m3"
                 ),
-                recommendation=f"Incrementa stage_5_dryer_chamber_volume_m3 a >= {suggested_volume:.2f} m3",
+                recommendation=f"Incrementa {get_friendly_name('stage_5_dryer_chamber_volume_m3')} a >= {suggested_volume:.2f} m3",
             )
         )
 
