@@ -12,7 +12,6 @@ import unicodedata
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-from streamlit_option_menu import option_menu
 
 from core.equipment_constraints import EquipmentCapacityError
 from core.equipment_specs import (
@@ -30,7 +29,6 @@ from core.sales_economics import (
     compute_sales_stage,
 )
 from core.stage_equations import BASELINE_REFERENCES, run_process_model
-from core.labels import CONTROL_LABELS, EQUIPMENT_SPEC_LABELS, CAPACITY_LIMIT_LABELS, get_friendly_name
 from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey
 
 
@@ -162,6 +160,51 @@ EQUIPMENT_GROUPS = [
 ]
 
 
+EQUIPMENT_SPEC_LABELS = {
+    "stage_0_tank_capacity_m3": "Capacidad tanque agua (m3)",
+    "stage_0_tank_reserve_factor": "Factor reserva tanque agua",
+    "stage_0_pump_head_m": "Altura manometrica bomba (m)",
+    "stage_0_pump_eta_hyd": "Eficiencia hidraulica bomba",
+    "stage_0_pump_eta_motor": "Eficiencia motor bomba",
+    "stage_0_pump_motor_kw": "Potencia nominal bomba (kW)",
+    "stage_1_slurry_density_kg_m3": "Densidad lodo extraccion (kg/m3)",
+    "stage_1_tank_capacity_m3": "Capacidad tanque extraccion (m3)",
+    "stage_1_tank_reserve_factor": "Factor reserva tanque extraccion",
+    "stage_1_base_extraction_eff": "Eficiencia base extraccion (frac)",
+    "stage_1_2_extract_recovery": "Recuperacion base separacion primaria (frac)",
+    "stage_2_acid_addition_m3_h": "Dosificacion acido (m3/h)",
+    "stage_2_cp_kj_kgk": "Cp mezcla (kJ/kgK)",
+    "stage_2_hex_area_m2": "Area de placas intercambiador (m2)",
+    "stage_2_hex_u_w_m2k": "Coeficiente U intercambiador (W/m2K)",
+    "stage_2_hex_lmtd_c": "LMTD diseno intercambiador (C)",
+    "stage_2_5_ro_base_recovery": "Recuperacion base OI (frac)",
+    "stage_2_5_ro_membrane_area_m2": "Area de membrana OI (m2)",
+    "stage_3_solids_to_protein_ratio": "Relacion solidos/proteina evaporador",
+    "stage_3_steam_economy": "Economia de vapor",
+    "stage_3_evap_capacity_m3_h": "Capacidad evaporador (m3/h)",
+    "stage_4_base_precip_eff": "Eficiencia base precipitacion (frac)",
+    "stage_4_2_co_solids_kg_h": "Co-solidos post centrifuga (kg/h)",
+    "stage_4_2_base_moisture_frac": "Humedad base pasta (frac)",
+    "stage_4_2_centrifuge_capacity_m3_h": "Capacidad centrifuga (m3/h)",
+    "stage_5_dryer_evap_capacity_kg_h": "Capacidad evaporativa secador (kg/h)",
+    "stage_5_dryer_chamber_volume_m3": "Volumen camara secador (m3)",
+}
+
+
+CAPACITY_LIMIT_LABELS = {
+    "tank_max_fill_fraction": "Maximo llenado tanque Etapa 0",
+    "stage_1_tank_max_fill_fraction": "Maximo llenado tanque Etapa 1",
+    "pump_max_load_fraction": "Maximo uso motor bomba",
+    "stage_2_hex_max_thermal_load_fraction": "Maximo uso termico intercambiador",
+    "stage_2_hex_min_area_m2": "Area minima eficiente intercambiador (m2)",
+    "stage_2_hex_max_area_m2": "Area maxima eficiente intercambiador (m2)",
+    "stage_2_5_ro_min_flux_lmh": "Flujo minimo OI (LMH)",
+    "stage_2_5_ro_max_flux_lmh": "Flujo maximo OI (LMH)",
+    "stage_3_evap_max_load_fraction": "Maximo uso evaporador",
+    "stage_4_2_centrifuge_max_load_fraction": "Maximo uso centrifuga",
+    "stage_5_dryer_max_load_fraction": "Maximo uso secador",
+    "stage_5_max_powder_rate_kg_h_m3": "Maximo polvo por volumen secador (kg/h/m3)",
+}
 
 
 IMPACT_STAGE_ORDER = [
@@ -202,6 +245,31 @@ CONTROL_STAGE_LABELS = {
 }
 
 
+CONTROL_LABELS = {
+    "soy_feed_kg_h": "Alimentacion de soya (kg/h)",
+    "water_flow_m3_h": "Caudal de agua (m3/h)",
+    "water_temp_c": "Temperatura de agua (C)",
+    "extraction_ph": "pH extraccion",
+    "extraction_temp_c": "Temperatura extraccion (C)",
+    "extraction_residence_min": "Tiempo residencia (min)",
+    "agitator_rpm": "Velocidad agitacion (RPM)",
+    "solid_liquid_ratio": "Ratio solido/liquido (1:x)",
+    "pasteur_temp_c": "Temperatura de pasteurizacion (C)",
+    "pasteur_retention_s": "Retencion termica (s)",
+    "ro_tmp_bar": "TMP OI (bar)",
+    "ro_crossflow_ms": "Velocidad cruzada OI (m/s)",
+    "ro_feed_temp_c": "Temperatura alimentacion OI (C)",
+    "ro_feed_ph": "pH alimentacion OI",
+    "ro_sdi": "SDI",
+    "evap_pressure_bar": "Presion evaporador (bar abs)",
+    "evap_temp_c": "Temperatura evaporacion (C)",
+    "precip_ph": "pH de precipitacion",
+    "precip_time_min": "Tiempo de precipitacion (min)",
+    "centrifuge_g": "Factor G centrifuga",
+    "centrifuge_time_min": "Tiempo centrifugacion (min)",
+    "dryer_temp_c": "Temperatura de secado (C)",
+    "dryer_residence_min": "Residencia en secador (min)",
+}
 
 
 CONTROL_IMPACT_META = {
@@ -486,7 +554,7 @@ def _build_variable_impact_rows() -> list[dict[str, str]]:
         rows.append({
             "Etapa": CONTROL_STAGE_LABELS[key],
             "Tipo": "Control",
-            "Variable": get_friendly_name(key),
+            "Variable": CONTROL_LABELS[key],
             "Clave": key,
             "Impacto temporal": meta["impact"],
             "Significativa": "SI" if meta["significant"] else "NO",
@@ -499,7 +567,7 @@ def _build_variable_impact_rows() -> list[dict[str, str]]:
         rows.append({
             "Etapa": stage_map[key],
             "Tipo": "Dimensionamiento",
-            "Variable": get_friendly_name(key),
+            "Variable": EQUIPMENT_SPEC_LABELS.get(key, key),
             "Clave": key,
             "Impacto temporal": meta["impact"],
             "Significativa": "SI" if meta["significant"] else "NO",
@@ -1012,12 +1080,6 @@ def _format_pct_delta_es(value: float) -> str:
     return f"{sign}{_format_number_es(abs(value), 2)}%"
 
 
-def clear_errors() -> None:
-    """Limpia las alertas de capacidad y errores de la sesion."""
-    st.session_state.capacity_issues = []
-    st.session_state.last_run_error = ""
-
-
 def _apply_full_reset() -> None:
     st.session_state.running = False
     st.session_state.controls = DEFAULT_CONTROLS.copy()
@@ -1218,13 +1280,12 @@ def render_equipment_specs_editor() -> None:
             for key in keys:
                 vmin, vmax = EQUIPMENT_SPEC_LIMITS[key]
                 val = st.number_input(
-                    get_friendly_name(key),
+                    EQUIPMENT_SPEC_LABELS.get(key, key),
                     min_value=float(vmin),
                     max_value=float(vmax),
                     value=float(specs[key]),
                     step=_get_widget_step(vmin, vmax),
                     key=f"w_eq_{key}",
-                    on_change=clear_errors,
                 )
                 _render_range_bar(key, float(vmin), float(vmax), val)
 
@@ -1238,13 +1299,12 @@ def render_capacity_limits_editor() -> None:
         for key in CAPACITY_LIMIT_DEFAULTS:
             vmin, vmax = CAPACITY_LIMIT_BOUNDS[key]
             st.number_input(
-                get_friendly_name(key),
+                CAPACITY_LIMIT_LABELS.get(key, key),
                 min_value=float(vmin),
                 max_value=float(vmax),
                 value=float(limits[key]),
                 step=_get_widget_step(vmin, vmax),
                 key=f"w_lim_{key}",
-                on_change=clear_errors,
             )
 
     sync_capacity_limits_from_widgets()
@@ -1259,7 +1319,6 @@ def render_sales_modification_panel() -> None:
             value=float(st.session_state.sales_price_bs_kg),
             step=0.05,
             key="w_sales_price_bs_kg",
-            on_change=clear_errors,
         )
         sync_sales_price_from_widgets()
         st.caption(
@@ -1269,19 +1328,15 @@ def render_sales_modification_panel() -> None:
 
 
 def render_capacity_issues() -> None:
-    container = st.empty()
     if st.session_state.capacity_issues:
-        with container.container():
-            st.error("Simulacion bloqueada por capacidad de equipos.")
-            for issue in st.session_state.capacity_issues:
-                st.warning(
-                    f"[{issue['equipment']}] {issue['message']}\n\n"
-                    f"Recomendacion: {issue['recommendation']}"
-                )
+        st.error("Simulacion bloqueada por capacidad de equipos.")
+        for issue in st.session_state.capacity_issues:
+            st.warning(
+                f"[{issue['equipment']}] {issue['message']}\n\n"
+                f"Recomendacion: {issue['recommendation']}"
+            )
     elif st.session_state.last_run_error:
-        container.error(st.session_state.last_run_error)
-    else:
-        container.empty()
+        st.error(st.session_state.last_run_error)
 
 
 def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step: float) -> float:
@@ -1289,13 +1344,7 @@ def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step
 
     col_sp, col_pv = st.columns([3, 1])
     with col_sp:
-        val = st.number_input(
-            label, vmin, vmax,
-            value=st.session_state.controls[key],
-            step=step,
-            key=f"w_{key}",
-            on_change=clear_errors
-        )
+        val = st.number_input(label, vmin, vmax, value=st.session_state.controls[key], step=step, key=f"w_{key}")
     with col_pv:
         st.markdown(f"<div style='margin-top: 32px;'><small>PV:</small><br><b>{pv:.2f}</b></div>", unsafe_allow_html=True)
 
@@ -1304,41 +1353,41 @@ def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step
 
 def render_controls() -> None:
     with st.expander("Etapa 0 · Preparacion", expanded=True):
-        _render_control_with_pv(get_friendly_name("soy_feed_kg_h"), "soy_feed_kg_h", 100.0, 8000.0, 100.0)
-        _render_control_with_pv(get_friendly_name("water_flow_m3_h"), "water_flow_m3_h", 2.0, 30.0, 0.1)
-        _render_control_with_pv(get_friendly_name("water_temp_c"), "water_temp_c", 5.0, 90.0, 0.5)
+        _render_control_with_pv("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 100.0, 8000.0, 100.0)
+        _render_control_with_pv("Caudal de agua (m3/h)", "water_flow_m3_h", 2.0, 30.0, 0.1)
+        _render_control_with_pv("Temperatura de agua (C)", "water_temp_c", 5.0, 90.0, 0.5)
 
     with st.expander("Etapa 1 · Extraccion", expanded=False):
-        _render_control_with_pv(get_friendly_name("extraction_ph"), "extraction_ph", 6.0, 12.0, 0.01)
-        _render_control_with_pv(get_friendly_name("extraction_temp_c"), "extraction_temp_c", 20.0, 95.0, 0.5)
-        _render_control_with_pv(get_friendly_name("extraction_residence_min"), "extraction_residence_min", 5.0, 180.0, 1.0)
-        _render_control_with_pv(get_friendly_name("agitator_rpm"), "agitator_rpm", 10.0, 500.0, 1.0)
-        _render_control_with_pv(get_friendly_name("solid_liquid_ratio"), "solid_liquid_ratio", 4.0, 30.0, 0.1)
+        _render_control_with_pv("pH extraccion", "extraction_ph", 6.0, 12.0, 0.01)
+        _render_control_with_pv("Temperatura extraccion (C)", "extraction_temp_c", 20.0, 95.0, 0.5)
+        _render_control_with_pv("Tiempo residencia (min)", "extraction_residence_min", 5.0, 180.0, 1.0)
+        _render_control_with_pv("Velocidad agitacion (RPM)", "agitator_rpm", 10.0, 500.0, 1.0)
+        _render_control_with_pv("Ratio solido/liquido (1:x)", "solid_liquid_ratio", 4.0, 30.0, 0.1)
 
     with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
-        _render_control_with_pv(get_friendly_name("pasteur_temp_c"), "pasteur_temp_c", 50.0, 130.0, 0.5)
-        _render_control_with_pv(get_friendly_name("pasteur_retention_s"), "pasteur_retention_s", 2.0, 180.0, 1.0)
+        _render_control_with_pv("Temperatura de pasteurizacion (C)", "pasteur_temp_c", 50.0, 130.0, 0.5)
+        _render_control_with_pv("Retencion termica (s)", "pasteur_retention_s", 2.0, 180.0, 1.0)
 
     with st.expander("Etapa 2.5 · Osmosis inversa", expanded=False):
-        _render_control_with_pv(get_friendly_name("ro_tmp_bar"), "ro_tmp_bar", 5.0, 45.0, 0.1)
-        _render_control_with_pv(get_friendly_name("ro_crossflow_ms"), "ro_crossflow_ms", 0.2, 3.0, 0.05)
-        _render_control_with_pv(get_friendly_name("ro_feed_temp_c"), "ro_feed_temp_c", 5.0, 60.0, 0.5)
-        _render_control_with_pv(get_friendly_name("ro_feed_ph"), "ro_feed_ph", 3.0, 11.0, 0.01)
-        _render_control_with_pv(get_friendly_name("ro_sdi"), "ro_sdi", 1.0, 8.0, 0.1)
+        _render_control_with_pv("TMP OI (bar)", "ro_tmp_bar", 5.0, 45.0, 0.1)
+        _render_control_with_pv("Velocidad cruzada OI (m/s)", "ro_crossflow_ms", 0.2, 3.0, 0.05)
+        _render_control_with_pv("Temperatura alimentacion OI (C)", "ro_feed_temp_c", 5.0, 60.0, 0.5)
+        _render_control_with_pv("pH alimentacion OI", "ro_feed_ph", 3.0, 11.0, 0.01)
+        _render_control_with_pv("SDI", "ro_sdi", 1.0, 8.0, 0.1)
 
     with st.expander("Etapa 3 · Evaporacion", expanded=False):
-        _render_control_with_pv(get_friendly_name("evap_pressure_bar"), "evap_pressure_bar", 0.05, 1.20, 0.01)
-        _render_control_with_pv(get_friendly_name("evap_temp_c"), "evap_temp_c", 20.0, 95.0, 0.5)
+        _render_control_with_pv("Presion evaporador (bar abs)", "evap_pressure_bar", 0.05, 1.20, 0.01)
+        _render_control_with_pv("Temperatura evaporacion (C)", "evap_temp_c", 20.0, 95.0, 0.5)
 
     with st.expander("Etapa 4 · Precipitacion y centrifugacion", expanded=False):
-        _render_control_with_pv(get_friendly_name("precip_ph"), "precip_ph", 2.5, 7.0, 0.01)
-        _render_control_with_pv(get_friendly_name("precip_time_min"), "precip_time_min", 2.0, 120.0, 1.0)
-        _render_control_with_pv(get_friendly_name("centrifuge_g"), "centrifuge_g", 200.0, 5000.0, 10.0)
-        _render_control_with_pv(get_friendly_name("centrifuge_time_min"), "centrifuge_time_min", 1.0, 120.0, 1.0)
+        _render_control_with_pv("pH de precipitacion", "precip_ph", 2.5, 7.0, 0.01)
+        _render_control_with_pv("Tiempo de precipitacion (min)", "precip_time_min", 2.0, 120.0, 1.0)
+        _render_control_with_pv("Factor G centrifuga", "centrifuge_g", 200.0, 5000.0, 10.0)
+        _render_control_with_pv("Tiempo centrifugacion (min)", "centrifuge_time_min", 1.0, 120.0, 1.0)
 
     with st.expander("Etapa 5 · Secado", expanded=False):
-        _render_control_with_pv(get_friendly_name("dryer_temp_c"), "dryer_temp_c", 40.0, 220.0, 1.0)
-        _render_control_with_pv(get_friendly_name("dryer_residence_min"), "dryer_residence_min", 1.0, 180.0, 1.0)
+        _render_control_with_pv("Temperatura de secado (C)", "dryer_temp_c", 40.0, 220.0, 1.0)
+        _render_control_with_pv("Residencia en secador (min)", "dryer_residence_min", 1.0, 180.0, 1.0)
 
     sync_controls_from_widgets()
 
@@ -1409,14 +1458,14 @@ def run_step() -> None:
         _, warning = _get_variable_ranges(key, 0, 100) # vmin/vmax no afectan al warning en esta funcion
         w_min, w_max = warning
         if value < w_min or value > w_max:
-            danger_vars.append(f"Control: {get_friendly_name(key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
+            danger_vars.append(f"Control: {CONTROL_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
 
     # Chequeo de Dimensionamiento
     for key, value in st.session_state.equipment_specs.items():
         _, warning = _get_variable_ranges(key, 0, 100)
         w_min, w_max = warning
         if value < w_min or value > w_max:
-            danger_vars.append(f"Equipo: {get_friendly_name(key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
+            danger_vars.append(f"Equipo: {EQUIPMENT_SPEC_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
 
     if danger_vars:
         st.session_state.running = False
@@ -1912,24 +1961,10 @@ st.markdown(
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
     st.markdown("### Navegación")
-    menu = option_menu(
-        None,
+    menu = st.radio(
+        "Selecciona una sección:",
         ["Operación", "Monitoreo", "Validación", "Fluidograma", "Proyecto Final"],
-        icons=['gear', 'activity', 'check-circle', 'diagram-3', 'book'],
-        menu_icon="cast",
-        default_index=0,
-        styles={
-            "container": {"padding": "0!important", "background-color": "transparent"},
-            "icon": {"color": "var(--accent)", "font-size": "1rem"},
-            "nav-link": {
-                "font-size": "0.9rem",
-                "text-align": "left",
-                "margin": "0px",
-                "--hover-color": "rgba(56, 189, 248, 0.1)",
-                "color": "var(--text-main)",
-            },
-            "nav-link-selected": {"background-color": "rgba(56, 189, 248, 0.2)", "border-left": "3px solid var(--accent)"},
-        }
+        label_visibility="collapsed"
     )
 
     st.divider()
@@ -1938,14 +1973,12 @@ with st.sidebar:
 
     col1, col2 = st.columns(2)
     if col1.button("Ejecutar Simulación", use_container_width=True):
-        clear_errors()
         st.session_state.running = True
     if col2.button("Parar Simulación", use_container_width=True):
         st.session_state.running = False
 
     col3, col4 = st.columns(2)
     if col3.button("Paso", use_container_width=True):
-        clear_errors()
         run_step()
     if col4.button("Reiniciar Simulación", use_container_width=True):
         st.session_state.pending_full_reset = True
