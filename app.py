@@ -1948,13 +1948,13 @@ def render_project_final_tab() -> None:
 init_state()
 apply_visual_theme_css()
 
-st.title("Gemelo Digital AJAX")
+st.title("Gemelo Digital AJAX - Autonomous Juxtaposition for Analytics X-Linkage")
 st.markdown(
     "<div class='hero-panel'><strong>Centro de Operacion Integrado:</strong> interfaz orientada al seguimiento operativo y de produccion en tiempo real.</div>",
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<div class='note-chip'>Modo exploratorio activo: los rangos de control son amplios para pruebas de sensibilidad; usa los semaforos de corroboracion para identificar condiciones fuera de banda documental.</div>",
+    "<div class='hero-panel'>Modo exploratorio activo: los rangos de control son amplios para pruebas de sensibilidad; usa los semaforos de corroboracion para identificar condiciones fuera de banda documental.</div>",
     unsafe_allow_html=True,
 )
 
@@ -1972,22 +1972,22 @@ with st.sidebar:
     st.session_state.interval_s = st.slider("Intervalo (s)", 1, 5, value=int(st.session_state.interval_s), step=1)
 
     col1, col2 = st.columns(2)
-    if col1.button("Iniciar", use_container_width=True):
+    if col1.button("Ejecutar Simulación", use_container_width=True):
         st.session_state.running = True
-    if col2.button("Pausar", use_container_width=True):
+    if col2.button("Parar Simulación", use_container_width=True):
         st.session_state.running = False
 
     col3, col4 = st.columns(2)
     if col3.button("Paso", use_container_width=True):
         run_step()
-    if col4.button("Reset", use_container_width=True):
+    if col4.button("Reiniciar Simulación", use_container_width=True):
         st.session_state.pending_full_reset = True
         st.rerun()
 
     if st.session_state.running:
-        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-running'></span> Ejecutando...</div>", unsafe_allow_html=True)
+        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-running'></span> Simulacion Iniciada</div>", unsafe_allow_html=True)
     else:
-        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Pausado</div>", unsafe_allow_html=True)
+        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Simulación Pausada</div>", unsafe_allow_html=True)
 
     st.divider()
     with st.expander("⚙️ Configuración"):
