@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 import random
 import re
@@ -28,7 +29,7 @@ from core.sales_economics import (
     compute_sales_stage,
 )
 from core.stage_equations import BASELINE_REFERENCES, run_process_model
-from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey
+from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey, render_svg_pfd
 
 
 VISUAL_THEMES = {
@@ -1210,6 +1211,7 @@ def _apply_full_reset() -> None:
     st.session_state.production_protein_kg = 0.0
     st.session_state.production_bags_1kg = 0.0
     st.session_state.sparkline_history = {}
+    st.session_state.pv_controls = st.session_state.controls.copy()
 
 
 def init_state() -> None:
@@ -1253,6 +1255,8 @@ def init_state() -> None:
         st.session_state.production_bags_1kg = 0.0
     if "sparkline_history" not in st.session_state:
         st.session_state.sparkline_history = {}
+    if "pv_controls" not in st.session_state:
+        st.session_state.pv_controls = st.session_state.controls.copy()
     if st.session_state.get("pending_full_reset", False):
         _apply_full_reset()
         st.session_state.pending_full_reset = False
@@ -1439,77 +1443,121 @@ def render_capacity_issues() -> None:
         st.error(st.session_state.last_run_error)
 
 
+def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step: float) -> float:
+    pv = st.session_state.pv_controls.get(key, st.session_state.controls[key])
+
+    col_sp, col_pv = st.columns([3, 1])
+    with col_sp:
+        val = st.number_input(label, vmin, vmax, value=st.session_state.controls[key], step=step, key=f"w_{key}")
+    with col_pv:
+        st.markdown(f"<div style='margin-top: 32px;'><small>PV:</small><br><b>{pv:.2f}</b></div>", unsafe_allow_html=True)
+
+    _render_range_bar(key, vmin, vmax, pv)
+    return val
+
 def render_controls() -> None:
-    controls = st.session_state.controls
     with st.expander("Etapa 0 · Preparacion", expanded=True):
-        val01 = st.number_input("Alimentacion de soya (kg/h)", 100.0, 8000.0, value=controls["soy_feed_kg_h"], step=100.0, key="w_soy_feed_kg_h")
-        _render_range_bar("soy_feed_kg_h", 100.0, 8000.0, val01)
-        val02 = st.number_input("Caudal de agua (m3/h)", 2.0, 30.0, value=controls["water_flow_m3_h"], step=0.1, key="w_water_flow_m3_h")
-        _render_range_bar("water_flow_m3_h", 2.0, 30.0, val02)
-        val03 = st.number_input("Temperatura de agua (C)", 5.0, 90.0, value=controls["water_temp_c"], step=0.5, key="w_water_temp_c")
-        _render_range_bar("water_temp_c", 5.0, 90.0, val03)
+        _render_control_with_pv("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 100.0, 8000.0, 100.0)
+        _render_control_with_pv("Caudal de agua (m3/h)", "water_flow_m3_h", 2.0, 30.0, 0.1)
+        _render_control_with_pv("Temperatura de agua (C)", "water_temp_c", 5.0, 90.0, 0.5)
 
     with st.expander("Etapa 1 · Extraccion", expanded=False):
-        val11 = st.number_input("pH extraccion", 6.0, 12.0, value=controls["extraction_ph"], step=0.01, key="w_extraction_ph")
-        _render_range_bar("extraction_ph", 6.0, 12.0, val11)
-        val12 = st.number_input("Temperatura extraccion (C)", 20.0, 95.0, value=controls["extraction_temp_c"], step=0.5, key="w_extraction_temp_c")
-        _render_range_bar("extraction_temp_c", 20.0, 95.0, val12)
-        val13 = st.number_input("Tiempo residencia (min)", 5.0, 180.0, value=controls["extraction_residence_min"], step=1.0, key="w_extraction_residence_min")
-        _render_range_bar("extraction_residence_min", 5.0, 180.0, val13)
-        val14 = st.number_input("Velocidad agitacion (RPM)", 10.0, 500.0, value=controls["agitator_rpm"], step=1.0, key="w_agitator_rpm")
-        _render_range_bar("agitator_rpm", 10.0, 500.0, val14)
-        val15 = st.number_input("Ratio solido/liquido (1:x)", 4.0, 30.0, value=controls["solid_liquid_ratio"], step=0.1, key="w_solid_liquid_ratio")
-        _render_range_bar("solid_liquid_ratio", 4.0, 30.0, val15)
+        _render_control_with_pv("pH extraccion", "extraction_ph", 6.0, 12.0, 0.01)
+        _render_control_with_pv("Temperatura extraccion (C)", "extraction_temp_c", 20.0, 95.0, 0.5)
+        _render_control_with_pv("Tiempo residencia (min)", "extraction_residence_min", 5.0, 180.0, 1.0)
+        _render_control_with_pv("Velocidad agitacion (RPM)", "agitator_rpm", 10.0, 500.0, 1.0)
+        _render_control_with_pv("Ratio solido/liquido (1:x)", "solid_liquid_ratio", 4.0, 30.0, 0.1)
 
     with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
-        val21 = st.number_input("Temperatura de pasteurizacion (C)", 50.0, 130.0, value=controls["pasteur_temp_c"], step=0.5, key="w_pasteur_temp_c")
-        _render_range_bar("pasteur_temp_c", 50.0, 130.0, val21)
-        val22 = st.number_input("Retencion termica (s)", 2.0, 180.0, value=controls["pasteur_retention_s"], step=1.0, key="w_pasteur_retention_s")
-        _render_range_bar("pasteur_retention_s", 2.0, 180.0, val22)
+        _render_control_with_pv("Temperatura de pasteurizacion (C)", "pasteur_temp_c", 50.0, 130.0, 0.5)
+        _render_control_with_pv("Retencion termica (s)", "pasteur_retention_s", 2.0, 180.0, 1.0)
 
     with st.expander("Etapa 2.5 · Osmosis inversa", expanded=False):
-        val251 = st.number_input("TMP OI (bar)", 5.0, 45.0, value=controls["ro_tmp_bar"], step=0.1, key="w_ro_tmp_bar")
-        _render_range_bar("ro_tmp_bar", 5.0, 45.0, val251)
-        val252 = st.number_input("Velocidad cruzada OI (m/s)", 0.2, 3.0, value=controls["ro_crossflow_ms"], step=0.05, key="w_ro_crossflow_ms")
-        _render_range_bar("ro_crossflow_ms", 0.2, 3.0, val252)
-        val253 = st.number_input("Temperatura alimentacion OI (C)", 5.0, 60.0, value=controls["ro_feed_temp_c"], step=0.5, key="w_ro_feed_temp_c")
-        _render_range_bar("ro_feed_temp_c", 5.0, 60.0, val253)
-        val254 = st.number_input("pH alimentacion OI", 3.0, 11.0, value=controls["ro_feed_ph"], step=0.01, key="w_ro_feed_ph")
-        _render_range_bar("ro_feed_ph", 3.0, 11.0, val254)
-        val255 = st.number_input("SDI", 1.0, 8.0, value=controls["ro_sdi"], step=0.1, key="w_ro_sdi")
-        _render_range_bar("ro_sdi", 1.0, 8.0, val255)
+        _render_control_with_pv("TMP OI (bar)", "ro_tmp_bar", 5.0, 45.0, 0.1)
+        _render_control_with_pv("Velocidad cruzada OI (m/s)", "ro_crossflow_ms", 0.2, 3.0, 0.05)
+        _render_control_with_pv("Temperatura alimentacion OI (C)", "ro_feed_temp_c", 5.0, 60.0, 0.5)
+        _render_control_with_pv("pH alimentacion OI", "ro_feed_ph", 3.0, 11.0, 0.01)
+        _render_control_with_pv("SDI", "ro_sdi", 1.0, 8.0, 0.1)
 
     with st.expander("Etapa 3 · Evaporacion", expanded=False):
-        val31 = st.number_input("Presion evaporador (bar abs)", 0.05, 1.20, value=controls["evap_pressure_bar"], step=0.01, key="w_evap_pressure_bar")
-        _render_range_bar("evap_pressure_bar", 0.05, 1.20, val31)
-        val32 = st.number_input("Temperatura evaporacion (C)", 20.0, 95.0, value=controls["evap_temp_c"], step=0.5, key="w_evap_temp_c")
-        _render_range_bar("evap_temp_c", 20.0, 95.0, val32)
+        _render_control_with_pv("Presion evaporador (bar abs)", "evap_pressure_bar", 0.05, 1.20, 0.01)
+        _render_control_with_pv("Temperatura evaporacion (C)", "evap_temp_c", 20.0, 95.0, 0.5)
 
     with st.expander("Etapa 4 · Precipitacion y centrifugacion", expanded=False):
-        val41 = st.number_input("pH de precipitacion", 2.5, 7.0, value=controls["precip_ph"], step=0.01, key="w_precip_ph")
-        _render_range_bar("precip_ph", 2.5, 7.0, val41)
-        val42 = st.number_input("Tiempo de precipitacion (min)", 2.0, 120.0, value=controls["precip_time_min"], step=1.0, key="w_precip_time_min")
-        _render_range_bar("precip_time_min", 2.0, 120.0, val42)
-        val43 = st.number_input("Factor G centrifuga", 200.0, 5000.0, value=controls["centrifuge_g"], step=10.0, key="w_centrifuge_g")
-        _render_range_bar("centrifuge_g", 200.0, 5000.0, val43)
-        val44 = st.number_input("Tiempo centrifugacion (min)", 1.0, 120.0, value=controls["centrifuge_time_min"], step=1.0, key="w_centrifuge_time_min")
-        _render_range_bar("centrifuge_time_min", 1.0, 120.0, val44)
+        _render_control_with_pv("pH de precipitacion", "precip_ph", 2.5, 7.0, 0.01)
+        _render_control_with_pv("Tiempo de precipitacion (min)", "precip_time_min", 2.0, 120.0, 1.0)
+        _render_control_with_pv("Factor G centrifuga", "centrifuge_g", 200.0, 5000.0, 10.0)
+        _render_control_with_pv("Tiempo centrifugacion (min)", "centrifuge_time_min", 1.0, 120.0, 1.0)
 
     with st.expander("Etapa 5 · Secado", expanded=False):
-        val51 = st.number_input("Temperatura de secado (C)", 40.0, 220.0, value=controls["dryer_temp_c"], step=1.0, key="w_dryer_temp_c")
-        _render_range_bar("dryer_temp_c", 40.0, 220.0, val51)
-        val52 = st.number_input("Residencia en secador (min)", 1.0, 180.0, value=controls["dryer_residence_min"], step=1.0, key="w_dryer_residence_min")
-        _render_range_bar("dryer_residence_min", 1.0, 180.0, val52)
+        _render_control_with_pv("Temperatura de secado (C)", "dryer_temp_c", 40.0, 220.0, 1.0)
+        _render_control_with_pv("Residencia en secador (min)", "dryer_residence_min", 1.0, 180.0, 1.0)
 
     sync_controls_from_widgets()
 
 
+def apply_process_inertia(dt: float) -> None:
+    """Aplica inercia de primer orden a las variables de proceso (PV) hacia los Setpoints (SP)."""
+    specs = st.session_state.equipment_specs
+    controls = st.session_state.controls
+
+    # Inercia calculada segun capacidad (Residencia Hidraulica Escalada)
+    v0 = specs.get("stage_0_tank_capacity_m3", 15.0)
+    q0 = max(controls.get("water_flow_m3_h", 12.0), 1.0)
+    tau_water = max(10.0, (v0 / q0) * 10.0) # Escalado para realismo en app
+
+    v1 = specs.get("stage_1_tank_capacity_m3", 15.0)
+    q1 = q0 + (controls.get("soy_feed_kg_h", 1000.0) / 1000.0)
+    tau_ext = max(15.0, (v1 / q1) * 12.0)
+
+    # Constantes de tiempo (tau) en segundos
+    TAUS = {
+        "soy_feed_kg_h": 12.0,
+        "water_flow_m3_h": 8.0,
+        "water_temp_c": tau_water,
+        "extraction_ph": tau_ext * 0.6,
+        "extraction_temp_c": tau_ext,
+        "extraction_residence_min": 5.0,
+        "agitator_rpm": 4.0,
+        "solid_liquid_ratio": 15.0,
+        "pasteur_temp_c": 35.0,
+        "pasteur_retention_s": 3.0,
+        "ro_tmp_bar": 7.0,
+        "ro_crossflow_ms": 4.0,
+        "ro_feed_temp_c": 30.0,
+        "ro_feed_ph": 20.0,
+        "ro_sdi": 50.0,
+        "evap_pressure_bar": 25.0,
+        "evap_temp_c": 50.0,
+        "precip_ph": 22.0,
+        "precip_time_min": 8.0,
+        "centrifuge_g": 12.0,
+        "centrifuge_time_min": 4.0,
+        "dryer_temp_c": 55.0,
+        "dryer_residence_min": 8.0,
+    }
+
+    for key, sp in st.session_state.controls.items():
+        pv_old = st.session_state.pv_controls.get(key, sp)
+        tau = TAUS.get(key, 20.0)
+        # PV_new = PV_old + (SP - PV_old) * (1 - exp(-dt / tau))
+        # Si dt >> tau, PV_new aproxima SP.
+        alpha = 1.0 - math.exp(-dt / tau)
+        pv_new = pv_old + (sp - pv_old) * alpha
+        st.session_state.pv_controls[key] = pv_new
+
+
 def run_step() -> None:
-    # Verificacion de rangos para paro del sistema
+    cycle_s = float(st.session_state.interval_s)
+
+    # Aplicar inercia antes de correr el modelo
+    apply_process_inertia(cycle_s)
+
+    # Verificacion de rangos para paro del sistema usando PVs
     danger_vars = []
 
     # Chequeo de Controles
-    for key, value in st.session_state.controls.items():
+    for key, value in st.session_state.pv_controls.items():
         # Obtenemos los rangos de seguridad (ideal, warning)
         _, warning = _get_variable_ranges(key, 0, 100) # vmin/vmax no afectan al warning en esta funcion
         w_min, w_max = warning
@@ -1530,8 +1578,9 @@ def run_step() -> None:
         return
 
     try:
+        # El modelo ahora corre con los PVs calculados con inercia
         result = run_process_model(
-            st.session_state.controls,
+            st.session_state.pv_controls,
             equipment_specs=st.session_state.equipment_specs,
             capacity_limits=st.session_state.capacity_limits,
         )
@@ -1558,12 +1607,16 @@ def run_step() -> None:
     st.session_state.production_protein_kg += protein_rate_kg_h * (cycle_s / 3600.0)
     st.session_state.production_bags_1kg += powder_rate_kg_h * (cycle_s / 3600.0)
 
+    # El snapshot debe registrar tanto SP como PV para telemetría
     snapshot = build_snapshot(
-        st.session_state.controls,
+        st.session_state.pv_controls,
         result,
         equipment_specs=st.session_state.equipment_specs,
         capacity_limits=st.session_state.capacity_limits,
     )
+    # Añadimos los setpoints explicitamente con prefijo sp_
+    for k, v in st.session_state.controls.items():
+        snapshot[f"sp_{k}"] = float(v)
 
     # Generate actual and predicted (both with noise for realism as requested)
     actual_noisy = _inject_independent_error(snapshot)
@@ -1969,9 +2022,19 @@ def render_fluidograma_tab() -> None:
         return
 
     payload = build_fluidograma_payload(result)
-    fig = build_fluidograma_sankey(payload, theme)
 
-    st.plotly_chart(fig, use_container_width=True)
+    # Renderizar PFD en SVG (Nueva visualización principal)
+    st.markdown("### Diagrama de Flujo de Proceso (PFD)")
+    svg_html = render_svg_pfd(payload, theme)
+    bg_color = theme.get("bg_start", "#0f172a")
+    st.markdown(
+        f"<div style='background: {bg_color}; padding: 20px; border-radius: 12px; border: 1px solid {theme['border']}; margin-bottom: 2rem;'>{svg_html}</div>",
+        unsafe_allow_html=True
+    )
+
+    with st.expander("Ver Diagrama Sankey (Balance Detallado)"):
+        fig = build_fluidograma_sankey(payload, theme)
+        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Rendimiento por proceso")
     rend_icons = {
