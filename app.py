@@ -1071,17 +1071,64 @@ def apply_visual_theme_css() -> None:
             .status-running {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
             .status-paused {{ background-color: #ef4444; }}
 
-            /* Range Bar Styling */
-            .range-bar {{
-                height: 4px;
-                background: var(--border);
-                border-radius: 2px;
+            .semaphore-container {{
+                display: flex;
+                align-items: center;
+                gap: 8px;
                 margin-top: 4px;
+            }}
+            .semaphore-dot {{
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }}
+            .bg-verde {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
+            .bg-amarillo {{ background-color: #f59e0b; box-shadow: 0 0 8px #f59e0b; }}
+            .bg-rojo {{ background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }}
+
+            /* Range Bar Styling */
+            .range-container {{
+                position: relative;
+                height: 24px;
+                width: 100%;
+                margin-top: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+            }}
+            .range-bar {{
+                height: 8px;
+                background: var(--border);
+                border-radius: 4px;
+                flex-grow: 1;
+                display: flex;
                 overflow: hidden;
+                position: relative;
             }}
             .range-ideal {{ background: #10b981; }}
             .range-warning {{ background: #f59e0b; }}
             .range-danger {{ background: #ef4444; }}
+
+            .range-pointer {{
+                position: absolute;
+                top: -6px;
+                width: 4px;
+                height: 20px;
+                background: var(--text-main);
+                border-radius: 2px;
+                border: 1px solid var(--bg-deep);
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+                z-index: 10;
+                transition: left 0.3s ease-out;
+            }}
+
+            .range-label-container {{
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.7rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+            }}
 
         </style>
         """,
@@ -1265,7 +1312,7 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     return (default * 0.9, default * 1.1), (default * 0.7, default * 1.3)
 
 
-def _render_range_bar(key: str, vmin: float, vmax: float):
+def _render_range_bar(key: str, vmin: float, vmax: float, current_val: float):
     ideal, warning = _get_variable_ranges(key, vmin, vmax)
     i_min, i_max = ideal
     w_min, w_max = warning
@@ -1278,16 +1325,22 @@ def _render_range_bar(key: str, vmin: float, vmax: float):
         (vmax, "danger")
     ]
 
-    html = '<div class="range-bar">'
-    prev = vmin
     span = max(vmax - vmin, 1e-9)
+    # Clip pointer position between 0 and 100%
+    pointer_pos = max(0.0, min(100.0, (current_val - vmin) / span * 100))
+
+    html = '<div class="range-container"><div class="range-bar">'
+    prev = vmin
     for end_val, ztype in points:
         actual_end = max(prev, min(end_val, vmax))
         width = (actual_end - prev) / span * 100
         if width > 0.01:
             html += f'<div class="range-segment range-{ztype}" style="width: {width}%"></div>'
         prev = actual_end
-    html += '</div>'
+
+    html += f'</div><div class="range-pointer" style="left: calc({pointer_pos}% - 2px);"></div></div>'
+    html += f'<div class="range-label-container"><span>{vmin}</span><span>{vmax}</span></div>'
+
     st.markdown(html, unsafe_allow_html=True)
 
 
@@ -1298,7 +1351,7 @@ def render_equipment_specs_editor() -> None:
         with st.expander(f"Dimensiones · {group_label}", expanded=(idx == 0)):
             for key in keys:
                 vmin, vmax = EQUIPMENT_SPEC_LIMITS[key]
-                st.number_input(
+                val = st.number_input(
                     EQUIPMENT_SPEC_LABELS.get(key, key),
                     min_value=float(vmin),
                     max_value=float(vmax),
@@ -1306,7 +1359,7 @@ def render_equipment_specs_editor() -> None:
                     step=_get_widget_step(vmin, vmax),
                     key=f"w_eq_{key}",
                 )
-                _render_range_bar(key, float(vmin), float(vmax))
+                _render_range_bar(key, float(vmin), float(vmax), val)
 
     sync_equipment_specs_from_widgets()
 
@@ -1361,64 +1414,64 @@ def render_capacity_issues() -> None:
 def render_controls() -> None:
     controls = st.session_state.controls
     with st.expander("Etapa 0 · Preparacion", expanded=True):
-        st.number_input("Alimentacion de soya (kg/h)", 100.0, 8000.0, value=controls["soy_feed_kg_h"], step=100.0, key="w_soy_feed_kg_h")
-        _render_range_bar("soy_feed_kg_h", 100.0, 8000.0)
-        st.slider("Caudal de agua (m3/h)", 2.0, 30.0, value=controls["water_flow_m3_h"], step=0.1, key="w_water_flow_m3_h")
-        _render_range_bar("water_flow_m3_h", 2.0, 30.0)
-        st.slider("Temperatura de agua (C)", 5.0, 90.0, value=controls["water_temp_c"], step=0.5, key="w_water_temp_c")
-        _render_range_bar("water_temp_c", 5.0, 90.0)
+        val01 = st.number_input("Alimentacion de soya (kg/h)", 100.0, 8000.0, value=controls["soy_feed_kg_h"], step=100.0, key="w_soy_feed_kg_h")
+        _render_range_bar("soy_feed_kg_h", 100.0, 8000.0, val01)
+        val02 = st.number_input("Caudal de agua (m3/h)", 2.0, 30.0, value=controls["water_flow_m3_h"], step=0.1, key="w_water_flow_m3_h")
+        _render_range_bar("water_flow_m3_h", 2.0, 30.0, val02)
+        val03 = st.number_input("Temperatura de agua (C)", 5.0, 90.0, value=controls["water_temp_c"], step=0.5, key="w_water_temp_c")
+        _render_range_bar("water_temp_c", 5.0, 90.0, val03)
 
     with st.expander("Etapa 1 · Extraccion", expanded=False):
-        st.slider("pH extraccion", 6.0, 12.0, value=controls["extraction_ph"], step=0.01, key="w_extraction_ph")
-        _render_range_bar("extraction_ph", 6.0, 12.0)
-        st.slider("Temperatura extraccion (C)", 20.0, 95.0, value=controls["extraction_temp_c"], step=0.5, key="w_extraction_temp_c")
-        _render_range_bar("extraction_temp_c", 20.0, 95.0)
-        st.slider("Tiempo residencia (min)", 5.0, 180.0, value=controls["extraction_residence_min"], step=1.0, key="w_extraction_residence_min")
-        _render_range_bar("extraction_residence_min", 5.0, 180.0)
-        st.slider("Velocidad agitacion (RPM)", 10.0, 500.0, value=controls["agitator_rpm"], step=1.0, key="w_agitator_rpm")
-        _render_range_bar("agitator_rpm", 10.0, 500.0)
-        st.slider("Ratio solido/liquido (1:x)", 4.0, 30.0, value=controls["solid_liquid_ratio"], step=0.1, key="w_solid_liquid_ratio")
-        _render_range_bar("solid_liquid_ratio", 4.0, 30.0)
+        val11 = st.number_input("pH extraccion", 6.0, 12.0, value=controls["extraction_ph"], step=0.01, key="w_extraction_ph")
+        _render_range_bar("extraction_ph", 6.0, 12.0, val11)
+        val12 = st.number_input("Temperatura extraccion (C)", 20.0, 95.0, value=controls["extraction_temp_c"], step=0.5, key="w_extraction_temp_c")
+        _render_range_bar("extraction_temp_c", 20.0, 95.0, val12)
+        val13 = st.number_input("Tiempo residencia (min)", 5.0, 180.0, value=controls["extraction_residence_min"], step=1.0, key="w_extraction_residence_min")
+        _render_range_bar("extraction_residence_min", 5.0, 180.0, val13)
+        val14 = st.number_input("Velocidad agitacion (RPM)", 10.0, 500.0, value=controls["agitator_rpm"], step=1.0, key="w_agitator_rpm")
+        _render_range_bar("agitator_rpm", 10.0, 500.0, val14)
+        val15 = st.number_input("Ratio solido/liquido (1:x)", 4.0, 30.0, value=controls["solid_liquid_ratio"], step=0.1, key="w_solid_liquid_ratio")
+        _render_range_bar("solid_liquid_ratio", 4.0, 30.0, val15)
 
     with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
-        st.slider("Temperatura de pasteurizacion (C)", 50.0, 130.0, value=controls["pasteur_temp_c"], step=0.5, key="w_pasteur_temp_c")
-        _render_range_bar("pasteur_temp_c", 50.0, 130.0)
-        st.slider("Retencion termica (s)", 2.0, 180.0, value=controls["pasteur_retention_s"], step=1.0, key="w_pasteur_retention_s")
-        _render_range_bar("pasteur_retention_s", 2.0, 180.0)
+        val21 = st.number_input("Temperatura de pasteurizacion (C)", 50.0, 130.0, value=controls["pasteur_temp_c"], step=0.5, key="w_pasteur_temp_c")
+        _render_range_bar("pasteur_temp_c", 50.0, 130.0, val21)
+        val22 = st.number_input("Retencion termica (s)", 2.0, 180.0, value=controls["pasteur_retention_s"], step=1.0, key="w_pasteur_retention_s")
+        _render_range_bar("pasteur_retention_s", 2.0, 180.0, val22)
 
     with st.expander("Etapa 2.5 · Osmosis inversa", expanded=False):
-        st.slider("TMP OI (bar)", 5.0, 45.0, value=controls["ro_tmp_bar"], step=0.1, key="w_ro_tmp_bar")
-        _render_range_bar("ro_tmp_bar", 5.0, 45.0)
-        st.slider("Velocidad cruzada OI (m/s)", 0.2, 3.0, value=controls["ro_crossflow_ms"], step=0.05, key="w_ro_crossflow_ms")
-        _render_range_bar("ro_crossflow_ms", 0.2, 3.0)
-        st.slider("Temperatura alimentacion OI (C)", 5.0, 60.0, value=controls["ro_feed_temp_c"], step=0.5, key="w_ro_feed_temp_c")
-        _render_range_bar("ro_feed_temp_c", 5.0, 60.0)
-        st.slider("pH alimentacion OI", 3.0, 11.0, value=controls["ro_feed_ph"], step=0.01, key="w_ro_feed_ph")
-        _render_range_bar("ro_feed_ph", 3.0, 11.0)
-        st.slider("SDI", 1.0, 8.0, value=controls["ro_sdi"], step=0.1, key="w_ro_sdi")
-        _render_range_bar("ro_sdi", 1.0, 8.0)
+        val251 = st.number_input("TMP OI (bar)", 5.0, 45.0, value=controls["ro_tmp_bar"], step=0.1, key="w_ro_tmp_bar")
+        _render_range_bar("ro_tmp_bar", 5.0, 45.0, val251)
+        val252 = st.number_input("Velocidad cruzada OI (m/s)", 0.2, 3.0, value=controls["ro_crossflow_ms"], step=0.05, key="w_ro_crossflow_ms")
+        _render_range_bar("ro_crossflow_ms", 0.2, 3.0, val252)
+        val253 = st.number_input("Temperatura alimentacion OI (C)", 5.0, 60.0, value=controls["ro_feed_temp_c"], step=0.5, key="w_ro_feed_temp_c")
+        _render_range_bar("ro_feed_temp_c", 5.0, 60.0, val253)
+        val254 = st.number_input("pH alimentacion OI", 3.0, 11.0, value=controls["ro_feed_ph"], step=0.01, key="w_ro_feed_ph")
+        _render_range_bar("ro_feed_ph", 3.0, 11.0, val254)
+        val255 = st.number_input("SDI", 1.0, 8.0, value=controls["ro_sdi"], step=0.1, key="w_ro_sdi")
+        _render_range_bar("ro_sdi", 1.0, 8.0, val255)
 
     with st.expander("Etapa 3 · Evaporacion", expanded=False):
-        st.slider("Presion evaporador (bar abs)", 0.05, 1.20, value=controls["evap_pressure_bar"], step=0.01, key="w_evap_pressure_bar")
-        _render_range_bar("evap_pressure_bar", 0.05, 1.20)
-        st.slider("Temperatura evaporacion (C)", 20.0, 95.0, value=controls["evap_temp_c"], step=0.5, key="w_evap_temp_c")
-        _render_range_bar("evap_temp_c", 20.0, 95.0)
+        val31 = st.number_input("Presion evaporador (bar abs)", 0.05, 1.20, value=controls["evap_pressure_bar"], step=0.01, key="w_evap_pressure_bar")
+        _render_range_bar("evap_pressure_bar", 0.05, 1.20, val31)
+        val32 = st.number_input("Temperatura evaporacion (C)", 20.0, 95.0, value=controls["evap_temp_c"], step=0.5, key="w_evap_temp_c")
+        _render_range_bar("evap_temp_c", 20.0, 95.0, val32)
 
     with st.expander("Etapa 4 · Precipitacion y centrifugacion", expanded=False):
-        st.slider("pH de precipitacion", 2.5, 7.0, value=controls["precip_ph"], step=0.01, key="w_precip_ph")
-        _render_range_bar("precip_ph", 2.5, 7.0)
-        st.slider("Tiempo de precipitacion (min)", 2.0, 120.0, value=controls["precip_time_min"], step=1.0, key="w_precip_time_min")
-        _render_range_bar("precip_time_min", 2.0, 120.0)
-        st.slider("Factor G centrifuga", 200.0, 5000.0, value=controls["centrifuge_g"], step=10.0, key="w_centrifuge_g")
-        _render_range_bar("centrifuge_g", 200.0, 5000.0)
-        st.slider("Tiempo centrifugacion (min)", 1.0, 120.0, value=controls["centrifuge_time_min"], step=1.0, key="w_centrifuge_time_min")
-        _render_range_bar("centrifuge_time_min", 1.0, 120.0)
+        val41 = st.number_input("pH de precipitacion", 2.5, 7.0, value=controls["precip_ph"], step=0.01, key="w_precip_ph")
+        _render_range_bar("precip_ph", 2.5, 7.0, val41)
+        val42 = st.number_input("Tiempo de precipitacion (min)", 2.0, 120.0, value=controls["precip_time_min"], step=1.0, key="w_precip_time_min")
+        _render_range_bar("precip_time_min", 2.0, 120.0, val42)
+        val43 = st.number_input("Factor G centrifuga", 200.0, 5000.0, value=controls["centrifuge_g"], step=10.0, key="w_centrifuge_g")
+        _render_range_bar("centrifuge_g", 200.0, 5000.0, val43)
+        val44 = st.number_input("Tiempo centrifugacion (min)", 1.0, 120.0, value=controls["centrifuge_time_min"], step=1.0, key="w_centrifuge_time_min")
+        _render_range_bar("centrifuge_time_min", 1.0, 120.0, val44)
 
     with st.expander("Etapa 5 · Secado", expanded=False):
-        st.slider("Temperatura de secado (C)", 40.0, 220.0, value=controls["dryer_temp_c"], step=1.0, key="w_dryer_temp_c")
-        _render_range_bar("dryer_temp_c", 40.0, 220.0)
-        st.slider("Residencia en secador (min)", 1.0, 180.0, value=controls["dryer_residence_min"], step=1.0, key="w_dryer_residence_min")
-        _render_range_bar("dryer_residence_min", 1.0, 180.0)
+        val51 = st.number_input("Temperatura de secado (C)", 40.0, 220.0, value=controls["dryer_temp_c"], step=1.0, key="w_dryer_temp_c")
+        _render_range_bar("dryer_temp_c", 40.0, 220.0, val51)
+        val52 = st.number_input("Residencia en secador (min)", 1.0, 180.0, value=controls["dryer_residence_min"], step=1.0, key="w_dryer_residence_min")
+        _render_range_bar("dryer_residence_min", 1.0, 180.0, val52)
 
     sync_controls_from_widgets()
 
@@ -1433,14 +1486,14 @@ def run_step() -> None:
         _, warning = _get_variable_ranges(key, 0, 100) # vmin/vmax no afectan al warning en esta funcion
         w_min, w_max = warning
         if value < w_min or value > w_max:
-            danger_vars.append(f"Control: {CONTROL_LABELS.get(key, key)} ({value:.2f} fuera de [{w_min}, {w_max}])")
+            danger_vars.append(f"Control: {CONTROL_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
 
     # Chequeo de Dimensionamiento
     for key, value in st.session_state.equipment_specs.items():
         _, warning = _get_variable_ranges(key, 0, 100)
         w_min, w_max = warning
         if value < w_min or value > w_max:
-            danger_vars.append(f"Equipo: {EQUIPMENT_SPEC_LABELS.get(key, key)} ({value:.2f} fuera de [{w_min}, {w_max}])")
+            danger_vars.append(f"Equipo: {EQUIPMENT_SPEC_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
 
     if danger_vars:
         st.session_state.running = False
@@ -1545,6 +1598,31 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
     else:
         relative_std_pct = 0.0
 
+    # Sigma Calculation vs Baseline
+    # Convert app key to baseline key if necessary
+    # Example: stage_1_extraction_eff_pct is same in both
+    # Some baseline keys might be different, but let's try direct match first
+    baseline_info = BASELINE_REFERENCES.get(key)
+    sigma_deviation = 0.0
+    semaphore = "verde"
+
+    if baseline_info:
+        setpoint = baseline_info["value"]
+        # Use relative deviation for sigma if not enough points, or fixed sigma
+        # Requirement says "calculen desviación vs. setpoint usando desviación estándar (1σ, 2σ)"
+        # Let's use the running std_dev or a default if std_dev is 0
+        effective_sigma = std_dev if std_dev > 0.001 else (abs(setpoint) * (base_error_pct / 100.0))
+
+        diff = abs(current - setpoint)
+        sigma_deviation = diff / effective_sigma if effective_sigma > 0 else 0.0
+
+        if sigma_deviation <= 1.0:
+            semaphore = "verde"
+        elif sigma_deviation <= 2.0:
+            semaphore = "amarillo"
+        else:
+            semaphore = "rojo"
+
     return {
         "current": current,
         "average": average,
@@ -1554,6 +1632,9 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
         "error_abs": error_abs,
         "relative_std_pct": relative_std_pct,
         "stable": relative_std_pct <= base_error_pct,
+        "sigma_deviation": sigma_deviation,
+        "semaphore": semaphore,
+        "has_baseline": baseline_info is not None
     }
 
 
@@ -1655,6 +1736,17 @@ def _render_kpi_card(
             unsafe_allow_html=True,
         )
 
+        if stats["has_baseline"]:
+            st.markdown(
+                f"""
+                <div class="semaphore-container">
+                    <div class="semaphore-dot bg-{stats['semaphore']}"></div>
+                    <div class="kpi-meta">Desviación: {stats['sigma_deviation']:.2f}σ</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
 
 def render_kpis() -> None:
     result = st.session_state.last_result
@@ -1725,25 +1817,31 @@ def render_corroboration() -> None:
                 st.caption("Sin datos para resumen estadistico")
                 continue
 
+            stats = _compute_kpi_window_stats(history_df, key)
+            if not stats:
+                continue
+
             base = BASELINE_REFERENCES[key]["value"]
-            current_val = float(history_df[key].iloc[-1])
-            dev_series = ((history_df[key] - base) / base) * 100.0
-            abs_mean = float(dev_series.abs().mean()) if not dev_series.empty else 0.0
-            abs_max = float(dev_series.abs().max()) if not dev_series.empty else 0.0
-            std_val = float(dev_series.std(ddof=0)) if len(dev_series) > 1 else 0.0
-            stable = std_val <= _error_base_pct_for_key(key)
+            current_val = stats["current"]
+            dev_pct = ((current_val - base) / base) * 100.0
 
             st.metric(
                 BASELINE_REFERENCES[key]["label"],
                 _format_kpi_value(current_val, BASELINE_REFERENCES[key]["unit"], 2),
-                delta=f"{dev_series.iloc[-1]:+.2f}% vs base",
+                delta=f"{dev_pct:+.2f}% vs base",
             )
-            st.markdown(f"<div class='kpi-meta'>Promedio abs desviacion: {abs_mean:.2f}%</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='kpi-meta'>Max abs desviacion: {abs_max:.2f}%</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='kpi-meta'>Desv std temporal: {std_val:.2f}%</div>", unsafe_allow_html=True)
-            status_class = "kpi-stable" if stable else "kpi-unstable"
-            status_text = "Variable estable" if stable else "Advertencia: variable inestable"
-            st.markdown(f"<div class='kpi-status {status_class}'>{status_text}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='kpi-meta'>Promedio actual: {_format_number_es(stats['average'], 2)}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='kpi-meta'>Desviación: {stats['sigma_deviation']:.2f}σ</div>", unsafe_allow_html=True)
+
+            st.markdown(
+                f"""
+                <div class="semaphore-container">
+                    <div class="semaphore-dot bg-{stats['semaphore']}"></div>
+                    <div class="kpi-meta">Estado: {stats['semaphore'].upper()}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
 def render_production_counters() -> None:
