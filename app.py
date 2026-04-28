@@ -766,8 +766,8 @@ st.set_page_config(
 )
 
 def get_active_theme() -> dict:
-    mode = st.session_state.get("visual_mode", "Exploratorio")
-    return VISUAL_THEMES.get(mode, VISUAL_THEMES["Exploratorio"])
+    mode = st.session_state.get("visual_mode", "Baluarte (CAT)")
+    return VISUAL_THEMES.get(mode, VISUAL_THEMES["Baluarte (CAT)"])
 
 
 def apply_visual_theme_css() -> None:
@@ -978,8 +978,13 @@ def apply_visual_theme_css() -> None:
                 to {{ opacity: 1; transform: translateY(0); }}
             }}
 
-            .stMarkdown, div[data-testid="stMetric"], .stButton {{
+            .stMarkdown, .stButton {{
                 animation: slideUp 0.4s ease-out forwards;
+            }}
+
+            /* KPIs se actualizan rapido; evitar animacion para prevenir ghosting */
+            div[data-testid="stMetric"] {{
+                animation: none !important;
             }}
 
             /* Status Indicators */
@@ -992,21 +997,6 @@ def apply_visual_theme_css() -> None:
             }}
             .status-running {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
             .status-paused {{ background-color: #ef4444; }}
-
-            .semaphore-container {{
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-top: 4px;
-            }}
-            .semaphore-dot {{
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }}
-            .bg-verde {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
-            .bg-amarillo {{ background-color: #f59e0b; box-shadow: 0 0 8px #f59e0b; }}
-            .bg-rojo {{ background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }}
 
             /* Range Bar Styling */
             .range-container {{
@@ -1126,7 +1116,9 @@ def init_state() -> None:
     else:
         st.session_state.interval_s = int(max(1, min(5, st.session_state.interval_s)))
     if "visual_mode" not in st.session_state:
-        st.session_state.visual_mode = "Exploratorio"
+        st.session_state.visual_mode = "Baluarte (CAT)"
+    elif st.session_state.visual_mode != "Baluarte (CAT)":
+        st.session_state.visual_mode = "Baluarte (CAT)"
     if "sales_price_bs_kg" not in st.session_state:
         st.session_state.sales_price_bs_kg = float(DEFAULT_SALES_PRICE_BS_PER_KG)
     if "w_sales_price_bs_kg" not in st.session_state:
@@ -1605,7 +1597,6 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
     # Some baseline keys might be different, but let's try direct match first
     baseline_info = BASELINE_REFERENCES.get(key)
     sigma_deviation = 0.0
-    semaphore = "verde"
 
     if baseline_info:
         setpoint = baseline_info["value"]
@@ -1617,13 +1608,6 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
         diff = abs(current - setpoint)
         sigma_deviation = diff / effective_sigma if effective_sigma > 0 else 0.0
 
-        if sigma_deviation <= 1.0:
-            semaphore = "verde"
-        elif sigma_deviation <= 2.0:
-            semaphore = "amarillo"
-        else:
-            semaphore = "rojo"
-
     return {
         "current": current,
         "average": average,
@@ -1634,8 +1618,6 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
         "relative_std_pct": relative_std_pct,
         "stable": relative_std_pct <= base_error_pct,
         "sigma_deviation": sigma_deviation,
-        "semaphore": semaphore,
-        "has_baseline": baseline_info is not None
     }
 
 
@@ -1647,7 +1629,7 @@ def _format_kpi_value(value: float, unit: str, decimals: int) -> str:
 
 
 def _render_kpi_chart(key: str, stats: dict, theme: dict, chart_key: str | None = None) -> None:
-    """Renderiza un mini gráfico de líneas (sparkline) para el KPI con modo exploratorio."""
+    """Renderiza un mini gráfico de líneas (sparkline) para el KPI."""
     history = st.session_state.get("sparkline_history", {}).get(key, [])
     if len(history) < 2:
         return
@@ -1657,7 +1639,7 @@ def _render_kpi_chart(key: str, stats: dict, theme: dict, chart_key: str | None 
 
     fig = go.Figure()
 
-    # Predicción del modelo (línea punteada) - Modo Exploratorio
+    # Predicción del modelo (línea punteada)
     fig.add_trace(go.Scatter(
         y=predicted_values,
         mode="lines",
@@ -1758,15 +1740,10 @@ def _render_kpi_card(
             unsafe_allow_html=True,
         )
 
-        if stats["has_baseline"]:
+        if stats["sigma_deviation"] > 0:
             st.markdown(
-                f"""
-                <div class="semaphore-container">
-                    <div class="semaphore-dot bg-{stats['semaphore']}"></div>
-                    <div class="kpi-meta">Desviación: {stats['sigma_deviation']:.2f}σ</div>
-                </div>
-                """,
-                unsafe_allow_html=True
+                f"<div class='kpi-meta'>Desviación: {stats['sigma_deviation']:.2f}σ</div>",
+                unsafe_allow_html=True,
             )
 
 
@@ -1862,16 +1839,6 @@ def render_corroboration() -> None:
             st.markdown(f"<div class='kpi-meta'>Promedio actual: {_format_number_es(stats['average'], 2)}</div>", unsafe_allow_html=True)
             st.markdown(f"<div class='kpi-meta'>Desviación: {stats['sigma_deviation']:.2f}σ</div>", unsafe_allow_html=True)
 
-            st.markdown(
-                f"""
-                <div class="semaphore-container">
-                    <div class="semaphore-dot bg-{stats['semaphore']}"></div>
-                    <div class="kpi-meta">Estado: {stats['semaphore'].upper()}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
 
 def render_production_counters() -> None:
     stage_5 = st.session_state.last_result["stage_5"]
@@ -1948,28 +1915,36 @@ def render_project_final_tab() -> None:
 init_state()
 apply_visual_theme_css()
 
-st.title("Gemelo Digital AJAX - Autonomous Juxtaposition for Analytics X-Linkage")
+st.title("Gemelo Digital AJAX")
 st.markdown(
     "<div class='hero-panel'><strong>Centro de Operacion Integrado:</strong> interfaz orientada al seguimiento operativo y de produccion en tiempo real.</div>",
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<div class='hero-panel'>Modo exploratorio activo: los rangos de control son amplios para pruebas de sensibilidad; usa los semaforos de corroboracion para identificar condiciones fuera de banda documental.</div>",
+    "<div class='hero-panel'>Modo baluarte (CAT) activo: interfaz unificada para operacion, monitoreo y validacion en tiempo real.</div>",
     unsafe_allow_html=True,
 )
 
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
     st.markdown("### Navegación")
+    MENU_OPTIONS = [
+        "Sala de Operacion",
+        "Sala de Monitoreo",
+        "Validación de Datos",
+        "Fluidograma Modelo Sankey",
+        "Proyecto Final",
+    ]
     menu = st.radio(
         "Selecciona una sección:",
-        ["Operación", "Monitoreo", "Validación", "Fluidograma", "Proyecto Final"],
-        label_visibility="collapsed"
+        MENU_OPTIONS,
+        label_visibility="collapsed",
+        key="main_menu",
     )
 
     st.divider()
     st.markdown("### Ejecución")
-    st.session_state.interval_s = st.slider("Intervalo (s)", 1, 5, value=int(st.session_state.interval_s), step=1)
+    st.session_state.interval_s = st.slider("Intervalo (s)", 1, 10, value=int(st.session_state.interval_s), step=1)
 
     col1, col2 = st.columns(2)
     if col1.button("Ejecutar Simulación", use_container_width=True):
@@ -1990,48 +1965,50 @@ with st.sidebar:
         st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Simulación Pausada</div>", unsafe_allow_html=True)
 
     st.divider()
-    with st.expander("⚙️ Configuración"):
-        st.selectbox(
-            "Tema de interfaz",
-            options=list(VISUAL_THEMES.keys()),
-            key="visual_mode"
-        )
+    st.caption("Tema de interfaz: Baluarte (CAT)")
 
     st.divider()
     render_sales_modification_panel()
     render_capacity_issues()
 
-if menu == "Operación":
-    left, right = st.columns([1.5, 1.0], gap="large")
-    with left:
-        st.subheader("Variables de Control")
-        st.caption("Afectan la velocidad de cambio en los registros por etapa.")
-        render_controls()
-    with right:
-        st.subheader("Dimensiones y Capacidad")
-        st.caption("Parámetros fijos de inercia y tiempo de respuesta.")
-        render_equipment_specs_editor()
-        render_capacity_limits_editor()
-        render_variable_impact_matrix()
+menu_slots = {name: st.empty() for name in MENU_OPTIONS}
+for name, slot in menu_slots.items():
+    if name != menu:
+        slot.empty()
+        continue
 
-elif menu == "Monitoreo":
-    st.subheader("Panel de Indicadores en Vivo")
-    render_kpis()
-    st.divider()
-    st.subheader("KPIs por Etapa de Proceso")
-    render_stage_panels()
+    with slot.container():
+        if name == "Sala de Operacion":
+            left, right = st.columns([1.5, 1.0], gap="large")
+            with left:
+                st.subheader("Variables de Control")
+                st.caption("Afectan la velocidad de cambio en los registros por etapa.")
+                render_controls()
+            with right:
+                st.subheader("Dimensiones y Capacidad")
+                st.caption("Parámetros fijos de inercia y tiempo de respuesta.")
+                render_equipment_specs_editor()
+                render_capacity_limits_editor()
+                render_variable_impact_matrix()
 
-elif menu == "Validación":
-    st.subheader("Validación y Rendimiento")
-    render_corroboration()
-    st.divider()
-    render_production_counters()
+        elif name == "Sala de Monitoreo":
+            st.subheader("Panel de Indicadores en Vivo")
+            render_kpis()
+            st.divider()
+            st.subheader("KPIs por Etapa de Proceso")
+            render_stage_panels()
 
-elif menu == "Fluidograma":
-    render_fluidograma_tab()
+        elif name == "Validación de Datos":
+            st.subheader("Validación y Rendimiento")
+            render_corroboration()
+            st.divider()
+            render_production_counters()
 
-elif menu == "Proyecto Final":
-    render_project_final_tab()
+        elif name == "Fluidograma Modelo Sankey":
+            render_fluidograma_tab()
+
+        elif name == "Proyecto Final":
+            render_project_final_tab()
 
 
 if st.session_state.running:
