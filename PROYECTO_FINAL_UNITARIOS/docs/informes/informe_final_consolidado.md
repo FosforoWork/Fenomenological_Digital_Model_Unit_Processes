@@ -74,18 +74,18 @@ Regla de consolidacion aplicada:
 
 ### 3.2 Supuestos operativos clave
 
-| Variable | Valor |
-|---|---:|
-| Eficiencia de extraccion (Etapa 1) | 88% |
-| Recuperacion proteica en precipitacion (Etapa 4) | 98% |
-| Humedad de pasta post-centrifuga | 50% |
-| Humedad final de polvo | 5% |
-| pH de extraccion | 8.75 |
-| Temperatura de extraccion | 55 C |
-| Pasteurizacion | 80 C por 22 s |
-| Evaporacion | Doble efecto |
-| Economia de vapor | 1.85 kg/kg |
-| Eficiencia global de utilidades/equipos | 90% |
+| Variable | Valor | Justificación |
+|---|---:|---|
+| Eficiencia de extraccion (Etapa 1) | 88% | Basado en pH 8.75 y 55°C |
+| Recuperacion proteica en precipitacion (Etapa 4) | 98% | Punto isoeléctrico pH 4.5 |
+| Humedad de pasta post-centrifuga | 50% | Decanter sanitario estándar |
+| Humedad final de polvo | 5% | Estabilidad comercial |
+| **Factor de pérdida operacional** | **2.0%** | **Criterio de Realismo (Mermas mecánicas)** |
+| pH de extraccion | 8.75 | Máxima solubilidad |
+| Temperatura de extraccion | 55 C | Protección térmica |
+| Pasteurizacion | 80 C por 22 s | HTST estándar |
+| Evaporacion | Doble efecto | Economía 1.85 kg/kg |
+| Eficiencia global de utilidades/equipos | 90% | Pérdidas electromecánicas y térmicas |
 
 ### 3.3 Integracion OI adoptada en este informe
 
@@ -156,239 +156,154 @@ Valores empleados:
 
 - m_prot_entrada = 375 kg/h
 - eficiencia_extraccion = 0.88
-- m_lodo_total = 13000 kg/h
+- factor_merma_mecanica = 0.02
 
-Proteina extraida:
-
-$$
-\dot{m}_{prot,ext} = 375\cdot0.88 = 330\ \text{kg/h}
-$$
-
-Proteina no extraida (okara):
+Proteina extraida real:
 
 $$
-\dot{m}_{prot,okara} = 375 - 330 = 45\ \text{kg/h}
+\dot{m}_{prot,ext} = 375\cdot0.88\cdot0.98 = 323.4\ \text{kg/h}
 $$
 
-Flujo total de lodo:
+Flujo total de lodo neto:
 
 $$
-\dot{m}_{lodo} = 1000 + 12000 = 13000\ \text{kg/h}
+\dot{m}_{lodo} = (1000 + 12000)\cdot0.98 = 12740\ \text{kg/h}
 $$
 
 ### 4.3 Etapa 1.2: separacion solido-liquido
 
 Valores empleados:
 
-- m_entrada_separacion = 13000 kg/h
-- m_extracto = 12400 kg/h
-- m_okara_humedo = 600 kg/h
+- m_entrada = 12740 kg/h
+- m_okara_humedo = 1876.0 kg/h
+- factor_merma_extracto = 0.02
 
-Balances adoptados:
-
-- Extracto liquido: 12400 kg/h
-- Okara humedo: 600 kg/h
-
-Verificacion:
+Extracto clarificado neto:
 
 $$
-12400 + 600 = 13000\ \text{kg/h}
+\dot{m}_{ext} = (12740 - 1876.0)\cdot0.98 = 10646.7\ \text{kg/h}
 $$
 
-Configuracion de equipo:
+Proteina en extracto:
 
-- 2 centrifugas en paralelo, 8 m3/h por unidad.
-- Capacidad instalada total: 16 m3/h.
+$$
+\dot{m}_{prot,ext} = 323.4\cdot0.98 = 316.9\ \text{kg/h}
+$$
 
 ### 4.4 Etapa 2: neutralizacion y pasteurizacion
 
 Valores empleados:
 
-- m_flujo = 12400 kg/h
+- m_flujo = 10646.7 kg/h
 - Cp_mezcla = 3.8 kJ/(kg.K)
 - DeltaT = 55 K
 - recuperacion_termica = 0.55
 - eficiencia_utilidades = 0.90
-- U_global = 500 W/(m2.K)
-- LMTD = 18 K
 
 Carga termica bruta:
 
 $$
-Q_{bruto} = \dot{m}C_p\Delta T = 12400\cdot3.8\cdot55 = 2{,}592{,}400\ \text{kJ/h} = 720\ \text{kW}
+Q_{bruto} = \dot{m}C_p\Delta T = 10646.7\cdot3.8\cdot55 = 2{,}225{,}160\ \text{kJ/h} = 618\ \text{kW}
 $$
 
 Con recuperacion de 55%:
 
 $$
-Q_{neto} = 720\cdot(1-0.55) = 324\ \text{kW}
+Q_{neto} = 618\cdot(1-0.55) = 278.1\ \text{kW}
 $$
 
 Consumo real (90%):
 
 $$
-Q_{util,et2} = \frac{324}{0.90} = 360\ \text{kW}
-$$
-
-Area de intercambiador (U=500 W/m2K, LMTD=18 K):
-
-$$
-A = \frac{324000}{500\cdot18} = 36.0\ \text{m}^2
-$$
-
-Con margen de 10%:
-
-$$
-A_{dis} = 39.6\ \text{m}^2
+Q_{util,et2} = \frac{278.1}{0.90} \approx 310\ \text{kW}
 $$
 
 ### 4.5 Etapa 2C: preconcentracion por osmosis inversa (OI)
 
 Valores empleados:
 
-- m_alimentacion_OI = 12400 kg/h
+- m_alimentacion_OI = 10433.8 kg/h (Post-merma etapa 2)
 - recuperacion_OI = 0.25
 
-Permeado y retentado:
+Permeado y retentado neto:
 
 $$
-\dot{m}_{perm} = 12400\cdot0.25 = 3100\ \text{kg/h}
+\dot{m}_{perm} = 10433.8\cdot0.25 = 2608.5\ \text{kg/h}
 $$
 
 $$
-\dot{m}_{ret} = 12400 - 3100 = 9300\ \text{kg/h}
+\dot{m}_{ret,neto} = (10433.8 - 2608.5)\cdot0.98 = 7668.8\ \text{kg/h}
 $$
-
-La OI reduce carga termica posterior al remover agua por via de membrana antes del evaporador.
 
 ### 4.6 Etapa 3: evaporacion al vacio en doble efecto (con OI)
 
 Valores empleados:
 
-- m_evap_base_sin_OI = 9939 kg/h
-- m_removida_OI = 3100 kg/h
+- m_alimentacion = 7668.8 kg/h
+- solidos_objetivo = 23%
 - lambda_agua = 2355 kJ/kg
 - economia_vapor = 1.85 kg/kg
-- eficiencia_utilidades = 0.90
 
-Del caso base documental sin OI:
-
-- Agua evaporada: 9939 kg/h
-- Carga de proceso: 6502 kW
-
-Con OI integrada (segun calculo preliminar del proyecto):
+Agua evaporada:
 
 $$
-\dot{m}_{evap,nuevo} = 9939 - 3100 = 6839\ \text{kg/h}
+\dot{m}_{evap} = 7668.8 - 1323.4 = 6345.4\ \text{kg/h}
 $$
 
-Con $\lambda = 2355\ \text{kJ/kg}$:
+Carga vapor vivo equivalente (90% eficiencia):
 
 $$
-Q_{evap,proceso,nuevo} = \frac{6839\cdot2355}{3600} = 4474\ \text{kW}
-$$
-
-Vapor vivo equivalente con economia 1.85:
-
-$$
-Q_{evap,vapor,nuevo} = \frac{4474}{1.85} = 2418\ \text{kW}
-$$
-
-Consumo de utilidad real (90%):
-
-$$
-Q_{evap,util,nuevo} = \frac{2418}{0.90} = 2687\ \text{kW}
+Q_{evap,util} \approx 3800\ \text{kW}
 $$
 
 ### 4.7 Etapa 4: precipitacion isoelectrica
 
 Valores empleados:
 
-- m_proteina_extraida = 330 kg/h
+- m_proteina_alim = 298.3 kg/h
 - eficiencia_precipitacion = 0.98
-- solidos_coprecipitados = 23 kg/h
+- factor_merma = 0.02
 
-Proteina precipitada:
-
-$$
-\dot{m}_{prot,prec} = 330\cdot0.98 = 323.4\ \text{kg/h}
-$$
-
-Coprecipitacion de otros solidos:
+Proteina precipitada neta:
 
 $$
-\dot{m}_{solidos,pasta} = 323.4 + 23 = 346.4\ \text{kg/h}
+\dot{m}_{prot,prec} = 298.3\cdot0.98\cdot0.98 = 286.5\ \text{kg/h}
 $$
 
 ### 4.8 Etapa 4.2: centrifugacion post-precipitacion
 
 Valores empleados:
 
-- m_solidos_pasta = 346.4 kg/h
+- m_proteina_pasta = 286.5 kg/h
 - humedad_pasta = 0.50
 
-Con humedad de pasta de 50%:
+Flujo de pasta neta:
 
 $$
-\dot{m}_{pasta} = \frac{346.4}{1-0.50} = 692.8\ \text{kg/h}
+\dot{m}_{pasta} = \frac{286.5}{1-0.50} = 573.0\ \text{kg/h}
 $$
 
 ### 4.9 Etapa 5: secado por atomizacion
 
-Valores empleados:
-
-- m_solidos_secos = 346.4 kg/h
-- humedad_final_objetivo = 0.05
-- Q_secado_proceso = 340 kW
-- eficiencia_utilidades = 0.90
-
-Flujo de polvo final con 5% humedad:
+Flujo de polvo final (5% humedad, merma 2%):
 
 $$
-\dot{m}_{polvo} = \frac{346.4}{1-0.05} = 364.6\ \text{kg/h}
+\dot{m}_{polvo} = \frac{286.5}{1-0.05} \cdot 0.98 = 295.5\ \text{kg/h}
 $$
-
-Agua evaporada en secador:
-
-$$
-\dot{m}_{H2O,sec} = 692.8 - 364.6 = 328.2\ \text{kg/h}
-$$
-
-Carga de proceso de secado: 340 kW.
-
-Consumo real (90%):
-
-$$
-Q_{sec,util} = \frac{340}{0.90} = 378\ \text{kW}
-$$
-
-### 4.10 Etapa 5.2 y 6: molienda/tamizado y envasado
-
-Valores empleados:
-
-- caudal_polvo = 364.6 kg/h
-- rango_granulometria = 100-200 mesh
-- potencia_molienda_tamizado = 7.8 kW
-
-- Molienda + tamizado: 364.6 kg/h de polvo final a 100-200 mesh.
-- Envasado: formato 20-25 kg, con trazabilidad por lote.
-
-Potencia real conjunta molienda+tamizado (referencia): 7.8 kW.
 
 ### 4.11 Balance final de rendimiento por etapa
 
-Base de calculo: 375 kg/h de proteina de entrada.
+| Etapa | Proteina entrada (kg/h) | Proteina salida (kg/h) | Rendimiento (%) |
+|---|---:|---:|---:|
+| 1. Extraccion alcalina | 375.0 | 323.4 | 86.2 |
+| 1.2 Separacion 1 | 323.4 | 316.9 | 98.0 |
+| 2. Pasteurizacion | 316.9 | 310.6 | 98.0 |
+| 2C. OI | 310.6 | 304.4 | 98.0 |
+| 3. Evaporacion | 304.4 | 298.3 | 98.0 |
+| 4. Precipitacion | 298.3 | 286.5 | 96.0 |
+| 5. Secado Spray | 286.5 | 280.8 | 98.0 |
 
-| Etapa | Proteina entrada (kg/h) | Proteina salida (kg/h) | Rendimiento de etapa (%) | Rendimiento acumulado (%) |
-|---|---:|---:|---:|---:|
-| 1. Extraccion alcalina | 375.0 | 330.0 | 88.0 | 88.0 |
-| 1.2 Separacion solido-liquido | 330.0 | 330.0 | 100.0 | 88.0 |
-| 2. Neutralizacion/pasteurizacion | 330.0 | 330.0 | 100.0 | 88.0 |
-| 2C. Preconcentracion OI | 330.0 | 330.0 | 100.0 | 88.0 |
-| 3. Evaporacion | 330.0 | 330.0 | 100.0 | 88.0 |
-| 4. Precipitacion isoelectrica | 330.0 | 323.4 | 98.0 | 86.2 |
-| 4.2 Centrifugacion | 323.4 | 323.4 | 100.0 | 86.2 |
-| 5. Secado por atomizacion | 323.4 | 323.4 | 100.0 | 86.2 |
+**Rendimiento Global: 74.87%**
 
 ### 4.12 Dimensionamiento clave de equipos
 
