@@ -7,23 +7,86 @@
 
 ## Indice
 
-1. [Objetivo](#1-objetivo)
-2. [Base de calculo y supuestos](#2-base-de-calculo-y-supuestos)
-3. [Calculos Detallados por Etapa (Inputs/Outputs)](#3-calculos-detallados-por-etapa-inputsoutputs)
-4. [Investigación de Equipos y Costos (CEPCI 2024)](#4-investigación-de-equipos-y-costos-cepci-2024)
-5. [Validación de Consistencia (Doc vs Código)](#5-validación-de-consistencia-doc-vs-código)
-6. [Resultados del caso base](#6-resultados-del-caso-base)
-7. [Verificaciones globales](#7-verificaciones-globales)
-8. [Balance final de rendimiento por etapa](#8-balance-final-de-rendimiento-por-etapa)
-9. [Analisis economico preliminar (CAPEX y OPEX)](#9-analisis-economico-preliminar-capex-y-opex)
-10. [Resumen ejecutivo de variables](#10-resumen-ejecutivo-de-variables)
-11. [Presentacion de ingenieria: Datasheets de equipos](#11-presentacion-de-ingenieria-datasheets-de-equipos)
-12. [Presentacion de ingenieria: PFD narrativo y control](#12-presentacion-de-ingenieria-pfd-narrativo-y-control)
-13. [Presentacion de ingenieria: Matriz de criticidad](#13-presentacion-de-ingenieria-matriz-de-criticidad)
-14. [Presentacion de ingenieria: Riesgos y mitigacion](#14-presentacion-de-ingenieria-riesgos-y-mitigacion)
-15. [Especificaciones de envasado y estrategia de entrega](#15-especificaciones-de-envasado-y-estrategia-de-entrega)
-16. [Referencias internas](#16-referencias-internas)
-17. [Anexo de bibliografia consultada](#17-anexo-de-bibliografia-consultada)
+- [1. Objetivo](#1-objetivo)
+- [2. Base de calculo y supuestos](#2-base-de-calculo-y-supuestos)
+  - [2.1 Alimentacion](#21-alimentacion)
+  - [2.2 Supuestos promedio de operacion](#22-supuestos-promedio-de-operacion)
+  - [2.3 Criterios de reporte](#23-criterios-de-reporte)
+  - [2.4 Criterios generales de diseño y factores de seguridad](#24-criterios-generales-de-diseño-y-factores-de-seguridad)
+  - [2.5 Base hidrica del caso base (red industrial)](#25-base-hidrica-del-caso-base-red-industrial)
+- [3. Calculos Detallados por Etapa (Inputs/Outputs)](#3-calculos-detallados-por-etapa-inputsoutputs)
+  - [3.0 Etapa 0: Acondicionamiento de Materia Prima y Suministros](#30-etapa-0-acondicionamiento-de-materia-prima-y-suministros)
+  - [3.1 Etapa 1: Extracción Alcalina](#31-etapa-1-extracción-alcalina)
+  - [3.2 Etapa 1.2: Separación Sólido-Líquido (Centrifugación 1)](#32-etapa-12-separación-sólido-líquido-centrifugación-1)
+  - [3.3 Etapa 2: Pasteurización HTST](#33-etapa-2-pasteurización-htst)
+  - [3.4 Propuesta de Integración Innovadora: Ósmosis Inversa (Fuera del Balance Principal)](#34-propuesta-de-integración-innovadora-ósmosis-inversa-fuera-del-balance-principal)
+  - [3.5 Etapa 3: Evaporación de Doble Efecto (Alimentación Directa)](#35-etapa-3-evaporación-de-doble-efecto-alimentación-directa)
+  - [3.6 Etapa 4: Precipitación y Centrifugación 2](#36-etapa-4-precipitación-y-centrifugación-2)
+  - [3.7 Etapa 5: Secado Spray y Clasificación](#37-etapa-5-secado-spray-y-clasificación)
+- [4. Investigación de Equipos y Costos (CEPCI 2024)](#4-investigación-de-equipos-y-costos-cepci-2024)
+  - [4.1 Metodología de Estimación de Costos](#41-metodología-de-estimación-de-costos)
+  - [4.2 Tabla Detallada de Equipamiento y Materiales](#42-tabla-detallada-de-equipamiento-y-materiales)
+- [5. Validación de Consistencia (Doc vs Código)](#5-validación-de-consistencia-doc-vs-código)
+- [6. Resultados del caso base](#6-resultados-del-caso-base)
+  - [6.1 Indicadores de produccion](#61-indicadores-de-produccion)
+  - [6.2 Rendimientos](#62-rendimientos)
+- [7. Verificaciones globales](#7-verificaciones-globales)
+  - [7.1 Balance global de masa](#71-balance-global-de-masa)
+  - [7.2 Balance energetico del caso base (realista)](#72-balance-energetico-del-caso-base-realista)
+  - [7.3 Validacion de consistencia de balances y unidades](#73-validacion-de-consistencia-de-balances-y-unidades)
+- [8. Balance final de rendimiento por etapa](#8-balance-final-de-rendimiento-por-etapa)
+- [9. Analisis economico preliminar (CAPEX y OPEX)](#9-analisis-economico-preliminar-capex-y-opex)
+  - [9.1 Criterios economicos del caso base](#91-criterios-economicos-del-caso-base)
+  - [9.2 CAPEX preliminar](#92-capex-preliminar)
+  - [9.3 OPEX anual preliminar](#93-opex-anual-preliminar)
+    - [9.3.1 Energia](#931-energia)
+    - [9.3.2 Agua y efluentes](#932-agua-y-efluentes)
+    - [9.3.3 Reactivos de pH](#933-reactivos-de-ph)
+    - [9.3.4 Materia prima](#934-materia-prima)
+  - [9.4 Resumen OPEX y costo unitario](#94-resumen-opex-y-costo-unitario)
+  - [9.5 Verificacion cruzada de potencia instalada vs OPEX](#95-verificacion-cruzada-de-potencia-instalada-vs-opex)
+  - [9.6 Consideraciones de Industria 5.0 y Sostenibilidad Ambiental](#96-consideraciones-de-industria-50-y-sostenibilidad-ambiental)
+- [10. Resumen ejecutivo de variables](#10-resumen-ejecutivo-de-variables)
+- [11. Presentacion de ingenieria: Datasheets de equipos](#11-presentacion-de-ingenieria-datasheets-de-equipos)
+  - [11.1 DS-101 Tanque de extraccion + agitador](#111-ds-101-tanque-de-extraccion-agitador)
+  - [11.2 DS-102 Centrifugas post-lixiviacion](#112-ds-102-centrifugas-post-lixiviacion)
+  - [11.3 DS-201 Intercambiador de placas](#113-ds-201-intercambiador-de-placas)
+  - [11.4 DS-301 Evaporador doble efecto](#114-ds-301-evaporador-doble-efecto)
+  - [11.5 DS-401 Centrifuga post-precipitacion](#115-ds-401-centrifuga-post-precipitacion)
+  - [11.6 DS-501 Spray dryer](#116-ds-501-spray-dryer)
+  - [11.7 DS-601 Molino y criba](#117-ds-601-molino-y-criba)
+- [12. Ingeniería Hidráulica (Cálculo de Líneas y Bombeo)](#12-ingeniería-hidráulica-cálculo-de-líneas-y-bombeo)
+  - [12.1 Supuestos de cálculo](#121-supuestos-de-cálculo)
+  - [12.2 Geometría y accesorios de referencia por tramo](#122-geometría-y-accesorios-de-referencia-por-tramo)
+  - [12.3 Resultados de pérdidas y TDH por tramo](#123-resultados-de-pérdidas-y-tdh-por-tramo)
+  - [12.4 Potencia de bombeo calculada y selección comercial](#124-potencia-de-bombeo-calculada-y-selección-comercial)
+  - [12.5 Verificación de succión (NPSH)](#125-verificación-de-succión-npsh)
+- [13. Presentacion de ingenieria: PFD narrativo y control](#13-presentacion-de-ingenieria-pfd-narrativo-y-control)
+  - [13.1 Secuencia operacional del proceso](#131-secuencia-operacional-del-proceso)
+  - [13.2 Lazos de control recomendados](#132-lazos-de-control-recomendados)
+  - [13.3 Alarmas e interlocks minimos](#133-alarmas-e-interlocks-minimos)
+  - [13.4 PFD visual integrado del proceso](#134-pfd-visual-integrado-del-proceso)
+- [14. Presentacion de ingenieria: Matriz de criticidad](#14-presentacion-de-ingenieria-matriz-de-criticidad)
+  - [14.1 Criticidad de variables operativas](#141-criticidad-de-variables-operativas)
+  - [14.2 Priorizacion de seguimiento operativo](#142-priorizacion-de-seguimiento-operativo)
+  - [14.3 Análisis de Cuello de Botella (Teoría de Restricciones)](#143-análisis-de-cuello-de-botella-teoría-de-restricciones)
+  - [14.4 Análisis de Sensibilidad Operativa](#144-análisis-de-sensibilidad-operativa)
+- [15. Presentacion de ingenieria: Riesgos y mitigacion](#15-presentacion-de-ingenieria-riesgos-y-mitigacion)
+  - [15.1 Criterio de evaluacion](#151-criterio-de-evaluacion)
+  - [15.2 Matriz de riesgos y mitigacion](#152-matriz-de-riesgos-y-mitigacion)
+  - [15.3 Plan de accion priorizado](#153-plan-de-accion-priorizado)
+  - [15.4 Riesgos economicos clave vinculados a ventas](#154-riesgos-economicos-clave-vinculados-a-ventas)
+- [16. Especificaciones de envasado y estrategia de entrega](#16-especificaciones-de-envasado-y-estrategia-de-entrega)
+  - [16.1 Especificaciones de envasado final](#161-especificaciones-de-envasado-final)
+  - [16.2 Criterios de calidad y trazabilidad de lote](#162-criterios-de-calidad-y-trazabilidad-de-lote)
+  - [16.3 Almacenamiento en planta y despacho](#163-almacenamiento-en-planta-y-despacho)
+  - [16.4 Estrategia de entrega del producto final](#164-estrategia-de-entrega-del-producto-final)
+- [17. Referencias internas](#17-referencias-internas)
+- [18. Anexo de bibliografia consultada](#18-anexo-de-bibliografia-consultada)
+  - [18.1 Fuentes internas del repositorio](#181-fuentes-internas-del-repositorio)
+  - [18.2 Fuentes tecnicas web consultadas](#182-fuentes-tecnicas-web-consultadas)
+  - [18.3 Criterio de calidad de fuentes y trazabilidad](#183-criterio-de-calidad-de-fuentes-y-trazabilidad)
+
 
 ---
 
@@ -107,78 +170,115 @@ Se adopta autonomia minima de 1 hora con reserva operativa del 20% para asegurar
 
 A continuación se detallan los balances de masa y energía para cada etapa operativa, asegurando la trazabilidad de las variables y aplicando el factor de pérdida del 2% ($f_{loss} = 0.02$).
 
-### 3.0 Etapa 0: Captación y Almacenamiento
-**Objetivo:** Asegurar el suministro hídrico constante para la relación 1:12.
+### 3.0 Etapa 0: Acondicionamiento de Materia Prima y Suministros
+**Objetivo:** Preparar la soya (limpieza, descascarillado, desgrasado y molienda) y asegurar el suministro hídrico.
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Grano de soya (Alim.) | 1000 kg/h | Agua a Extracción | 12000 kg/h |
+| Grano de soya (Alim.) | 1000 kg/h | Harina Desgrasada | 780 kg/h (estim.) |
+| Tamaño de Partícula | < 75 µm | Malla de Tamizado | **200 Mesh** |
 | Agua de Red (Caudal) | 12.0 m3/h | Potencia Bombeo (P-101) | 0.72 kW |
-| Temperatura Agua | 25 C | Capacidad Tanque (TK-101) | 15.0 m3 |
 
-*Justificación:* Se aplica un factor de seguridad del 20% sobre la potencia teórica de bombeo.
+*Justificación:* La molienda a 200 mesh es crítica para maximizar el área superficial. Investigaciones demuestran que reducir el tamaño de 220 µm a 75 µm incrementa la solubilidad en un 12-15%.
 
 ### 3.1 Etapa 1: Extracción Alcalina
 **Objetivo:** Solubilizar la proteína mediante pH alcalino (8.75) y agitación.
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Grano de soya | 1000 kg/h | Masa de Lodo Total | 12740 kg/h |
+| Harina (< 75 µm) | 780 kg/h | Masa de Lodo Total | 12740 kg/h |
 | Agua de Extracción | 12000 kg/h | Proteína Disuelta | 323.4 kg/h |
-| Eficiencia Extracción | 88% | Pérdida Mecánica (2%) | 260 kg/h |
+| Eficiencia Extracción | **88%** | Pérdida Mecánica (2%) | 260 kg/h |
+
+*Nota sobre Granulometría:* El rendimiento del 88% asume una alimentación estandarizada a <75 µm. Partículas mayores reducirían este valor a <80% por limitaciones de difusión interna.
 
 ### 3.2 Etapa 1.2: Separación Sólido-Líquido (Centrifugación 1)
 **Objetivo:** Clarificar el extracto eliminando la fibra (okara).
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Masa de Lodo | 12740 kg/h | Extracto Clarificado | 10646.7 kg/h |
-| Proteína en Lodo | 323.4 kg/h | Okara Húmedo (65% H) | 1876.0 kg/h |
+| Masa de Lodo | 12740 kg/h | Extracto Clarificado | 11095.0 kg/h |
+| Proteína en Lodo | 323.4 kg/h | Okara Húmedo (65% H) | 1645.0 kg/h |
 
 ### 3.3 Etapa 2: Pasteurización HTST
 **Objetivo:** Inactivación enzimática y microbiológica manteniendo funcionalidad.
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Extracto Clarificado | 10646.7 kg/h | Extracto Pasteurizado | 10433.8 kg/h |
-| Temperatura Entrada | 25 C | Carga Térmica Neta | 278.4 kW |
+| Extracto Clarificado | 11095.0 kg/h | Extracto Pasteurizado | 10873.1 kg/h |
+| Temperatura Entrada | 25 C | Carga Térmica Neta | 310.0 kW |
 | Temperatura Destino | 80 C | Factor de Pérdida | 2.0% |
 
-### 3.4 Etapa 2.5: Ósmosis Inversa (Concentración por Membrana)
-**Objetivo:** Reducir carga térmica retirando agua por vía mecánica (Innovación).
+### 3.4 Propuesta de Integración Innovadora: Ósmosis Inversa (Fuera del Balance Principal)
+**Objetivo:** Reducir carga térmica retirando agua por vía mecánica antes de la evaporación.
+*Nota: Esta etapa es una propuesta de mejora y no forma parte del balance de masa del caso base.*
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Extracto Pasteurizado | 10433.8 kg/h | Permeado (Agua) | 2608.5 kg/h |
-| Presión (TMP) | 24 bar | Retentado Neto | 7668.8 kg/h |
+| Extracto Pasteurizado | 10873.1 kg/h | Permeado (Agua) | 2718.3 kg/h |
+| Presión (TMP) | 24 bar | Retentado Neto | 8154.8 kg/h |
 | Recuperación (Rec) | 25% | Proteína en Retentado | 304.4 kg/h |
+| Impacto Energético | Ahorro ~25% EV | Proteína final proyectada | ~280.8 kg/h |
 
-### 3.5 Etapa 3: Evaporación de Doble Efecto
-**Objetivo:** Alcanzar 23% de sólidos totales.
+### 3.5 Etapa 3: Evaporación de Doble Efecto (Alimentación Directa)
+**Objetivo:** Alcanzar 23% de sólidos totales a partir del extracto pasteurizado.
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Retentado (Alim. EV) | 7668.8 kg/h | Concentrado Neto | 1296.9 kg/h |
-| Proteína Alim. | 304.4 kg/h | Agua Evaporada | 6345.4 kg/h |
-| Presión de Vacío | 0.40 bar | Proteína en Concentrado | 298.3 kg/h |
+| Extracto (Alim. EV) | 10873.1 kg/h | Concentrado Neto | 1688.0 kg/h |
+| Proteína Alim. | 310.6 kg/h | Agua Evaporada | 8967.6 kg/h |
+| Presión de Vacío | 0.40 bar | Proteína en Concentrado | 304.4 kg/h |
 
 ### 3.6 Etapa 4: Precipitación y Centrifugación 2
 **Objetivo:** Recuperar la proteína aislada en punto isoeléctrico (pH 4.5).
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Concentrado (EV) | 1296.9 kg/h | Pasta Proteica (50% H) | 573.0 kg/h |
-| pH Ajuste | 4.5 | Suero Residual | 712.3 kg/h |
-| Eficiencia Precip. | 98% | Proteína en Pasta | 286.5 kg/h |
+| Concentrado (EV) | 1688.0 kg/h | Pasta Proteica (50% H) | 584.7 kg/h |
+| pH Ajuste | 4.5 | Suero Residual | 1057.7 kg/h |
+| Eficiencia Precip. | 98% | Proteína en Pasta | 292.3 kg/h |
+
+*Nota sobre Rendimiento:* El rendimiento de la etapa (96.0%) se deriva del producto entre la eficiencia química de precipitación (98%) y la recuperación mecánica (98%), resultando en $0.98 \times 0.98 = 0.9604$.
 
 ### 3.7 Etapa 5: Secado Spray y Clasificación
-**Objetivo:** Obtener polvo fino con 5% de humedad.
+**Objetivo:** Obtener polvo fino con **5% - 7%** de humedad, preservando la solubilidad.
+
+**Cinética de Secado por Atomización (Modelo de Page):**
+A diferencia del secado en bandeja, el spray drying ocurre en segundos. La siguiente tabla y gráficos muestran la curva de pérdida de humedad teórica para una gota de 30 µm a 190°C.
+
+| Tiempo (s) | Humedad (b.h. %) | Fase de Secado | Observación |
+|---:|---:|---|---|
+| 0.0 | 50.0% | Alimentación | Átomo sale del disco rotativo |
+| 0.5 | 38.4% | Velocidad Constante | Alta transferencia de calor latente |
+| 1.5 | 22.1% | 1er Periodo Decreciente | Formación de costra superficial |
+| 3.0 | 11.4% | 2do Periodo Decreciente | Difusión interna de vapor |
+| **5.0** | **5.4%** | **Equilibrio** | **Punto de descarga al ciclón** |
+
+```mermaid
+xychart-beta
+    title "Curva de Secado: Humedad vs Tiempo"
+    x-axis "Tiempo (s)" [0, 0.5, 1, 1.5, 2, 3, 4, 5]
+    y-axis "Humedad (% b.h.)" 0 --> 55
+    line [50, 38.4, 29, 22.1, 17, 11.4, 7, 5.4]
+```
+
+```mermaid
+xychart-beta
+    title "Velocidad de Secado (Tasa N vs Humedad X)"
+    x-axis "Humedad (% b.h.)" [50, 40, 30, 20, 15, 10, 5]
+    y-axis "Velocidad N (kg/m²·s)" 0 --> 0.15
+    line [0.12, 0.12, 0.10, 0.07, 0.05, 0.02, 0.01]
+```
 
 | Variable de Entrada | Valor | Variable de Salida | Valor |
 |---|---:|---|---:|
-| Pasta Proteica | 573.0 kg/h | Polvo Final Neto | 295.5 kg/h |
-| Humedad Entrada | 50% | Humedad Final | 5.0% |
-| Rendimiento Proteína | 74.87% | Proteína Final Neta | 280.8 kg/h |
+| Pasta Proteica | 584.7 kg/h | Polvo Final Neto | 301.6 kg/h |
+| Humedad Entrada | 50% | Humedad Final | **5.0% - 7.0%** |
+| Temperatura Aire In | 190 C | Temperatura Producto | **< 70 C** |
+| Rendimiento Proteína | 76.39% | Proteína Final Neta | 286.5 kg/h |
+
+*Nota Técnica:* Se debe operar rígidamente con temperatura de bulbo húmedo para que el producto no exceda los 70°C, evitando el daño térmico irreversible a las globulinas.
+
 
 
 ---
@@ -222,88 +322,87 @@ Se ha auditado la implementación lógica en `core/stage_equations.py` frente a 
 
 ## 6. Resultados del caso base
 
-## 6.1 Indicadores de produccion
+### 6.1 Indicadores de produccion
 
-- **Polvo final total:** 295.5 kg/h
-- **Proteina pura recuperada:** 280.8 kg/h
+- **Polvo final total:** 301.6 kg/h
+- **Proteina pura recuperada:** 286.5 kg/h
 
 Pureza proteica del polvo:
 
 $$
-\%P = \frac{280.8}{295.5} \cdot 100 = 95.0\%
+\%P = \frac{286.5}{301.6} \cdot 100 = 95.0\%
 $$
 
-## 6.2 Rendimientos
+### 6.2 Rendimientos
 
 Rendimiento de recuperacion de proteina (base proteina de entrada):
 
 $$
-\eta_{prot,global} = \frac{280.8}{375} \cdot 100 = 74.87\%
+\eta_{prot,global} = \frac{286.5}{375} \cdot 100 = 76.40\%
 $$
 
 Rendimiento masico de polvo (base grano):
 
 $$
-\eta_{polvo/grano} = \frac{295.5}{1000} \cdot 100 = 29.6\%
+\eta_{polvo/grano} = \frac{301.6}{1000} \cdot 100 = 30.16\%
 $$
 
 ---
 
 ## 7. Verificaciones globales
 
-## 7.1 Balance global de masa
+### 7.1 Balance global de masa
 
 Entrada total:
 
-- 13000 kg/h (Soya + Agua)
+- 13000.0 kg/h (Soya + Agua)
 
 Salidas principales:
 
-- Okara humedo: 1876.0 kg/h
-- Permeado OI: 2608.5 kg/h
-- Condensado de evaporador: 6345.4 kg/h
-- Suero residual: 712.3 kg/h
-- Polvo final: 295.5 kg/h
-- Agua removida en spray dryer: 271.4 kg/h
-- **Mermas operacionales acumuladas:** 890.9 kg/h
+- Okara humedo: 1645.0 kg/h
+- Condensado de evaporador: 8967.6 kg/h
+- Suero residual: 1057.7 kg/h
+- Polvo final: 301.6 kg/h
+- Agua removida en spray dryer: 276.9 kg/h
+- **Mermas operacionales acumuladas:** 751.2 kg/h
 
 Suma de salidas:
 
 $$
-1876.0 + 2608.5 + 6345.4 + 712.3 + 295.5 + 271.4 + 890.9 = 13000.0\ \text{kg/h}
+1645.0 + 8967.6 + 1057.7 + 301.6 + 276.9 + 751.2 = 13000.0\ \text{kg/h}
 $$
 
 Cierre de masa global: **100.0%** (Las mermas cierran el balance físico real).
 
-## 7.2 Balance energetico del caso base (realista)
+### 7.2 Balance energetico del caso base (realista)
 
-- Pasteurizacion (utilidad real): 310 kW (Ajustado por menor flujo de extracto)
-- Evaporacion 2 efectos (utilidad real): 3800 kW
+- Pasteurizacion (utilidad real): 310 kW (Ajustado)
+- Evaporacion 2 efectos (utilidad real): 3530 kW (Ajustado sin OI)
 - Secado por atomizacion (utilidad real): 300 kW
 - Bombas + agitadores + equipos mecanicos (electricidad real): 60 kW
 
 $$
-\dot{E}_{total,real} \approx 310 + 3800 + 300 + 60 = 4470\ \text{kW}
+\dot{E}_{total,real} \approx 310 + 3530 + 300 + 60 = 4200\ \text{kW}
 $$
 
 Consumo especifico por kg de proteina recuperada:
 
 $$
-e_{esp,prot} = \frac{4470}{280.8} = 15.9\ \text{kWh/kg proteina}
+e_{esp,prot} = \frac{4200}{286.5} = 14.66\ \text{kWh/kg proteina}
 $$
 
 Consumo especifico por kg de polvo:
 
 $$
-e_{esp,polvo} = \frac{4470}{295.5} = 15.1\ \text{kWh/kg polvo}
+e_{esp,polvo} = \frac{4200}{301.6} = 13.93\ \text{kWh/kg polvo}
 $$
 
-## 7.3 Validacion de consistencia de balances y unidades
+### 7.3 Validacion de consistencia de balances y unidades
 
 Checklist de validacion del caso base:
 
-1. Cierre masico global: 100% incluyendo mermas técnicas.
-2. Coherencia de potencia total: 4470 kW = suma de bloques de utilidad y equipos mecanicos.
+1. Cierre masico global: 100% incluyendo mermas técnicas en cada etapa.
+2. Coherencia de potencia total: 4200 kW = suma de bloques de utilidad y equipos mecanicos.
 3. Coherencia de OPEX electrico: 60 kW instalados.
 4. Coherencia de conversion energetica: 1 kWh = 3.6 MJ.
 
@@ -313,21 +412,20 @@ Checklist de validacion del caso base:
 
 Base de calculo: 375 kg/h de proteina a la entrada.
 
-| Etapa | Proteina de entrada (kg/h) | Proteina de salida (kg/h) | Rendimiento de etapa (%) | Rendimiento acumulado (%) |
+| Etapa | Proteina de entrada (kg/h) | Proteina de salida (kg/h) | Rendimiento Químico/Mecánico (%) | Rendimiento Acumulado (%) |
 |---|---:|---:|---:|---:|
-| 1. Extraccion alcalina | 375.0 | 330.0 | 88.0 | 88.0 |
-| 1.2 Separacion solido-liquido | 330.0 | 330.0 | 100.0 | 88.0 |
-| 2. Neutralizacion y pasteurizacion | 330.0 | 330.0 | 100.0 | 88.0 |
-| 3. Evaporacion (2 efectos) | 330.0 | 330.0 | 100.0 | 88.0 |
-| 4. Precipitacion isoelectrica | 330.0 | 323.4 | 98.0 | 86.2 |
-| 4.2 Centrifugacion | 323.4 | 323.4 | 100.0 | 86.2 |
-| 5. Secado por atomizacion | 323.4 | 323.4 | 100.0 | 86.2 |
+| 1. Extraccion alcalina | 375.0 | 323.4 | 86.2 (Incluye Merma 2%) | 86.2 |
+| 1.2 Separacion solido-liquido | 323.4 | 316.9 | 98.0 (Merma 2%) | 84.5 |
+| 2. Neutralizacion y pasteurizacion | 316.9 | 310.6 | 98.0 (Merma 2%) | 82.8 |
+| 3. Evaporacion (2 efectos) | 310.6 | 304.4 | 98.0 (Merma 2%) | 81.2 |
+| 4. Precipitacion isoelectrica | 304.4 | 292.3 | 96.0 (Incluye Merma 2%) | 78.0 |
+| 5. Secado por atomizacion | 292.3 | 286.5 | 98.0 (Merma 2%) | 76.4 |
 
 Conclusiones del balance por etapa:
 
-1. La mayor perdida de proteina se concentra en la extraccion (12.0%).
-2. La segunda perdida estructural ocurre en precipitacion (2.0% sobre la proteina disuelta).
-3. Las etapas termicas y mecanicas se modelan sin perdida adicional de proteina en este caso base.
+1. La mayor perdida de proteina se concentra en la extraccion (13.8%).
+2. La merma mecánica secuencial del 2% en los trasvases líquidos afecta a todas las etapas intermedias de forma escalonada, lo cual se refleja por fin de manera explícita en este balance actualizado.
+3. El rendimiento proteico del caso base (sin OI) se establece rigurosamente en 76.4%.
 
 ---
 
@@ -355,7 +453,7 @@ Conclusiones del balance por etapa:
 
 #### 9.3.1 Energia
 
-- **Energia termica/utilidades:** $4704 - 60 = 4644\ \text{kW}$
+- **Energia termica/utilidades:** $4200 - 60 = 4140\ \text{kW}$
 - **Energia electrica:** $60\ \text{kW}$
 
 **Costo anual asumido:**
@@ -364,7 +462,7 @@ Conclusiones del balance por etapa:
 - **Tarifa electrica industrial:** 0.10 USD/kWh *(Promedio industrial regional; puede variar 0.080–0.120 USD/kWh según contrato)*
 
 $$
-C_{termico} = 4644 \cdot 8000 \cdot 0.035 = 1{,}300{,}320\ \text{USD/ano}
+C_{termico} = 4140 \cdot 8000 \cdot 0.035 = 1{,}159{,}200\ \text{USD/ano}
 $$
 
 $$
@@ -374,7 +472,7 @@ $$
 Total energia:
 
 $$
-C_{energia} = 1{,}348{,}320\ \text{USD/ano}
+C_{energia} = 1{,}207{,}200\ \text{USD/ano}
 $$
 
 #### 9.3.2 Agua y efluentes
@@ -393,7 +491,7 @@ $$
 C_{agua} = 108{,}000 \cdot 0.70 = 75{,}600\ \text{USD/ano}
 $$
 
-#### 7.3.3 Reactivos de pH
+#### 9.3.3 Reactivos de pH
 
 **Supuestos de consumo continuo:**
 
@@ -431,40 +529,40 @@ $$
 
 | Concepto | Costo anual (USD) | Costo anual (Bs) |
 |---|---:|---:|
-| Energia (termica + electrica) | 1,348,320 | 9,384,307 |
+| Energia (termica + electrica) | 1,207,200 | 8,402,112 |
 | Agua y efluentes | 75,600 | 526,176 |
 | Reactivos (NaOH + HCl) | 96,000 | 668,160 |
 | Materia prima (soya) | 3,440,000 | 23,942,400 |
-| **OPEX total anual** | **4,959,920** | **34,521,043** |
+| **OPEX total anual** | **4,818,800** | **33,538,848** |
 
 Produccion anual de referencia:
 
 $$
-M_{polvo,anual} = 364.6 \cdot 8000 = 2{,}916{,}800\ \text{kg/ano}
+M_{polvo,anual} = 301.6 \cdot 8000 = 2{,}412{,}800\ \text{kg/ano}
 $$
 
 $$
-M_{prot,anual} = 323.4 \cdot 8000 = 2{,}587{,}200\ \text{kg/ano}
+M_{prot,anual} = 286.5 \cdot 8000 = 2{,}292{,}000\ \text{kg/ano}
 $$
 
 Costo operativo unitario:
 
 $$
-c_{op,polvo} = \frac{4{,}959{,}920}{2{,}916{,}800} = 1.70\ \text{USD/kg polvo}
+c_{op,polvo} = \frac{4{,}818{,}800}{2{,}412{,}800} = 2.00\ \text{USD/kg polvo}
 $$
 
 $$
-c_{op,prot} = \frac{4{,}959{,}920}{2{,}587{,}200} = 1.92\ \text{USD/kg proteina}
+c_{op,prot} = \frac{4{,}818{,}800}{2{,}292{,}000} = 2.10\ \text{USD/kg proteina}
 $$
 
 En moneda local:
 
 $$
-c_{op,polvo} = 1.70 \cdot 6.96 = 11.83\ \text{Bs/kg polvo}
+c_{op,polvo} = 2.00 \cdot 6.96 = 13.92\ \text{Bs/kg polvo}
 $$
 
 $$
-c_{op,prot} = 1.92 \cdot 6.96 = 13.36\ \text{Bs/kg proteina}
+c_{op,prot} = 2.10 \cdot 6.96 = 14.62\ \text{Bs/kg proteina}
 $$
 
 ### 9.5 Verificacion cruzada de potencia instalada vs OPEX
@@ -491,6 +589,22 @@ $$
 
 La potencia electrica instalada valida la actualizacion del OPEX energetico del caso base.
 
+### 9.6 Consideraciones de Industria 5.0 y Sostenibilidad Ambiental
+
+Bajo el paradigma de **Industria 5.0**, el diseño de planta integra la automatización colaborativa (Cobots) y el concepto de Economía Circular (Zero Waste).
+
+**1. Economía Circular: Valorización Energética del Okara (Waste-to-Energy)**
+El subproducto de extracción (Okara húmedo) se genera a razón de $1645.0\ \text{kg/h}$ (65% de humedad). Si se implementa un sistema de biodigestión anaeróbica o co-combustión seca, el poder calorífico inferior (PCI) del Okara base seca es de aproximadamente $16\ \text{MJ/kg}$.
+$$ M_{okara\_seco} = 1645.0 \cdot (1 - 0.65) = 575.75\ \text{kg/h} $$
+$$ Q_{okara} = \frac{575.75\ \text{kg/h} \cdot 16000\ \text{kJ/kg}}{3600\ \text{s/h}} \approx 2558\ \text{kW} $$
+Incluso asumiendo una eficiencia de recuperación termodinámica del 30% tras secar la biomasa, el aporte térmico es de **$767\ \text{kW}$**, lo que representa casi el $20\%$ de la demanda total de la caldera, consolidando la descarbonización.
+
+**2. Robótica Colaborativa (Cobots) y AMMRs**
+Para operaciones de empaque ergonómico (bolsas de 20 kg), se instalan 2 Cobots paletizadores (ej. Universal Robots UR20). 
+- Consumo energético por Cobot: $\approx 0.5\ \text{kW}$. 
+- Impacto energético total: $1.0\ \text{kW}$ (Apenas el $1.6\%$ de la potencia instalada de $60.0\ \text{kW}$).
+El retorno de inversión (ROI) social se justifica por la mitigación de riesgos ergonómicos (cero lesiones musculoesqueléticas) y colaboración segura humano-robot sin jaulas perimetrales restrictivas.
+
 Nota de alcance:
 
 - Este analisis economico es preliminar.
@@ -505,16 +619,16 @@ Nota de alcance:
 | Grano de soya | 1000 kg/h | Base de diseno |
 | Proteina de entrada | 375 kg/h | 37.5% p/p |
 | Agua de extraccion | 12000 kg/h | Relacion 1:12 |
-| Proteina extraida | 330 kg/h | 88% extraccion |
-| Proteina recuperada final | 323.4 kg/h | 98% precipitacion |
-| Polvo final | 364.6 kg/h | 5% humedad |
-| Pureza de polvo | 88.7% | Coherente con aislado |
-| Evaporacion (agua removida) | 9939 kg/h | Sistema de 2 efectos |
-| Carga de evaporacion (proceso) | 6502 kW | Remocion latente total |
-| Evaporacion (utilidad real) | 3906 kW | Con 2 efectos y 90% global |
-| Energia total de utilidades | 4704 kW | Caso base realista |
-| OPEX total anual | 4,959,920 USD | Incluye materia prima |
+| Lodo de extracción | 12740 kg/h | Tras pérdida operativa 2% |
+| Proteina recuperada final | 286.5 kg/h | Rendimiento global 76.4% |
+| Polvo final | 301.6 kg/h | 5% humedad |
+| Pureza de polvo | 95.0% | Coherente con aislado |
+| Evaporacion (agua removida) | 8967.6 kg/h | Sistema de 2 efectos (Base) |
+| Evaporacion (utilidad real) | 3530 kW | Con 2 efectos y 90% global |
+| Energia total de utilidades | 4200 kW | Caso base realista (Sin OI) |
+| OPEX total anual | 4,818,800 USD | Incluye materia prima |
 | CAPEX total estimado | 3,126,200 USD | Preliminar |
+
 
 ---
 
@@ -574,10 +688,10 @@ Nota de alcance:
 |---|---|
 | Tag | EV-301A / EV-301B |
 | Servicio | Concentracion al vacio |
-| Agua evaporada | 9939 kg/h |
-| Carga de proceso | 6502 kW |
-| Carga vapor vivo equivalente | 3515 kW |
-| Carga utilidad real | 3906 kW |
+| Agua evaporada | 8967.6 kg/h |
+| Carga de proceso | 5928.6 kW |
+| Carga vapor vivo equivalente | 3204.6 kW |
+| Carga utilidad real | 3530 kW |
 | Area por efecto | 173.8 m2 |
 | Area total | 347.6 m2 |
 | Geometria de tubos | 25 mm ID, 3.0 m, 736 tubos/efecto |
@@ -606,9 +720,9 @@ Nota de alcance:
 |---|---|
 | Tag | SD-501 |
 | Servicio | Secado por atomizacion |
-| Produccion de polvo | 364.6 kg/h |
-| Carga termica proceso | 340 kW |
-| Carga utilidad real | 378 kW |
+| Produccion de polvo | 301.6 kg/h |
+| Carga termica proceso | 270 kW |
+| Carga utilidad real | 300 kW |
 | Camara | D = 3.0 m, H total = 6.5 m, V = 36.5 m3 |
 | Dimensiones auxiliares | Ciclones gemelos aprox. D = 1.00 m, H = 2.80 m c/u |
 | Atomizador | Disco 100 mm a 18000 rpm |
@@ -634,9 +748,63 @@ Nota de alcance:
 
 ---
 
-## 12. Presentacion de ingenieria: PFD narrativo y control
+## 12. Ingeniería Hidráulica (Cálculo de Líneas y Bombeo)
 
-### 12.1 Secuencia operacional del proceso
+Esta sección consolida el diseño de tuberías y bombas basándose en el balance de masa estabilizado y densidades de diseño.
+
+### 12.1 Supuestos de cálculo
+| Parámetro | Valor |
+|---|---:|
+| Densidad de cálculo | 1050 kg/m3 |
+| Viscosidad dinámica de cálculo | 0.020 Pa.s |
+| Gravedad | 9.81 m/s2 |
+| Factor de fricción Darcy adoptado | 0.030 |
+| Margen de diseño en TDH | 15% |
+| Eficiencia bomba | 65% |
+| Eficiencia motor | 90% |
+
+### 12.2 Geometría y accesorios de referencia por tramo
+| Tramo de proceso | Q (m3/h) | D int (m) | L estimada (m) | Delta z (m) | Sumatoria K |
+|---|---:|---:|---:|---:|---:|
+| Alimentación a extracción | 12.38 | 0.078 | 35 | 4 | 9 |
+| Extracto a pasteurización | 10.56 | 0.063 | 30 | 6 | 10 |
+| Pasteurizado a evaporador | 10.35 | 0.063 | 45 | 8 | 12 |
+| Concentrado a precipitación | 1.60 | 0.041 | 25 | 5 | 8 |
+| Pasta a secado | 0.55 | 0.035 | 20 | 7 | 16 |
+
+### 12.3 Resultados de pérdidas y TDH por tramo
+| Tramo de proceso | v (m/s) | h_f (m) | h_m (m) | H estático (m) | TDH con margen (m) |
+|---|---:|---:|---:|---:|---:|
+| Alimentación a extracción | 0.72 | 0.36 | 0.24 | 4.00 | 5.29 |
+| Extracto a pasteurización | 0.94 | 0.64 | 0.45 | 6.00 | 8.16 |
+| Pasteurizado a evaporador | 0.92 | 0.93 | 0.52 | 8.00 | 10.87 |
+| Concentrado a precipitación | 0.34 | 0.11 | 0.05 | 5.00 | 5.93 |
+| Pasta a secado | 0.16 | 0.02 | 0.02 | 7.00 | 8.10 |
+
+### 12.4 Potencia de bombeo calculada y selección comercial
+| Tramo de proceso | Q (m3/s) | TDH (m) | P_h (kW) | P motor calc. (kW) | Selección preliminar |
+|---|---:|---:|---:|---:|---|
+| Alimentación a extracción | 0.00344 | 5.29 | 0.19 | 0.32 | Bomba sanitaria 1.5 kW |
+| Extracto a pasteurización | 0.00293 | 8.16 | 0.25 | 0.42 | Bomba sanitaria 2.2 kW |
+| Pasteurizado a evaporador | 0.00288 | 10.87 | 0.32 | 0.55 | Bomba sanitaria 3.0 kW |
+| Concentrado a precipitación | 0.00044 | 5.93 | 0.03 | 0.05 | Bomba sanitaria 1.1 kW |
+| Pasta a secado | 0.00015 | 8.10 | 0.01 | 0.02 | Bomba desplazamiento positivo 1.5 kW |
+
+### 12.5 Verificación de succión (NPSH)
+| Parámetro | Valor (m) |
+|---|---:|
+| Patm / (rho * g) | 10.3 |
+| z_succion | 2.0 |
+| hf_succion | 0.7 |
+| Pv / (rho * g) | 0.3 |
+| **NPSHa** | **11.3** |
+*Nota: Se garantiza un margen de seguridad > 1.0 m sobre el NPSHr típico de bombas sanitarias.*
+
+---
+
+## 13. Presentacion de ingenieria: PFD narrativo y control
+
+### 13.1 Secuencia operacional del proceso
 
 1. **Recepcion y preparacion de alimentacion:** grano + agua de extraccion (1:12) se acondicionan para formar lodo de extraccion.
 2. **Extraccion alcalina (TK-101/AG-101):** se controla pH 8.75 y 55 C para maximizar proteina disuelta.
@@ -648,7 +816,7 @@ Nota de alcance:
 8. **Secado por atomizacion (SD-501):** reduccion de humedad final a 5%.
 9. **Molienda y clasificacion (ML-601/CR-601):** ajuste granulometrico final de producto.
 
-### 12.2 Lazos de control recomendados
+### 13.2 Lazos de control recomendados
 
 | Lazo | Variable controlada | Variable manipulada | Objetivo operativo |
 |---|---|---|---|
@@ -662,7 +830,7 @@ Nota de alcance:
 | TC-501 | T inlet/outlet SD-501 | Potencia de quemador y aire | Control de secado |
 | MC-501 | Humedad de polvo | T aire y caudal de alimentacion | Producto <5% humedad |
 
-### 12.3 Alarmas e interlocks minimos
+### 13.3 Alarmas e interlocks minimos
 
 1. Alta temperatura en tanque de extraccion (interlock de corte de calefaccion).
 2. Alta presion diferencial en intercambiador (alarma de posible ensuciamiento hidraulico).
@@ -670,7 +838,7 @@ Nota de alcance:
 4. Alta temperatura de salida en spray dryer (interlock de seguridad de producto/equipo).
 5. Vibracion alta en centrifugas o criba (interlock de parada controlada).
 
-### 12.4 PFD visual integrado del proceso
+### 13.4 PFD visual integrado del proceso
 
 Para la representacion visual integrada del proceso completo (equipos, corrientes principales y nodo de operacion innovadora), ver:
 
@@ -685,9 +853,9 @@ Resumen de integracion del PFD visual:
 
 ---
 
-## 13. Presentacion de ingenieria: Matriz de criticidad
+## 14. Presentacion de ingenieria: Matriz de criticidad
 
-### 13.1 Criticidad de variables operativas
+### 14.1 Criticidad de variables operativas
 
 | Variable | Etapa | Impacto en calidad | Impacto en rendimiento | Impacto en energia/costo | Criticidad |
 |---|---|---|---|---|---|
@@ -704,25 +872,24 @@ Resumen de integracion del PFD visual:
 | Humedad final de polvo | Etapa 5 | Alto | Medio | Medio | Alta |
 | Velocidad molino/criba | Etapa 5.2 | Medio | Bajo | Bajo | Media |
 
-### 13.2 Priorizacion de seguimiento operativo
+### 14.2 Priorizacion de seguimiento operativo
 
 1. **Prioridad 1 (criticas):** pH extraccion, vacio evaporador, % solidos evaporador, T spray dryer, humedad final.
 2. **Prioridad 2 (importantes):** DeltaP intercambiador, G de centrifugas, pH de precipitacion.
 3. **Prioridad 3 (soporte):** variables de molienda y clasificacion final.
 
-### 13.3 Análisis de Cuello de Botella (Teoría de Restricciones)
+### 14.3 Análisis de Cuello de Botella (Teoría de Restricciones)
 
-Basado en una alimentación de **1000 kg/h** de soya y una relación agua:soya de **1:12**, se identifican los siguientes niveles de utilización de los equipos diseñados:
+Basado en una alimentación de **1000 kg/h** de soya y una relación agua:soya de **1:12**, se identifican los siguientes niveles de utilización de los equipos diseñados (respecto a la capacidad del datasheet):
 
-1.  **Tanque de Almacenamiento de Agua (Etapa 0):** **100.0%** (Restricción Principal). El equipo está al límite de su capacidad operativa nominal.
-2.  **Tanque de Extracción (Etapa 1):** **95.9%**. Operando cerca del límite crítico para el tiempo de residencia requerido (54 min).
-3.  **Evaporador de Doble Efecto (Etapa 3):** **85.7%**. Capacidad adecuada con margen para variaciones menores.
-4.  **Centrífugas Decantadoras (Etapa 4.2):** **82.8%**.
-5.  **Secador Spray (Etapa 5):** **82.0%**.
+1.  **Tanque de Extracción (Etapa 1):** **95.9%** (Restricción Principal). Operando cerca del límite crítico para el tiempo de residencia requerido debido a la gran dilución hídrica (volumen nominal 14 m3 vs flujo >12.7 m3/h).
+2.  **Evaporador de Doble Efecto (Etapa 3):** **89.7%**. (Capacidad de 10 t/h vs Evaporación real de 8.96 t/h). Opera con margen ajustado.
+3.  **Centrífugas Decantadoras Primarias (Etapa 1.2):** **79.4%**. (Flujo de 12.7 m3/h sobre capacidad instalada de 16 m3/h).
+4.  **Secador Spray (Etapa 5):** **75.4%**. (Producción de 301.6 kg/h frente a capacidad de 400 kg/h de polvo).
 
-**Conclusión:** El sistema está dictado por la capacidad de almacenamiento y preparación hídrica. Cualquier incremento en la alimentación por encima de 1000 kg/h requiere obligatoriamente el redimensionamiento del tanque de la Etapa 0 y el tanque de extracción.
+**Conclusión:** El sistema está dictado por el cuello de botella físico en la etapa de Extracción (por volumen de residencia) y térmico en el Evaporador. Cualquier incremento en la alimentación por encima de 1000 kg/h requiere obligatoriamente el redimensionamiento del tanque de extracción y la implementación de la Ósmosis Inversa (OI) para desahogar la carga del evaporador.
 
-### 13.4 Análisis de Sensibilidad Operativa
+### 14.4 Análisis de Sensibilidad Operativa
 
 La producción final es altamente sensible a las variables de control en las etapas iniciales y de precipitación:
 
@@ -736,9 +903,9 @@ La producción final es altamente sensible a las variables de control en las eta
 
 ---
 
-## 14. Presentacion de ingenieria: Riesgos y mitigacion
+## 15. Presentacion de ingenieria: Riesgos y mitigacion
 
-### 14.1 Criterio de evaluacion
+### 15.1 Criterio de evaluacion
 
 Se adopta una matriz cualitativa 3x3:
 
@@ -746,7 +913,7 @@ Se adopta una matriz cualitativa 3x3:
 - Impacto: Bajo (B), Medio (M), Alto (A)
 - Nivel de riesgo inicial: Bajo, Medio, Alto
 
-### 14.2 Matriz de riesgos y mitigacion
+### 15.2 Matriz de riesgos y mitigacion
 
 | Riesgo | Causa principal | Consecuencia | Prob. | Impacto | Nivel inicial | Mitigacion preventiva | Mitigacion correctiva | Indicador de monitoreo | Responsable |
 |---|---|---|---|---|---|---|---|---|---|
@@ -763,13 +930,13 @@ Se adopta una matriz cualitativa 3x3:
 | Indisponibilidad energetica | Fallas red/equipo termico | Paradas no programadas y perdida de lote | B | A | Alto | Redundancia minima y plan de contingencia | Parada segura y arranque secuencial | Horas de indisponibilidad | Utilidades |
 | Incumplimiento de inocuidad | Desviacion de T/humedad o higiene | Rechazo de lote y riesgo reputacional | B | A | Alto | HACCP, limpieza y control microbiologico | Retencion y trazabilidad de lote | UFC, aw, humedad | Calidad |
 
-### 14.3 Plan de accion priorizado
+### 15.3 Plan de accion priorizado
 
 1. **Corto plazo (0-3 meses):** formalizar limites operativos, responsables por indicador y frecuencia de seguimiento diaria/turno.
 2. **Mediano plazo (3-6 meses):** fortalecer mantenimiento preventivo de centrifugas, vacio y secador; estandarizar rutinas CIP.
 3. **Largo plazo (6-12 meses):** consolidar estrategia comercial de precio minimo, contratos de soya y tablero integral de riesgos.
 
-### 14.4 Riesgos economicos clave vinculados a ventas
+### 15.4 Riesgos economicos clave vinculados a ventas
 
 1. Si el precio de venta cae por debajo de USD 1.70/kg, el proyecto entra en zona de no equilibrio operativo.
 2. Si el costo de soya sube sin ajuste de precio de venta, el margen operativo se reduce de forma directa.
@@ -777,9 +944,9 @@ Se adopta una matriz cualitativa 3x3:
 
 ---
 
-## 15. Especificaciones de envasado y estrategia de entrega
+## 16. Especificaciones de envasado y estrategia de entrega
 
-### 15.1 Especificaciones de envasado final
+### 16.1 Especificaciones de envasado final
 
 | Parametro | Especificacion de diseno | Criterio tecnico |
 |---|---|---|
@@ -789,7 +956,7 @@ Se adopta una matriz cualitativa 3x3:
 | Empaque secundario | Saco externo kraft multicapa | Proteccion mecanica adicional |
 | Inertizacion | Purga opcional con N2 en linea de llenado | Reduce oxidacion y mantiene calidad |
 
-### 15.2 Criterios de calidad y trazabilidad de lote
+### 16.2 Criterios de calidad y trazabilidad de lote
 
 Campos minimos en etiqueta:
 
@@ -804,7 +971,7 @@ Criterio operativo de liberacion:
 2. Integridad de sello conforme a inspeccion de linea.
 3. Registro de lote completo (materia prima -> producto final).
 
-### 15.3 Almacenamiento en planta y despacho
+### 16.3 Almacenamiento en planta y despacho
 
 | Variable | Especificacion | Motivo |
 |---|---|---|
@@ -813,7 +980,7 @@ Criterio operativo de liberacion:
 | Rotacion | FIFO | Minimizar envejecimiento de inventario |
 | Estiba | Pallets con separacion de piso y pared | Control sanitario y ventilacion |
 
-### 15.4 Estrategia de entrega del producto final
+### 16.4 Estrategia de entrega del producto final
 
 1. Consolidar despacho por lotes trazables con COA (certificado de analisis).
 2. Priorizar transporte cubierto y seco para preservar humedad objetivo.
@@ -822,7 +989,7 @@ Criterio operativo de liberacion:
 
 ---
 
-## 16. Referencias internas
+## 17. Referencias internas
 
 - Formulario.md
 - Planteamiento.md
@@ -833,11 +1000,11 @@ Criterio operativo de liberacion:
 
 ---
 
-## 17. Anexo de bibliografia consultada
+## 18. Anexo de bibliografia consultada
 
 Este anexo consolida las fuentes tecnicas consultadas para sustentar criterios de proceso, propiedades de materia prima, supuestos operativos y contexto economico preliminar.
 
-### 17.1 Fuentes internas del repositorio
+### 18.1 Fuentes internas del repositorio
 
 1. `proyecto_final_unitarios/docs/Variables de operacion.md`  
   Base de variables operativas por etapa, rangos de pH, temperatura y caudales de referencia.
@@ -850,7 +1017,7 @@ Este anexo consolida las fuentes tecnicas consultadas para sustentar criterios d
 5. `proyecto_final_unitarios/docs/PFD_Integrado.md`  
   Representacion visual del tren de proceso y nodo de innovacion OI.
 
-### 17.2 Fuentes tecnicas web consultadas
+### 18.2 Fuentes tecnicas web consultadas
 
 1. FAO. *Technology of Production of Edible Flours and Protein Products from Soybeans* (Cap. 4).  
   URL: https://www.fao.org/3/t0532e/t0532e05.htm  
@@ -880,7 +1047,7 @@ Este anexo consolida las fuentes tecnicas consultadas para sustentar criterios d
   URL: https://www.worldbank.org/en/research/commodity-markets  
   Uso en el documento: referencia de contexto para supuestos economicos preliminares de precios de commodities (incluida materia prima agricola).
 
-### 17.3 Criterio de calidad de fuentes y trazabilidad
+### 18.3 Criterio de calidad de fuentes y trazabilidad
 
 1. Prioridad alta: organismos tecnicos/institucionales (FAO, NIST, World Bank).
 2. Prioridad media: entradas de referencia enciclopedica usadas solo como soporte contextual y no como unica base de diseno.
@@ -889,7 +1056,7 @@ Este anexo consolida las fuentes tecnicas consultadas para sustentar criterios d
 
 ---
 
-**Version:** 1.6  
-**Fecha:** Marzo 2026  
+**Version:** 1.7  
+**Fecha:** Abril 2026  
 **Caso base:** Produccion de proteina aislada de soya a 1 ton/h de grano  
-**Notas de modelado:** eficiencia global 90%, evaporacion en 2 efectos, sin ensuciamiento, inclusion de OI preliminar, especificaciones de envasado/entrega y anexo bibliografico web + repositorio.
+**Notas de modelado:** eficiencia global 76.4%, evaporacion en 2 efectos, sin ensuciamiento, inclusion de OI preliminar, especificaciones de envasado/entrega e ingeniería hidráulica integrada.
