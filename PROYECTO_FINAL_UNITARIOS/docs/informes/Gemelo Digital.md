@@ -1,104 +1,41 @@
-# Memoria de Cálculo y Diseño Integral de Planta: Producción de Proteína Aislada de Soya
+# Gemelo Digital y Diseño Integral de Planta: Producción de Proteína Aislada de Soya
 ## (Integración con Gemelo Digital, Cálculos Profundos y Normativa Internacional)
 **Ingeniería de Procesos Senior**
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## Índice
 
-- [1. Introducción y Paradigma del Gemelo Digital](#1-introducción-y-paradigma-del-gemelo-digital)
-  - [1.1. Contexto Industrial](#11-contexto-industrial)
-  - [1.2. El Paradigma del Gemelo Digital (Digital Twin)](#12-el-paradigma-del-gemelo-digital-digital-twin)
-  - [1.3. Marco Normativo Aplicable Integrado al Diseño](#13-marco-normativo-aplicable-integrado-al-diseño)
-  - [1.4. Transición a la Industria 5.0 (Robótica Colaborativa y Economía Circular)](#14-transición-a-la-industria-50-robótica-colaborativa-y-economía-circular)
-- [2. Bases de Diseño Fisicoquímico y Termodinámico](#2-bases-de-diseño-fisicoquímico-y-termodinámico)
-  - [2.1. Propiedades y Composición de la Materia Prima](#21-propiedades-y-composición-de-la-materia-prima)
-  - [2.2. Relación Solvente/Sólido y Propiedades de la Solución Resultante](#22-relación-solventesólido-y-propiedades-de-la-solución-resultante)
-- [3. Memoria de Cálculo Fenomenológica por Etapa](#3-memoria-de-cálculo-fenomenológica-por-etapa)
-  - [3.0. Etapa 0: Acondicionamiento y Molienda de la Materia Prima (M-100)](#30-etapa-0-acondicionamiento-y-molienda-de-la-materia-prima-m-100)
-  - [3.1. Etapa 1: Lixiviación y Extracción Alcalina (TK-101)](#31-etapa-1-lixiviación-y-extracción-alcalina-tk-101)
-  - [3.2. Etapa 1.2: Clarificación (Centrífugas Decantadoras CF-102A/B)](#32-etapa-12-clarificación-centrífugas-decantadoras-cf-102ab)
-  - [3.3. Etapa 2: Intercambio Térmico HTST (Pasteurización HX-201)](#33-etapa-2-intercambio-térmico-htst-pasteurización-hx-201)
-  - [3.4. Etapa 3: Evaporación Térmica (Doble Efecto al Vacío EV-301)](#34-etapa-3-evaporación-térmica-doble-efecto-al-vacío-ev-301)
-  - [3.5. Etapa 4: Precipitación Isoeléctrica (Química de Proteínas)](#35-etapa-4-precipitación-isoeléctrica-química-de-proteínas)
-  - [3.6. Etapa 5: Secado por Atomización Térmica (Spray Dryer SD-501)](#36-etapa-5-secado-por-atomización-térmica-spray-dryer-sd-501)
-  - [3.7. Verificación Estricta de Cierre Másico (Impacto de Dosificación Química NaOH y HCl)](#37-verificación-estricta-de-cierre-másico-impacto-de-dosificación-química-naoh-y-hcl)
-- [4. Ingeniería Mecánica de Fluidos, Hidráulica y Cañerías (Diseño Lean y Sanitario)](#4-ingeniería-mecánica-de-fluidos-hidráulica-y-cañerías-diseño-lean-y-sanitario)
-  - [4.1. Fundamentos Hidráulicos y Red de Cañerías (ASME BPE)](#41-fundamentos-hidráulicos-y-red-de-cañerías-asme-bpe)
-  - [4.2. Perfil Hidráulico Integral: Cálculo de Flujos y Cabezal (TDH) por Etapa](#42-perfil-hidráulico-integral-cálculo-de-flujos-y-cabezal-tdh-por-etapa)
-  - [4.3. Verificación de NPSH y Prevención de Cavitación](#43-verificación-de-npsh-y-prevención-de-cavitación)
-- [5. El Salto Innovador: Preconcentración por Ósmosis Inversa (OI)](#5-el-salto-innovador-preconcentración-por-ósmosis-inversa-oi)
-  - [5.1. Teoría de Transporte Multicomponente en Membranas](#51-teoría-de-transporte-multicomponente-en-membranas)
-  - [5.2. Termodinámica del Ahorro (Validación del Gemelo)](#52-termodinámica-del-ahorro-validación-del-gemelo)
-- [6. Filosofía de Mantenimiento y Diseño Higiénico (EHEDG / 3-A)](#6-filosofía-de-mantenimiento-y-diseño-higiénico-ehedg-3-a)
-  - [6.1. Especificaciones de Equipo Biológico y Arquitectura](#61-especificaciones-de-equipo-biológico-y-arquitectura)
-  - [6.2. Estrategia CIP Automatizada (Clean In Place)](#62-estrategia-cip-automatizada-clean-in-place)
-  - [6.3. Estudio de Tiempos, OEE y Estructura Organizacional (Ingeniería de Métodos)](#63-estudio-de-tiempos-oee-y-estructura-organizacional-ingeniería-de-métodos)
-    - [A. Cálculo de Tiempo Operativo y OEE](#a-cálculo-de-tiempo-operativo-y-oee)
-    - [B. Formato de Turnos y Organización Laboral](#b-formato-de-turnos-y-organización-laboral)
-    - [C. Estructura Jerárquica Corporativa (Organigrama)](#c-estructura-jerárquica-corporativa-organigrama)
-- [7. Arquitectura de Control DCS, Instrumentación Avanzada (ISA-5.1) y Lazos P&ID](#7-arquitectura-de-control-dcs-instrumentación-avanzada-isa-51-y-lazos-pid)
-  - [7.1. Topología de Red y Arquitectura de Control](#71-topología-de-red-y-arquitectura-de-control)
-  - [7.2. Filosofía de Lazos de Control (P&ID) por Etapas de Proceso](#72-filosofía-de-lazos-de-control-pid-por-etapas-de-proceso)
-    - [Etapa 1: Extracción Alcalina (Control de Ratio y pH)](#etapa-1-extracción-alcalina-control-de-ratio-y-ph)
-    - [Etapa 2: Pasteurización HTST (Control FDD)](#etapa-2-pasteurización-htst-control-fdd)
-    - [Etapa 3: Evaporación al Vacío (Control de Entalpía)](#etapa-3-evaporación-al-vacío-control-de-entalpía)
-    - [Etapa 4: Precipitación Isoeléctrica (Titulación de Precisión)](#etapa-4-precipitación-isoeléctrica-titulación-de-precisión)
-    - [Etapa 5: Secado Spray (Control de Humedad en Cascada)](#etapa-5-secado-spray-control-de-humedad-en-cascada)
-  - [7.3. Funciones de Enclavamiento y Seguridad Intrínseca (SIS / LOPA)](#73-funciones-de-enclavamiento-y-seguridad-intrínseca-sis-lopa)
-- [8. Análisis Económico Exhaustivo: Ubicación Santa Cruz, Bolivia](#8-análisis-económico-exhaustivo-ubicación-santa-cruz-bolivia)
-  - [8.1. Consideraciones de Ubicación y Permisos (Santa Cruz)](#81-consideraciones-de-ubicación-y-permisos-santa-cruz)
-  - [8.2. Resumen CAPEX (Capital Expenditure) y Depreciación](#82-resumen-capex-capital-expenditure-y-depreciación)
-  - [8.3. OPEX Anual: Estructura de Costos Local ($7,500 \text{ hrs/año}$)](#83-opex-anual-estructura-de-costos-local-7500-text-hrsaño)
-    - [Estructura de Labor Directa e Indirecta (Salarios Reales Bolivia + Cargas Sociales 40%)](#estructura-de-labor-directa-e-indirecta-salarios-reales-bolivia-cargas-sociales-40)
-  - [8.4. Costo Unitario y Viabilidad](#84-costo-unitario-y-viabilidad)
-- [9. Datasheets Técnicos de Equipamiento (Ingeniería de Detalle y Proveedores)](#9-datasheets-técnicos-de-equipamiento-ingeniería-de-detalle-y-proveedores)
-  - [9.1. DS-101: Tanque de Extracción Alcalina + Sistema de Agitación](#91-ds-101-tanque-de-extracción-alcalina-sistema-de-agitación)
-  - [9.2. DS-102: Sistema de Clarificación (Centrífugas Decantadoras)](#92-ds-102-sistema-de-clarificación-centrífugas-decantadoras)
-  - [9.3. DS-201: Pasteurizador HTST (Intercambiador de Placas)](#93-ds-201-pasteurizador-htst-intercambiador-de-placas)
-  - [9.4. DS-301: Evaporador de Doble Efecto al Vacío](#94-ds-301-evaporador-de-doble-efecto-al-vacío)
-  - [9.5. DS-501: Sistema de Secado por Atomización (Spray Dryer)](#95-ds-501-sistema-de-secado-por-atomización-spray-dryer)
-  - [9.6. DS-601: Sistema de Ósmosis Inversa (Pre-concentración)](#96-ds-601-sistema-de-ósmosis-inversa-pre-concentración)
-- [10. Análisis Profundo de Cuello de Botella, Sensibilidad Operativa y Viabilidad Escalar](#10-análisis-profundo-de-cuello-de-botella-sensibilidad-operativa-y-viabilidad-escalar)
-  - [10.1. Identificación de Restricciones y Dimensionamiento de Equipos (TOC)](#101-identificación-de-restricciones-y-dimensionamiento-de-equipos-toc)
-  - [10.2. Rangos de Operabilidad y Estabilidad del Sistema](#102-rangos-de-operabilidad-y-estabilidad-del-sistema)
-  - [10.3. Viabilidad Escalar y Económica frente a la Materia Prima](#103-viabilidad-escalar-y-económica-frente-a-la-materia-prima)
-- [11. Diagrama de Flujo de Proceso (PFD) y Secuencia Operacional Avanzada (Enfoque Six Sigma)](#11-diagrama-de-flujo-de-proceso-pfd-y-secuencia-operacional-avanzada-enfoque-six-sigma)
-  - [11.1. Diagrama de Flujo de Proceso (PFD) - Topología de Planta](#111-diagrama-de-flujo-de-proceso-pfd---topología-de-planta)
-  - [11.2. Narrativa Operacional Detallada (Matriz CPV / CTQ)](#112-narrativa-operacional-detallada-matriz-cpv-ctq)
-    - [Fase I: Acondicionamiento y Lixiviación (Etapa 1)](#fase-i-acondicionamiento-y-lixiviación-etapa-1)
-    - [Fase II: Separación Centrífuga y Sanitización (Etapa 1.2 y 2)](#fase-ii-separación-centrífuga-y-sanitización-etapa-12-y-2)
-    - [Fase III: Eficiencia Termodinámica (Etapas Innovadora y 3)](#fase-iii-eficiencia-termodinámica-etapas-innovadora-y-3)
-    - [Fase IV: Recuperación Isoeléctrica (Etapa 4)](#fase-iv-recuperación-isoeléctrica-etapa-4)
-    - [Fase V: Atomización, Acabado y Envasado (Etapas 5 y 6)](#fase-v-atomización-acabado-y-envasado-etapas-5-y-6)
-- [12. Matriz de Criticidad Operativa (Enfoque FMEA)](#12-matriz-de-criticidad-operativa-enfoque-fmea)
-- [13. Gestión Integral de Riesgos (HACCP, HAZOP y Seguridad Industrial)](#13-gestión-integral-de-riesgos-haccp-hazop-y-seguridad-industrial)
-  - [13.1. Riesgos de Inocuidad Alimentaria (HACCP)](#131-riesgos-de-inocuidad-alimentaria-haccp)
-  - [13.2. Riesgos de Seguridad Industrial y Operativa (HAZOP / NFPA)](#132-riesgos-de-seguridad-industrial-y-operativa-hazop-nfpa)
-  - [13.3. Cultura de Seguridad (Behavioral Safety)](#133-cultura-de-seguridad-behavioral-safety)
-- [14. Especificaciones Avanzadas de Envasado, Shelf-Life y Logística de Exportación](#14-especificaciones-avanzadas-de-envasado-shelf-life-y-logística-de-exportación)
-  - [14.1. Ingeniería del Empaque (Packaging)](#141-ingeniería-del-empaque-packaging)
-  - [14.2. Cinética de Degradación y Vida Útil (Shelf-Life)](#142-cinética-de-degradación-y-vida-útil-shelf-life)
-  - [14.3. Red Logística de Exportación e Incoterms 2020 (Topología Santa Cruz)](#143-red-logística-de-exportación-e-incoterms-2020-topología-santa-cruz)
-- [15. Estrategia de Circularidad y Monetización de Subproductos (Cero CAPEX)](#15-estrategia-de-circularidad-y-monetización-de-subproductos-cero-capex)
-  - [15.1. Mercado Objetivo (Santa Cruz)](#151-mercado-objetivo-santa-cruz)
-  - [15.2. Logística de Despacho (Layout Lean)](#152-logística-de-despacho-layout-lean)
-  - [15.3. Impacto Financiero (OPEX Offset)](#153-impacto-financiero-opex-offset)
-  - [15.4. Estandarización de Calidad (Fichas Técnicas Básicas)](#154-estandarización-de-calidad-fichas-técnicas-básicas)
-- [16. Base Bibliográfica, Legal y Científica de Soporte (Consolidada)](#16-base-bibliográfica-legal-y-científica-de-soporte-consolidada)
-  - [Tratados Científicos de Ingeniería Química y Modelado](#tratados-científicos-de-ingeniería-química-y-modelado)
-  - [Ciencia de Alimentos y Proteína de Soya](#ciencia-de-alimentos-y-proteína-de-soya)
-  - [Normativas Sanitarias, Industriales y Logísticas](#normativas-sanitarias-industriales-y-logísticas)
+- 1. Introducción y Paradigma del Gemelo Digital
+- 2. Bases de Diseño Fisicoquímico y Termodinámico
+- 3. Gemelo Digital: Cálculo Fenomenológico por Etapa
+- 4. Ingeniería Mecánica de Fluidos, Hidráulica y Cañerías (Diseño Lean y Sanitario)
+- 5. Planteamiento de Implementación Innovadora: Preconcentración por Ósmosis Inversa (OI)
+- 6. Filosofía de Mantenimiento y Diseño Higiénico (EHEDG / 3-A)
+- 7. Arquitectura de Control DCS, Instrumentación Avanzada (ISA-5.1) y Lazos P&ID
+- 8. Análisis Económico Exhaustivo: Ubicación Santa Cruz, Bolivia
+- 9. Datasheets Técnicos de Equipamiento (Ingeniería de Detalle y Proveedores)
+- 10. Análisis Profundo de Cuello de Botella, Sensibilidad Operativa y Viabilidad Escalar
+- 11. Diagrama de Flujo de Proceso (PFD) y Secuencia Operacional Avanzada (Enfoque Six Sigma)
+- 12. Matriz de Criticidad Operativa (Enfoque FMEA)
+- 13. Gestión Integral de Riesgos (HACCP, HAZOP y Seguridad Industrial)
+- 14. Especificaciones Avanzadas de Envasado, Shelf-Life y Logística de Exportación
+- 15. Estrategia de Circularidad y Monetización de Subproductos (Cero CAPEX)
+- 16. Base Bibliográfica, Legal y Científica de Soporte (Consolidada)
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 1. Introducción y Paradigma del Gemelo Digital
 
 ### 1.1. Contexto Industrial
-El presente documento constituye la Memoria de Cálculo y Diseño de Ingeniería de una planta industrial de alta eficiencia para la producción de proteína aislada de soya (ISP - *Isolated Soy Protein*). El aislado de soya es un producto de alto valor agregado con una pureza proteica exigida superior al 90% (base seca), utilizado ampliamente en la industria alimentaria por sus propiedades tecno-funcionales (emulsificación, gelificación, retención de agua) y su alto perfil nutricional (Codex Alimentarius Stan 175-1989).
+El presente documento constituye el Gemelo Digital y Diseño de Ingeniería de una planta industrial de alta eficiencia para la producción de proteína aislada de soya (ISP - *Isolated Soy Protein*). El aislado de soya es un producto de alto valor agregado con una pureza proteica exigida superior al 90% (base seca), utilizado ampliamente en la industria alimentaria por sus propiedades tecno-funcionales (emulsificación, gelificación, retención de agua) y su alto perfil nutricional (Codex Alimentarius Stan 175-1989).
 
 ### 1.2. El Paradigma del Gemelo Digital (Digital Twin)
-El diseño físico detallado en esta memoria no es un ente estático. Está intrínsecamente acoplado a un **Gemelo Digital** desarrollado en Python (módulos `core/stage_equations.py`, `core/process_model.py`). Este gemelo digital es una réplica computacional de la planta basada en primeros principios termodinámicos, cinéticas de transferencia de masa y balances de energía en estado estacionario y transitorio.
+El diseño físico detallado en este Gemelo Digital no es un ente estático. Está intrínsecamente acoplado a un **Gemelo Digital** desarrollado en Python (módulos `core/stage_equations.py`, `core/process_model.py`). Este gemelo digital es una réplica computacional de la planta basada en primeros principios termodinámicos, cinéticas de transferencia de masa y balances de energía en estado estacionario y transitorio.
 
 **¿De dónde provienen los datos del gemelo y cómo interactúa con el mundo físico?**
 1. **Modelos Fenomenológicos Embebidos:** Las ecuaciones de estado (ej. presión de vapor del agua mediante la ecuación de Antoine, propiedades entálpicas) están codificadas en el núcleo matemático del software.
@@ -120,6 +57,8 @@ El diseño de esta planta trasciende la mera conectividad de la Industria 4.0, a
 3. **Sostenibilidad y Economía Circular:** El subproducto fibroso (Okara), extraído a razón de $1645 \text{ kg/h}$, no es considerado residuo. Se integra un plan de coprocesamiento (Waste-to-Energy o suplemento pecuario de alto valor), cerrando el ciclo másico (Zero Waste). Asimismo, la integración de la Ósmosis Inversa (OI) ejemplifica la "termodinámica del ahorro", priorizando la descarbonización industrial.
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 2. Bases de Diseño Fisicoquímico y Termodinámico
 
@@ -147,7 +86,9 @@ Debido a que los sólidos totales representan apenas $\approx 7.6\%$ inicial, el
 
 ---
 
-## 3. Memoria de Cálculo Fenomenológica por Etapa
+<div style="page-break-before: always;"></div>
+
+## 3. Gemelo Digital: Cálculo Fenomenológico por Etapa
 
 El motor algorítmico del Gemelo Digital resuelve las siguientes ecuaciones algebraicas para estabilizar los balances de materia y energía. Aquí se detalla la demostración matemática rigurosa para cada etapa del tren de procesos.
 
@@ -171,6 +112,7 @@ Esta operación constituye el primer paso de transformación química del proces
 El siguiente gráfico ilustra el comportamiento típico del Índice de Solubilidad del Nitrógeno (NSI) para la proteína de soya. Se observa la característica curva en "U", donde el mínimo de solubilidad coincide con el punto isoeléctrico (pH 4.5), fundamentando tanto la extracción (pH 8.75) como la precipitación (pH 4.5).
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 xychart-beta
     title "Perfil de Solubilidad Proteica (NSI vs pH)"
     x-axis "pH" [2, 3, 4, 4.5, 5, 6, 7, 8, 9, 10]
@@ -313,6 +255,7 @@ El secado por atomización (*Spray Drying*) es una operación de transferencia s
 El siguiente gráfico representa la evolución del contenido de humedad en base húmeda ($X_{bh}$) a lo largo de los escasos segundos de permanencia de la gota en la cámara. Se observa una caída exponencial que se estabiliza al alcanzar el equilibrio con el aire de salida.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 xychart-beta
     title "Curva de Secado: Humedad vs Tiempo (Spray Drying)"
     x-axis "Tiempo (s)" [0, 0.5, 1, 1.5, 2, 3, 4, 5]
@@ -324,6 +267,7 @@ xychart-beta
 Este gráfico muestra la tasa de remoción de agua ($N$) frente a la humedad decreciente. Se identifica el periodo de velocidad constante (meseta inicial) y el periodo de velocidad decreciente a medida que se forma la costra superficial de la proteína.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 xychart-beta
     title "Velocidad de Secado (Tasa N vs Humedad X)"
     x-axis "Humedad (% b.h.)" [50, 40, 30, 20, 15, 10, 5]
@@ -371,6 +315,8 @@ Las entradas totales ajustadas al sistema son: $13,000 \text{ (Base)} + 60 \text
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 4. Ingeniería Mecánica de Fluidos, Hidráulica y Cañerías (Diseño Lean y Sanitario)
 
 El diseño de la red de tuberías de la planta no solo obedece a un cálculo termodinámico, sino a la interacción profunda de tres pilares de ingeniería: **Diseño Higiénico (ASME BPE), Fluidodinámica Avanzada y Mantenimiento Lean (SMED)**.
@@ -409,6 +355,8 @@ Con un Cabezal Neto Positivo de Succión Requerido ($NPSH_r$) estándar de los f
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 5. El Salto Innovador: Preconcentración por Ósmosis Inversa (OI)
 
 **Explicación Detallada:**
@@ -436,6 +384,8 @@ $$ P_{bomba\_OI} = \frac{Q \cdot \Delta P}{\eta_{pump}} = \frac{(10.87 \text{ m}
 **Conclusión Irrefutable:** El OPEX térmico disminuye $\approx 25\%$ (Ahorro de $1,000$ kW térmicos) a cambio de un aumento marginal del OPEX eléctrico ($9$ kW).
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 6. Filosofía de Mantenimiento y Diseño Higiénico (EHEDG / 3-A)
 
@@ -476,6 +426,7 @@ La planta requiere operación ininterrumpida (24/7) durante los 340 días operat
 El organigrama directivo y operativo ha sido estructurado para una gobernanza ágil y eficiente:
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 graph TD
     %% Nivel C-Level
     CEO[<b>CEO y Fundador</b><br>Samuel Aguilera]
@@ -505,6 +456,8 @@ graph TD
 ```
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 7. Arquitectura de Control DCS, Instrumentación Avanzada (ISA-5.1) y Lazos P&ID
 
@@ -548,6 +501,8 @@ La instrumentación de control de proceso (BPCS) está separada físicamente de 
   3. Paneles de venteo calculados para liberar la sobrepresión hacia el techo exterior de la planta.
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 8. Ingeniería Financiera y Estructura de Costos de Nivel Corporativo (Estimación Clase 3 AACE)
 
@@ -616,6 +571,8 @@ $$ \text{Producción Anual Nominal de ISP} = 301.6 \text{ kg/h} \times 7500 \tex
 Esta estructura contable milimétrica demuestra categóricamente que el proyecto está blindado financieramente. El holgado diferencial entre el costo unitario neto de $\$2.37$ USD y el precio base del mercado mundial de $\$3.50$ USD absorbe sin disrupción cualquier fluctuación extrema en la bolsa internacional de granos, validando así la elevada inversión corporativa en instrumentación inteligente, Ósmosis Inversa, robótica colaborativa (AMMRs) y Gemelo Digital.
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 9. Datasheets Técnicos de Equipamiento (Ingeniería de Detalle y Proveedores)
 
@@ -698,6 +655,8 @@ Para garantizar la viabilidad del CAPEX y el cumplimiento de las normativas EHED
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 10. Análisis Profundo de Cuello de Botella, Sensibilidad Operativa y Viabilidad Escalar
 
 Este análisis se fundamenta en la **Teoría de Restricciones (TOC - Goldratt)** aplicada a la fenomenología de bioprocesos y en la **Teoría de Estabilidad de Sistemas de Control (Criterios de Nyquist y Margen de Fase)**. A través de simulaciones de perturbación (What-If Analysis) en el Gemelo Digital, se han mapeado los límites termodinámicos, hidráulicos y bioquímicos de la planta. El objetivo es identificar el eslabón más débil de la cadena de valor (el cuello de botella) y establecer las fronteras paramétricas que garantizan la rentabilidad (OPEX) y la calidad (CTQ) del Aislado de Soya (ISP).
@@ -747,6 +706,8 @@ El Gemelo Digital ha calculado las asintotas financieras bajo las cuales el mode
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 11. Diagrama de Flujo de Proceso (PFD) y Secuencia Operacional Avanzada (Enfoque Six Sigma)
 
 La secuencia operativa de la planta ha sido diseñada bajo la metodología Six Sigma (DMAIC), identificando para cada nodo las **Variables Críticas de Proceso (CPV - Critical Process Variables)** y los **Atributos Críticos para la Calidad (CTQ - Critical to Quality)**.
@@ -756,6 +717,7 @@ La secuencia operativa de la planta ha sido diseñada bajo la metodología Six S
 El siguiente diagrama PFD de alta fidelidad ilustra la interconexión de equipos, los flujos de masa, la integración de servicios auxiliares y la arquitectura de control crítico.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 flowchart TD
     %% Definición de Estilos (Paleta de Ingeniería)
     classDef equipo fill:#FAFAFA,stroke:#424242,stroke-width:2px,color:#000
@@ -863,6 +825,8 @@ La pasta proteica ($50\%$ humedad) es atomizada en el **Spray Dryer SD-501**. El
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 12. Matriz de Criticidad Operativa (Enfoque FMEA)
 
 El análisis de criticidad se ha reestructurado bajo la metodología FMEA (*Failure Mode and Effects Analysis*), evaluando la Severidad (S), Ocurrencia (O) y Detección (D) en una escala del 1 al 10 para obtener el Número Prioritario de Riesgo (NPR).
@@ -876,6 +840,8 @@ El análisis de criticidad se ha reestructurado bajo la metodología FMEA (*Fail
 | **Humedad Final (SD-501)** | Humedad polvo > 6% | Riesgo microbiológico, aglomeración (caking). (9) | Saturación del aire de secado / Falla quemador. (4) | Transmisor microondas MC-501. (3) | **108** | **ALTA** |
 
 ---
+
+<div style="page-break-before: always;"></div>
 
 ## 13. Gestión Integral de Riesgos (HACCP, HAZOP y Seguridad Industrial)
 
@@ -907,6 +873,8 @@ La implementación de estas matrices requiere un plan de capacitación semestral
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 14. Especificaciones Avanzadas de Envasado, Shelf-Life y Logística de Exportación
 
 Como producto de alto valor agregado sensible a la humedad y la oxidación, la Proteína Aislada de Soya (ISP) requiere un ecosistema logístico de precisión. Como expertos en *Supply Chain*, se ha estructurado una red de distribución optimizada desde Santa Cruz de la Sierra hacia mercados internacionales.
@@ -928,6 +896,7 @@ La estabilidad de las propiedades tecno-funcionales (emulsificación y gelificac
 Debido a la ubicación estratégica en el corazón de Sudamérica, la planta utiliza el **Corredor Bioceánico** para alcanzar mercados globales con eficiencia logística.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': {'lineColor': '#0277BD', 'xyChart': {'plotColorPalette': '#C62828,#1565C0,#2E7D32'}}}}%%
 flowchart TD
     %% Definición de Estilos
     classDef proceso fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#000
@@ -993,6 +962,8 @@ flowchart TD
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 15. Estrategia de Circularidad y Monetización de Subproductos (Cero CAPEX)
 
 **Objetivo:** Evitar la instalación de una Planta de Tratamiento de Aguas Residuales (PTAR) costosa y mitigar la carga ambiental mediante la comercialización ágil B2B de subproductos en estado crudo en el Parque Industrial PILAT.
@@ -1052,9 +1023,11 @@ Se sugiere no buscar a múltiples pequeños compradores. Lo ideal es licitar el 
 
 ---
 
+<div style="page-break-before: always;"></div>
+
 ## 16. Base Bibliográfica, Legal y Científica de Soporte (Consolidada)
 
-El rigor fenomenológico, sanitario y logístico de esta Memoria de Ingeniería se ampara en los siguientes tratados mundiales e investigaciones científicas recientes:
+El rigor fenomenológico, sanitario y logístico de este Gemelo Digital y Diseño de Ingeniería se ampara en los siguientes tratados mundiales e investigaciones científicas recientes:
 
 ### Tratados Científicos de Ingeniería Química y Modelado
 1. **Perry, R. H., & Green, D. W. (2019).** *Perry's Chemical Engineers' Handbook (9th Ed.).* McGraw-Hill. (Coeficientes globales de transferencia, ecuación de Antoine y diseño de evaporadores).
@@ -1087,5 +1060,5 @@ El rigor fenomenológico, sanitario y logístico de esta Memoria de Ingeniería 
 22. **ICC (International Chamber of Commerce).** *Incoterms® 2020 Rules.* (Regulaciones de transferencia de riesgo logístico internacional, ej. FCA, FOB, CIF).
 
 ---
-**FIN DE LA MEMORIA DE CÁLCULO Y DISEÑO TÉCNICO**
+**FIN DEL DOCUMENTO DEL GEMELO DIGITAL Y DISEÑO TÉCNICO**
 *Edición Consolidada y Ampliada (Revisión Final: Gemelo Digital Integrado).*

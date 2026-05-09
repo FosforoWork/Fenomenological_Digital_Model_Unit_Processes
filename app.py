@@ -3,11 +3,8 @@
 from __future__ import annotations
 
 import math
-from pathlib import Path
 import random
-import re
 import time
-import unicodedata
 
 import pandas as pd
 import streamlit as st
@@ -28,8 +25,7 @@ from core.sales_economics import (
     DOC_OPEX_TOTAL_ANNUAL_BS,
     compute_sales_stage,
 )
-from core.stage_equations import BASELINE_REFERENCES, run_process_model
-from visualizaciones.fluidograma_integrado import build_fluidograma_payload, build_fluidograma_sankey
+from core.stage_equations import run_process_model
 
 
 VISUAL_THEMES = {
@@ -210,60 +206,6 @@ EQUIPMENT_SPEC_LABELS = {
 }
 
 
-CAPACITY_LIMIT_LABELS = {
-    "tank_max_fill_fraction": "Maximo llenado tanque Etapa 0",
-    "stage_1_tank_max_fill_fraction": "Maximo llenado tanque Etapa 1",
-    "pump_max_load_fraction": "Maximo uso motor bomba",
-    "stage_2_hex_max_thermal_load_fraction": "Maximo uso termico intercambiador",
-    "stage_2_hex_min_area_m2": "Area minima eficiente intercambiador (m2)",
-    "stage_2_hex_max_area_m2": "Area maxima eficiente intercambiador (m2)",
-    "stage_2_5_ro_min_flux_lmh": "Flujo minimo OI (LMH)",
-    "stage_2_5_ro_max_flux_lmh": "Flujo maximo OI (LMH)",
-    "stage_3_evap_max_load_fraction": "Maximo uso evaporador",
-    "stage_4_2_centrifuge_max_load_fraction": "Maximo uso centrifuga",
-    "stage_5_dryer_max_load_fraction": "Maximo uso secador",
-    "stage_5_max_powder_rate_kg_h_m3": "Maximo polvo por volumen secador (kg/h/m3)",
-}
-
-
-IMPACT_STAGE_ORDER = [
-    "Etapa 0",
-    "Etapa 1",
-    "Etapa 2",
-    "Etapa 2.5",
-    "Etapa 3",
-    "Etapa 4",
-    "Etapa 5",
-]
-
-
-CONTROL_STAGE_LABELS = {
-    "soy_feed_kg_h": "Etapa 0",
-    "water_flow_m3_h": "Etapa 0",
-    "water_temp_c": "Etapa 0",
-    "extraction_ph": "Etapa 1",
-    "extraction_temp_c": "Etapa 1",
-    "extraction_residence_min": "Etapa 1",
-    "agitator_rpm": "Etapa 1",
-    "solid_liquid_ratio": "Etapa 1",
-    "pasteur_temp_c": "Etapa 2",
-    "pasteur_retention_s": "Etapa 2",
-    "ro_tmp_bar": "Etapa 2.5",
-    "ro_crossflow_ms": "Etapa 2.5",
-    "ro_feed_temp_c": "Etapa 2.5",
-    "ro_feed_ph": "Etapa 2.5",
-    "ro_sdi": "Etapa 2.5",
-    "evap_pressure_bar": "Etapa 3",
-    "evap_temp_c": "Etapa 3",
-    "precip_ph": "Etapa 4",
-    "precip_time_min": "Etapa 4",
-    "centrifuge_g": "Etapa 4",
-    "centrifuge_time_min": "Etapa 4",
-    "dryer_temp_c": "Etapa 5",
-    "dryer_residence_min": "Etapa 5",
-}
-
-
 CONTROL_LABELS = {
     "soy_feed_kg_h": "Alimentacion de soya (kg/h)",
     "water_flow_m3_h": "Caudal de agua (m3/h)",
@@ -291,356 +233,20 @@ CONTROL_LABELS = {
 }
 
 
-CONTROL_IMPACT_META = {
-    "soy_feed_kg_h": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Escala el flujo proteico en toda la cascada de etapas.",
-    },
-    "water_flow_m3_h": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Modifica dilucion y tiempo de residencia hidraulico global.",
-    },
-    "water_temp_c": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Se registra como condicion de entrada con efecto indirecto.",
-    },
-    "extraction_ph": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Cambia fuertemente la eficiencia de extraccion proteica.",
-    },
-    "extraction_temp_c": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Afecta cinetica y desnaturalizacion en extraccion.",
-    },
-    "extraction_residence_min": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Controla tiempo de contacto y conversion efectiva.",
-    },
-    "agitator_rpm": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Influye en mezcla y gradientes de transferencia de masa.",
-    },
-    "solid_liquid_ratio": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Afecta reologia del lodo y eficiencia de extraccion.",
-    },
-    "pasteur_temp_c": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Impacta factor de calidad proteica post-tratamiento termico.",
-    },
-    "pasteur_retention_s": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Define severidad termica y perdida de calidad.",
-    },
-    "ro_tmp_bar": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Cambia recuperacion OI y carga posterior de evaporacion.",
-    },
-    "ro_crossflow_ms": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Modula polarizacion y recuperacion de permeado.",
-    },
-    "ro_feed_temp_c": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Afecta viscosidad del flujo y rendimiento OI.",
-    },
-    "ro_feed_ph": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Afecta retencion proteica y estabilidad de membrana.",
-    },
-    "ro_sdi": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Incrementa ensuciamiento y reduce recuperacion efectiva.",
-    },
-    "evap_pressure_bar": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Ajusta solidos objetivo y agua evaporada equivalente.",
-    },
-    "evap_temp_c": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Modifica concentracion objetivo y demanda termica.",
-    },
-    "precip_ph": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Gobierna eficiencia de precipitacion isoelectrica.",
-    },
-    "precip_time_min": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Define crecimiento de floculo y recuperacion de solidos.",
-    },
-    "centrifuge_g": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Afecta recuperacion y humedad de pasta en separacion.",
-    },
-    "centrifuge_time_min": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Ajusta recuperacion y humedad residual en pasta.",
-    },
-    "dryer_temp_c": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Controla humedad final y masa de polvo producido.",
-    },
-    "dryer_residence_min": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Define remocion de agua y estabilidad final del polvo.",
-    },
+CAPACITY_LIMIT_LABELS = {
+    "tank_max_fill_fraction": "Maximo llenado tanque Etapa 0",
+    "stage_1_tank_max_fill_fraction": "Maximo llenado tanque Etapa 1",
+    "pump_max_load_fraction": "Maximo uso motor bomba",
+    "stage_2_hex_max_thermal_load_fraction": "Maximo uso termico intercambiador",
+    "stage_2_hex_min_area_m2": "Area minima eficiente intercambiador (m2)",
+    "stage_2_hex_max_area_m2": "Area maxima eficiente intercambiador (m2)",
+    "stage_2_5_ro_min_flux_lmh": "Flujo minimo OI (LMH)",
+    "stage_2_5_ro_max_flux_lmh": "Flujo maximo OI (LMH)",
+    "stage_3_evap_max_load_fraction": "Maximo uso evaporador",
+    "stage_4_2_centrifuge_max_load_fraction": "Maximo uso centrifuga",
+    "stage_5_dryer_max_load_fraction": "Maximo uso secador",
+    "stage_5_max_powder_rate_kg_h_m3": "Maximo polvo por volumen secador (kg/h/m3)",
 }
-
-
-EQUIPMENT_IMPACT_META = {
-    "stage_0_tank_capacity_m3": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Afecta autonomia y bloqueos por capacidad, no la cinetica base.",
-    },
-    "stage_0_tank_reserve_factor": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Margen de diseno que ajusta volumen requerido de tanque.",
-    },
-    "stage_0_pump_head_m": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Afecta potencia de bombeo mas que calidad de proceso.",
-    },
-    "stage_0_pump_eta_hyd": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Impacta eficiencia energetica del bombeo.",
-    },
-    "stage_0_pump_eta_motor": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Impacta consumo electrico del bombeo.",
-    },
-    "stage_0_pump_motor_kw": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Actua como limite de carga y bloqueo.",
-    },
-    "stage_1_slurry_density_kg_m3": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Ajusta conersion caudal masico-volumetrico para capacidad.",
-    },
-    "stage_1_tank_capacity_m3": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Define holdup disponible y bloqueo por llenado.",
-    },
-    "stage_1_tank_reserve_factor": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Margen de diseno en tiempo de residencia objetivo.",
-    },
-    "stage_1_base_extraction_eff": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Parametro base multiplicativo de extraccion global.",
-    },
-    "stage_1_2_extract_recovery": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Modifica flujo recuperado y balance hacia neutralizacion.",
-    },
-    "stage_2_acid_addition_m3_h": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Ajusta levemente el caudal y dilucion.",
-    },
-    "stage_2_cp_kj_kgk": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Impacta deber termico calculado en pasteurizacion.",
-    },
-    "stage_2_hex_area_m2": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Variable de capacidad termica del intercambiador.",
-    },
-    "stage_2_hex_u_w_m2k": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Define limite de transferencia de calor disponible.",
-    },
-    "stage_2_hex_lmtd_c": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Ajusta capacidad termica por gradiente efectivo.",
-    },
-    "stage_2_5_ro_base_recovery": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Define base de recuperacion OI y carga a evaporacion.",
-    },
-    "stage_2_5_ro_membrane_area_m2": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Controla flujo especifico y cumplimiento de limites LMH.",
-    },
-    "stage_3_solids_to_protein_ratio": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Afecta concentracion, evaporacion y balance de masa.",
-    },
-    "stage_3_steam_economy": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Impacta utilidades de vapor mas que el rendimiento masico.",
-    },
-    "stage_3_evap_capacity_m3_h": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Umbral de capacidad que bloquea fuera de rango.",
-    },
-    "stage_4_base_precip_eff": {
-        "impact": "ALTO",
-        "significant": True,
-        "reason": "Parametro base de recuperacion proteica en precipitacion.",
-    },
-    "stage_4_2_co_solids_kg_h": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Aporta masa seca adicional y afecta flujo al secador.",
-    },
-    "stage_4_2_base_moisture_frac": {
-        "impact": "MEDIO",
-        "significant": True,
-        "reason": "Determina masa de pasta y agua a remover en secado.",
-    },
-    "stage_4_2_centrifuge_capacity_m3_h": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Limite de capacidad de separacion por carga.",
-    },
-    "stage_5_dryer_evap_capacity_kg_h": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Define carga maxima de evaporacion del secador.",
-    },
-    "stage_5_dryer_chamber_volume_m3": {
-        "impact": "BAJO/CONDICIONAL",
-        "significant": False,
-        "reason": "Ajusta carga volumetrica permitida del secado.",
-    },
-}
-
-
-IMPACT_PRIORITY = {
-    "ALTO": 0,
-    "MEDIO": 1,
-    "BAJO/CONDICIONAL": 2,
-}
-
-
-def _get_equipment_stage_labels() -> dict[str, str]:
-    stage_map: dict[str, str] = {}
-    for group_label, keys in EQUIPMENT_GROUPS:
-        stage = group_label.split("·", maxsplit=1)[0].strip()
-        for key in keys:
-            stage_map[key] = stage
-    return stage_map
-
-
-def _build_variable_impact_rows() -> list[dict[str, str]]:
-    rows: list[dict[str, str]] = []
-
-    for key in DEFAULT_CONTROLS:
-        meta = CONTROL_IMPACT_META[key]
-        rows.append({
-            "Etapa": CONTROL_STAGE_LABELS[key],
-            "Tipo": "Control",
-            "Variable": CONTROL_LABELS[key],
-            "Clave": key,
-            "Impacto temporal": meta["impact"],
-            "Significativa": "SI" if meta["significant"] else "NO",
-            "Justificacion": meta["reason"],
-        })
-
-    stage_map = _get_equipment_stage_labels()
-    for key in EQUIPMENT_SPEC_DEFAULTS:
-        meta = EQUIPMENT_IMPACT_META[key]
-        rows.append({
-            "Etapa": stage_map[key],
-            "Tipo": "Dimensionamiento",
-            "Variable": EQUIPMENT_SPEC_LABELS.get(key, key),
-            "Clave": key,
-            "Impacto temporal": meta["impact"],
-            "Significativa": "SI" if meta["significant"] else "NO",
-            "Justificacion": meta["reason"],
-        })
-
-    stage_rank = {stage: idx for idx, stage in enumerate(IMPACT_STAGE_ORDER)}
-    rows.sort(
-        key=lambda item: (
-            stage_rank.get(item["Etapa"], 999),
-            0 if item["Tipo"] == "Control" else 1,
-            IMPACT_PRIORITY.get(item["Impacto temporal"], 99),
-            item["Variable"],
-        )
-    )
-    return rows
-
-
-def render_variable_impact_matrix() -> None:
-    with st.expander("Fase 1 · Impacto de variables en el registro temporal", expanded=False):
-        st.caption(
-            "Clasificacion basada en el modelo del repo y el Proyecto Final. "
-            "ALTO/MEDIO se considera impacto significativo en el registro temporal."
-        )
-
-        c1, c2, c3 = st.columns([1.0, 1.0, 1.2])
-        selected_stage = c1.selectbox(
-            "Etapa",
-            options=["Todas", *IMPACT_STAGE_ORDER],
-            key="impact_filter_stage",
-        )
-        selected_type = c2.selectbox(
-            "Tipo de variable",
-            options=["Ambas", "Control", "Dimensionamiento"],
-            key="impact_filter_type",
-        )
-        only_significant = c3.checkbox(
-            "Mostrar solo variables significativas",
-            value=True,
-            key="impact_filter_only_significant",
-        )
-
-        rows = _build_variable_impact_rows()
-        if selected_stage != "Todas":
-            rows = [row for row in rows if row["Etapa"] == selected_stage]
-        if selected_type != "Ambas":
-            rows = [row for row in rows if row["Tipo"] == selected_type]
-        if only_significant:
-            rows = [row for row in rows if row["Significativa"] == "SI"]
-
-        total_rows = len(rows)
-        sig_rows = sum(1 for row in rows if row["Significativa"] == "SI")
-        st.caption(f"Variables mostradas: {total_rows} | Significativas: {sig_rows}")
-        st.dataframe(rows, width="stretch", hide_index=True)
 
 
 STAGE_KPI_CONFIG = [
@@ -690,33 +296,6 @@ STAGE_KPI_CONFIG = [
         ],
     },
     {
-        "tab": "Ventas",
-        "title": "KPIs economicos por kilogramo de producto",
-        "metrics": [
-            {
-                "key": "stage_ventas_cost_per_kg_bs",
-                "label": "Gasto en producir",
-                "unit": "Bs/kg",
-                "decimals": 2,
-                "compact": True,
-            },
-            {
-                "key": "stage_ventas_revenue_per_kg_bs",
-                "label": "Lo que se gana",
-                "unit": "Bs/kg",
-                "decimals": 2,
-                "compact": True,
-            },
-            {
-                "key": "stage_ventas_profit_per_kg_bs",
-                "label": "Utilidades",
-                "unit": "Bs/kg",
-                "decimals": 2,
-                "compact": True,
-            },
-        ],
-    },
-    {
         "tab": "Vista Integrada",
         "title": "KPIs integrados de proteina",
         "metrics": [
@@ -761,20 +340,6 @@ KPI_ERROR_BASE_PCT = {
     "stage_4_protein_precip_kg_h": 1.1,
     "stage_5_protein_final_kg_h": 1.0,
 }
-
-
-PROJECT_FINAL_ROOT = Path(__file__).resolve().parent / "proyecto_final_unitarios"
-PROJECT_FINAL_README_PATH = PROJECT_FINAL_ROOT / "docs" / "readme.md"
-
-
-@st.cache_data(show_spinner=False)
-def load_project_final_readme() -> str:
-    try:
-        return PROJECT_FINAL_README_PATH.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return "No se encontro el README del Proyecto Final en proyecto_final_unitarios/docs/readme.md."
-    except OSError as exc:
-        return f"No fue posible leer el README del Proyecto Final: {exc}"
 
 
 st.set_page_config(
@@ -1237,7 +802,7 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     if default is None:
         default = (vmin + vmax) / 2
 
-    # Overrides based on readme.md and process knowledge
+    # Overrides based on process knowledge
     if key == "extraction_ph": return (8.5, 9.5), (7.0, 11.0)
     if key == "pasteur_temp_c": return (75.0, 85.0), (70.0, 100.0)
     if key == "precip_ph": return (4.3, 4.7), (3.5, 5.5)
@@ -1610,23 +1175,6 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
     else:
         relative_std_pct = 0.0
 
-    # Sigma Calculation vs Baseline
-    # Convert app key to baseline key if necessary
-    # Example: stage_1_extraction_eff_pct is same in both
-    # Some baseline keys might be different, but let's try direct match first
-    baseline_info = BASELINE_REFERENCES.get(key)
-    sigma_deviation = 0.0
-
-    if baseline_info:
-        setpoint = baseline_info["value"]
-        # Use relative deviation for sigma if not enough points, or fixed sigma
-        # Requirement says "calculen desviación vs. setpoint usando desviación estándar (1σ, 2σ)"
-        # Let's use the running std_dev or a default if std_dev is 0
-        effective_sigma = std_dev if std_dev > 0.001 else (abs(setpoint) * (base_error_pct / 100.0))
-
-        diff = abs(current - setpoint)
-        sigma_deviation = diff / effective_sigma if effective_sigma > 0 else 0.0
-
     return {
         "current": current,
         "average": average,
@@ -1636,7 +1184,6 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
         "error_abs": error_abs,
         "relative_std_pct": relative_std_pct,
         "stable": relative_std_pct <= base_error_pct,
-        "sigma_deviation": sigma_deviation,
     }
 
 
@@ -1759,12 +1306,6 @@ def _render_kpi_card(
             unsafe_allow_html=True,
         )
 
-        if stats["sigma_deviation"] > 0:
-            st.markdown(
-                f"<div class='kpi-meta'>Desviación: {stats['sigma_deviation']:.2f}σ</div>",
-                unsafe_allow_html=True,
-            )
-
 
 def render_kpis() -> None:
     df = st.session_state.log.to_dataframe()
@@ -1822,115 +1363,6 @@ def render_stage_panels() -> None:
                     )
 
 
-def render_corroboration() -> None:
-    history_df = st.session_state.log.to_dataframe()
-    if history_df.empty:
-        st.info("Aun no hay historico suficiente para validar indicadores.")
-        return
-
-    st.caption("Indicadores de validacion conservados (sin grafica de corroboracion documental).")
-    summary_cols = st.columns(3)
-    summary_keys = [
-        "stage_1_extraction_eff_pct",
-        "stage_2_5_ro_ro_recovery_pct",
-        "stage_5_powder_mass_kg_h",
-    ]
-
-    for idx, key in enumerate(summary_keys):
-        with summary_cols[idx]:
-            if key not in history_df.columns or key not in BASELINE_REFERENCES:
-                st.caption("Sin datos para resumen estadistico")
-                continue
-
-            stats = _compute_kpi_window_stats(history_df, key)
-            if not stats:
-                continue
-
-            base = BASELINE_REFERENCES[key]["value"]
-            current_val = stats["current"]
-            dev_pct = ((current_val - base) / base) * 100.0
-
-            st.metric(
-                BASELINE_REFERENCES[key]["label"],
-                _format_kpi_value(current_val, BASELINE_REFERENCES[key]["unit"], 2),
-                delta=f"{dev_pct:+.2f}% vs base",
-            )
-            st.markdown(f"<div class='kpi-meta'>Promedio actual: {_format_number_es(stats['average'], 2)}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='kpi-meta'>Desviación: {stats['sigma_deviation']:.2f}σ</div>", unsafe_allow_html=True)
-
-
-def render_production_counters() -> None:
-    stage_5 = st.session_state.last_result["stage_5"]
-
-    protein_rate_kg_h = float(stage_5["protein_final_kg_h"])
-    powder_rate_kg_h = float(stage_5["powder_mass_kg_h"])
-    time_per_kg_h = (1.0 / protein_rate_kg_h) if protein_rate_kg_h > 0 else 0.0
-    time_per_kg_min = time_per_kg_h * 60.0
-
-    bags_per_hour = powder_rate_kg_h
-    bags_per_day = bags_per_hour * 24.0
-
-    elapsed_s = float(st.session_state.production_elapsed_s)
-    observed_bags_h = (st.session_state.production_bags_1kg * 3600.0 / elapsed_s) if elapsed_s > 0 else 0.0
-    observed_protein_h = (st.session_state.production_protein_kg * 3600.0 / elapsed_s) if elapsed_s > 0 else 0.0
-
-    st.subheader("Produccion")
-    p1, p2, p3 = st.columns(3)
-    p1.metric("Tiempo para 1 kg de proteina", f"{time_per_kg_min:.2f} min/kg")
-    p2.metric("Bolsas de 1 kg por hora", f"{bags_per_hour:.1f}")
-    p3.metric("Bolsas de 1 kg por dia", f"{bags_per_day:.0f}")
-
-    p4, p5, p6 = st.columns(3)
-    p4.metric("Bolsas acumuladas corrida", f"{st.session_state.production_bags_1kg:.1f}")
-    p5.metric("Proteina acumulada corrida", f"{st.session_state.production_protein_kg:.1f} kg")
-    p6.metric("Tasa observada bolsas/h", f"{observed_bags_h:.1f}")
-
-    st.caption(
-        f"Tiempo efectivo de corrida: {elapsed_s:.0f} s | Tasa observada proteina: {observed_protein_h:.2f} kg/h"
-    )
-
-
-def render_fluidograma_tab() -> None:
-    theme = get_active_theme()
-    st.subheader("Balance de Masa (Sankey)")
-    st.caption(
-        "Distribución de flujos y balance de masa en tiempo real."
-    )
-
-    result = st.session_state.last_result
-    if not isinstance(result, dict) or not result:
-        st.info("No hay resultados disponibles aun. Ejecuta la simulacion para activar el fluidograma.")
-        return
-
-    payload = build_fluidograma_payload(result)
-    fig = build_fluidograma_sankey(payload, theme)
-    st.plotly_chart(fig, use_container_width=True)
-
-
-
-
-def render_project_final_tab() -> None:
-    st.subheader("Proyecto Final Unitarios")
-    st.caption("Resumen tecnico consolidado desde planteamiento, calculos e informe simplificado.")
-
-    result = st.session_state.last_result
-    stage_5 = result["stage_5"]
-    stage_2_5 = result["stage_2_5_ro"]
-
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Proteina final (kg/h)", f"{float(stage_5['protein_final_kg_h']):.1f}")
-    c2.metric("Polvo final (kg/h)", f"{float(stage_5['powder_mass_kg_h']):.1f}")
-    c3.metric("Humedad final (%)", f"{float(stage_5['final_moisture_pct']):.2f}")
-    c4.metric("Recuperacion OI (%)", f"{float(stage_2_5['ro_recovery_pct']):.1f}")
-
-    st.markdown("---")
-    readme_md = load_project_final_readme()
-    if readme_md.startswith("No se encontro") or readme_md.startswith("No fue posible"):
-        st.warning(readme_md)
-    else:
-        st.markdown(readme_md)
-
-
 init_state()
 apply_visual_theme_css()
 
@@ -1950,9 +1382,6 @@ with st.sidebar:
     MENU_OPTIONS = [
         "Sala de Operacion",
         "Sala de Monitoreo",
-        "Validación de Datos",
-        "Fluidograma Modelo Sankey",
-        "Proyecto Final",
     ]
     menu = st.radio(
         "Selecciona una sección:",
@@ -2008,7 +1437,6 @@ for name, slot in menu_slots.items():
                 st.caption("Parámetros fijos de inercia y tiempo de respuesta.")
                 render_equipment_specs_editor()
                 render_capacity_limits_editor()
-                render_variable_impact_matrix()
 
         elif name == "Sala de Monitoreo":
             st.subheader("Panel de Indicadores en Vivo")
@@ -2016,18 +1444,6 @@ for name, slot in menu_slots.items():
             st.divider()
             st.subheader("KPIs por Etapa de Proceso")
             render_stage_panels()
-
-        elif name == "Validación de Datos":
-            st.subheader("Validación y Rendimiento")
-            render_corroboration()
-            st.divider()
-            render_production_counters()
-
-        elif name == "Fluidograma Modelo Sankey":
-            render_fluidograma_tab()
-
-        elif name == "Proyecto Final":
-            render_project_final_tab()
 
 
 if st.session_state.running:
