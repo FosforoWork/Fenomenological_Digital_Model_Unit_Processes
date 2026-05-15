@@ -13,7 +13,7 @@ EQUIPMENT_SPEC_DEFAULTS: dict[str, float] = {
     "stage_0_pump_eta_motor": 0.90,
     "stage_0_pump_motor_kw": 1.50,
     "stage_1_slurry_density_kg_m3": 1060.0,
-    "stage_1_tank_capacity_m3": 15.0,
+    "stage_1_tank_capacity_m3": 16.0,
     "stage_1_tank_reserve_factor": 1.20,
     "stage_1_base_extraction_eff": 0.88,
     "stage_1_2_extract_recovery": 0.965,
@@ -22,13 +22,12 @@ EQUIPMENT_SPEC_DEFAULTS: dict[str, float] = {
     "stage_2_hex_area_m2": 40.0,
     "stage_2_hex_u_w_m2k": 3000.0,
     "stage_2_hex_lmtd_c": 20.0,
-    "stage_2_5_ro_base_recovery": 0.25,
-    "stage_2_5_ro_membrane_area_m2": 100.0,
+    "stage_ro_pump_eta": 0.80,
     "stage_3_solids_to_protein_ratio": 1.715,
     "stage_3_steam_economy": 1.85,
-    "stage_3_evap_capacity_m3_h": 8.0,
+    "stage_3_evap_capacity_m3_h": 12.0,
     "stage_4_base_precip_eff": 0.98,
-    "stage_4_2_co_solids_kg_h": 23.0,
+    "stage_4_2_co_solids_kg_h": 0.0,
     "stage_4_2_base_moisture_frac": 0.50,
     "stage_4_2_centrifuge_capacity_m3_h": 3.0,
     "stage_5_dryer_evap_capacity_kg_h": 400.0,
@@ -53,8 +52,7 @@ EQUIPMENT_SPEC_LIMITS: dict[str, tuple[float, float]] = {
     "stage_2_hex_area_m2": (5.0, 120.0),
     "stage_2_hex_u_w_m2k": (150.0, 3500.0),
     "stage_2_hex_lmtd_c": (2.0, 60.0),
-    "stage_2_5_ro_base_recovery": (0.10, 0.55),
-    "stage_2_5_ro_membrane_area_m2": (20.0, 250.0),
+    "stage_ro_pump_eta": (0.40, 0.95),
     "stage_3_solids_to_protein_ratio": (1.1, 2.5),
     "stage_3_steam_economy": (1.1, 3.0),
     "stage_3_evap_capacity_m3_h": (1.0, 40.0),
@@ -74,8 +72,6 @@ CAPACITY_LIMIT_DEFAULTS: dict[str, float] = {
     "stage_2_hex_max_thermal_load_fraction": 0.90,
     "stage_2_hex_min_area_m2": 15.0,
     "stage_2_hex_max_area_m2": 80.0,
-    "stage_2_5_ro_min_flux_lmh": 10.0,
-    "stage_2_5_ro_max_flux_lmh": 45.0,
     "stage_3_evap_max_load_fraction": 0.92,
     "stage_4_2_centrifuge_max_load_fraction": 0.90,
     "stage_5_dryer_max_load_fraction": 0.90,
@@ -90,8 +86,6 @@ CAPACITY_LIMIT_BOUNDS: dict[str, tuple[float, float]] = {
     "stage_2_hex_max_thermal_load_fraction": (0.50, 1.00),
     "stage_2_hex_min_area_m2": (5.0, 120.0),
     "stage_2_hex_max_area_m2": (5.0, 180.0),
-    "stage_2_5_ro_min_flux_lmh": (2.0, 120.0),
-    "stage_2_5_ro_max_flux_lmh": (3.0, 200.0),
     "stage_3_evap_max_load_fraction": (0.50, 1.00),
     "stage_4_2_centrifuge_max_load_fraction": (0.50, 1.00),
     "stage_5_dryer_max_load_fraction": (0.50, 1.00),
@@ -135,6 +129,4 @@ def validate_capacity_limits(limits: dict[str, float]) -> dict[str, float]:
     validated = _validate_values(limits, CAPACITY_LIMIT_BOUNDS, label="capacity_limits")
     if validated["stage_2_hex_max_area_m2"] <= validated["stage_2_hex_min_area_m2"]:
         raise ValueError("stage_2_hex_max_area_m2 debe ser mayor que stage_2_hex_min_area_m2")
-    if validated["stage_2_5_ro_max_flux_lmh"] <= validated["stage_2_5_ro_min_flux_lmh"]:
-        raise ValueError("stage_2_5_ro_max_flux_lmh debe ser mayor que stage_2_5_ro_min_flux_lmh")
     return validated

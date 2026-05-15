@@ -10,7 +10,6 @@ def run_balance():
     okara_humidity = 0.65
     pasta_humidity = 0.50
     final_moisture = 0.05
-    ro_recovery = 0.25
     evap_target_solids = 0.23
 
     print(f"--- BASE DE CALCULO ---")
@@ -34,16 +33,10 @@ def run_balance():
     print(f"  Proteina disuelta: {protein_out_e1:.2f} kg/h")
 
     # --- ETAPA 1.2: SEPARACION 1 (DECANTER) ---
-    # Total solids in soya = soya_input (assume rest is fibre/ash for simplicity)
-    # Fibre = Total Soya - Solubilized Protein
     fibre_solids = (soya_input - protein_solubilized) * (1 - loss_factor)
-    
-    # Okara wet mass calculation:
-    # fibre_solids = okara_wet * (1 - okara_humidity)
     okara_wet = fibre_solids / (1 - okara_humidity)
     
     extract_mass = mass_out_e1 - okara_wet
-    # Applying losses to extract flow
     extract_mass_net = extract_mass * (1 - loss_factor)
     protein_extract = protein_out_e1 * (1 - loss_factor)
     
@@ -53,7 +46,6 @@ def run_balance():
     print(f"  Proteina en extracto: {protein_extract:.2f} kg/h")
 
     # --- ETAPA 2: PASTEURIZACION ---
-    # Mass balance: In = Out + Loss
     mass_out_e2 = extract_mass_net * (1 - loss_factor)
     protein_out_e2 = protein_extract * (1 - loss_factor)
     
@@ -61,28 +53,12 @@ def run_balance():
     print(f"  Salida: {mass_out_e2:.2f} kg/h")
     print(f"  Proteina: {protein_out_e2:.2f} kg/h")
 
-    # --- ETAPA 2.5: OSMOSIS INVERSA ---
-    water_removed_ro = mass_out_e2 * ro_recovery
-    retentate_ro = mass_out_e2 - water_removed_ro
-    # Applying losses to retentate
-    retentate_net = retentate_ro * (1 - loss_factor)
-    protein_ro = protein_out_e2 * (1 - loss_factor)
-    
-    print(f"ETAPA 2.5: Osmosis Inversa")
-    print(f"  Agua removida (Permeado): {water_removed_ro:.2f} kg/h")
-    print(f"  Retentado neto: {retentate_net:.2f} kg/h")
-    print(f"  Proteina: {protein_ro:.2f} kg/h")
-
     # --- ETAPA 3: EVAPORACION ---
-    # Target 23% solids. 
-    # Current solids = protein_ro + small amount of other things (let's assume only protein for simplicity)
-    # Actually, let's keep track of "total solids" more carefully.
-    solids_e3 = protein_ro # Simplified
+    solids_e3 = protein_out_e2
     concentrate_mass = solids_e3 / evap_target_solids
-    water_evap = retentate_net - concentrate_mass
-    # Applying losses to concentrate
+    water_evap = mass_out_e2 - concentrate_mass
     concentrate_net = concentrate_mass * (1 - loss_factor)
-    protein_evap = protein_ro * (1 - loss_factor)
+    protein_evap = protein_out_e2 * (1 - loss_factor)
 
     print(f"ETAPA 3: Evaporacion")
     print(f"  Agua evaporada: {water_evap:.2f} kg/h")
@@ -91,11 +67,9 @@ def run_balance():
 
     # --- ETAPA 4: PRECIPITACION & SEPARACION 2 ---
     protein_precipitated = protein_evap * precip_eff
-    # Pasta wet mass: protein_precipitated = pasta_wet * (1 - pasta_humidity)
     pasta_wet = protein_precipitated / (1 - pasta_humidity)
     whey_mass = concentrate_net - pasta_wet
     
-    # Applying losses to pasta
     pasta_net = pasta_wet * (1 - loss_factor)
     protein_pasta = protein_precipitated * (1 - loss_factor)
     
@@ -105,10 +79,8 @@ def run_balance():
     print(f"  Proteina en pasta: {protein_pasta:.2f} kg/h")
 
     # --- ETAPA 5: SECADO SPRAY ---
-    # Final product: protein_pasta / (1 - final_moisture)
     powder_mass = protein_pasta / (1 - final_moisture)
     water_removed_spray = pasta_net - powder_mass
-    # Final losses in packaging/powder recovery
     powder_net = powder_mass * (1 - loss_factor)
     protein_final = protein_pasta * (1 - loss_factor)
     

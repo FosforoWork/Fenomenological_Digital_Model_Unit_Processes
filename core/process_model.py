@@ -5,8 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-import pandas as pd
-
 
 @dataclass
 class ControlLog:
@@ -27,7 +25,10 @@ class ControlLog:
         if len(self._rows) > self.max_points:
             self._rows = self._rows[-self.max_points :]
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self):
+        # Mantenido por retrocompatibilidad si otros scripts lo llaman,
+        # pero importado perezosamente para ahorrar tiempo de carga inicial.
+        import pandas as pd
         if not self._rows:
             return pd.DataFrame()
         return pd.DataFrame(self._rows)

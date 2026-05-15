@@ -26,80 +26,60 @@ from core.sales_economics import (
     compute_sales_stage,
 )
 from core.stage_equations import run_process_model
+from core.sensitivity_analysis import perform_sensitivity_analysis, analyze_equipment_sensitivity
 
 
 VISUAL_THEMES = {
     "Exploratorio": {
         "plot_template": "plotly_dark",
-        "bg_start": "#0f172a",
-        "bg_end": "#1e293b",
-        "bg_glow": "#334155",
-        "text": "#f8fafc",
-        "muted_text": "#94a3b8",
-        "accent": "#38bdf8",
-        "card_bg": "rgba(30, 41, 59, 0.85)",
-        "border": "#334155",
-        "note_bg": "#1e293b",
-        "note_border": "#334155",
-        "note_text": "#f8fafc",
-        "grid": "rgba(148, 163, 184, 0.20)",
+        "bg_start": "#121212",
+        "bg_end": "#1e1e1e",
+        "bg_glow": "#2d2d2d",
+        "text": "#e0e0e0",
+        "muted_text": "#a0a0a0",
+        "accent": "#4a90e2",
+        "card_bg": "rgba(30, 30, 30, 0.85)",
+        "border": "#424242",
+        "note_bg": "#2d2d2d",
+        "note_border": "#4a90e2",
+        "note_text": "#e0e0e0",
+        "grid": "rgba(255, 255, 255, 0.1)",
         "stage_colors": {
-            "s0": "#38bdf8",
-            "s1": "#22c55e",
-            "s2": "#f59e0b",
-            "s2_5": "#3b82f6",
-            "s3": "#fb7185",
-            "s4": "#f43f5e",
-            "s5": "#ef4444",
+            "s0": "#888888",
+            "s1": "#888888",
+            "s2": "#888888",
+            "s3": "#888888",
+            "s4": "#888888",
+            "s5": "#888888",
         },
-        "status": {"verde": "#10b981", "amarillo": "#f59e0b", "rojo": "#ef4444"},
-        "aux": ["#38bdf8", "#a78bfa", "#fbbf24"],
+        "status": {"verde": "#4caf50", "amarillo": "#ffb300", "rojo": "#f44336"},
+        "aux": ["#4a90e2", "#888888", "#4caf50"],
     },
-"Baluarte (CAT)": {
-    "plot_template": "plotly_dark",
-    
-    "bg_start": "#000000",
-    "bg_end": "#1A1818", 
-    "bg_glow": "#2A2A2A",
-    
-    "text": "#F3F4F6",
-    "muted_text": "#9CA3AF",
-    "accent": "#FFCD00",
-    
-    "card_bg": "rgba(26, 24, 24, 0.85)",
-    "border": "#374151",
-    
-    "note_bg": "#1A1818",
-    "note_border": "#FFCD00",
-    "note_text": "#F3F4F6",
-    
-    "grid": "rgba(255, 255, 255, 0.10)", 
-    
-    "stage_colors": {
-        "s0": "#FFF5CC",
-        "s1": "#FFE066",
-        "s2": "#FFCD00",
-        "s2_5": "#E6B800",
-        "s3": "#CC9900",
-        "s4": "#B37700",
-        "s5": "#995C00"
-    },
-    
-    "status": {
-        "verde": "#10B981", 
-        "amarillo": "#FFCD00", 
-        "rojo": "#EF4444"
-    },
-    
-    "aux": [
-        "#FFCD00", 
-        "#3B82F6", 
-        "#F97316", 
-        "#8B5CF6", 
-        "#06B6D4",
-        "#9CA3AF"
-    ]
-}
+    "Baluarte (CAT)": {
+        "plot_template": "plotly_dark",
+        "bg_start": "#121212",
+        "bg_end": "#1e1e1e",
+        "bg_glow": "#2d2d2d",
+        "text": "#e0e0e0",
+        "muted_text": "#a0a0a0",
+        "accent": "#4a90e2",
+        "card_bg": "rgba(30, 30, 30, 0.85)",
+        "border": "#424242",
+        "note_bg": "#2d2d2d",
+        "note_border": "#4a90e2",
+        "note_text": "#e0e0e0",
+        "grid": "rgba(255, 255, 255, 0.1)",
+        "stage_colors": {
+            "s0": "#888888",
+            "s1": "#888888",
+            "s2": "#888888",
+            "s3": "#888888",
+            "s4": "#888888",
+            "s5": "#888888",
+        },
+        "status": {"verde": "#4caf50", "amarillo": "#ffb300", "rojo": "#f44336"},
+        "aux": ["#4a90e2", "#888888", "#4caf50"],
+    }
 }
 
 
@@ -114,11 +94,6 @@ DEFAULT_CONTROLS = {
     "solid_liquid_ratio": 12.0,
     "pasteur_temp_c": 80.0,
     "pasteur_retention_s": 22.0,
-    "ro_tmp_bar": 24.0,
-    "ro_crossflow_ms": 1.5,
-    "ro_feed_temp_c": 28.0,
-    "ro_feed_ph": 7.0,
-    "ro_sdi": 3.0,
     "evap_pressure_bar": 0.40,
     "evap_temp_c": 55.0,
     "precip_ph": 4.5,
@@ -127,6 +102,7 @@ DEFAULT_CONTROLS = {
     "centrifuge_time_min": 20.0,
     "dryer_temp_c": 78.0,
     "dryer_residence_min": 42.0,
+    "ro_tmp_bar": 24.0,
 }
 
 
@@ -153,9 +129,8 @@ EQUIPMENT_GROUPS = [
         "stage_2_hex_u_w_m2k",
         "stage_2_hex_lmtd_c",
     ]),
-    ("Etapa 2.5 · Osmosis inversa", [
-        "stage_2_5_ro_base_recovery",
-        "stage_2_5_ro_membrane_area_m2",
+    ("Etapa RO · Osmosis Inversa", [
+        "stage_ro_pump_eta",
     ]),
     ("Etapa 3 · Evaporacion", [
         "stage_3_solids_to_protein_ratio",
@@ -172,6 +147,17 @@ EQUIPMENT_GROUPS = [
         "stage_5_dryer_evap_capacity_kg_h",
         "stage_5_dryer_chamber_volume_m3",
     ]),
+]
+
+
+CAPACITY_GROUPS = [
+    ("Restricciones E0", ["tank_max_fill_fraction", "pump_max_load_fraction"]),
+    ("Restricciones E1", ["stage_1_tank_max_fill_fraction"]),
+    ("Restricciones E2", ["stage_2_hex_max_thermal_load_fraction", "stage_2_hex_min_area_m2", "stage_2_hex_max_area_m2"]),
+    ("Restricciones RO", []),
+    ("Restricciones E3", ["stage_3_evap_max_load_fraction"]),
+    ("Restricciones E4", ["stage_4_2_centrifuge_max_load_fraction"]),
+    ("Restricciones E5", ["stage_5_dryer_max_load_fraction", "stage_5_max_powder_rate_kg_h_m3"]),
 ]
 
 
@@ -192,8 +178,7 @@ EQUIPMENT_SPEC_LABELS = {
     "stage_2_hex_area_m2": "Area de placas intercambiador (m2)",
     "stage_2_hex_u_w_m2k": "Coeficiente U intercambiador (W/m2K)",
     "stage_2_hex_lmtd_c": "LMTD diseno intercambiador (C)",
-    "stage_2_5_ro_base_recovery": "Recuperacion base OI (frac)",
-    "stage_2_5_ro_membrane_area_m2": "Area de membrana OI (m2)",
+    "stage_ro_pump_eta": "Eficiencia bomba OI",
     "stage_3_solids_to_protein_ratio": "Relacion solidos/proteina evaporador",
     "stage_3_steam_economy": "Economia de vapor",
     "stage_3_evap_capacity_m3_h": "Capacidad evaporador (m3/h)",
@@ -217,13 +202,9 @@ CONTROL_LABELS = {
     "solid_liquid_ratio": "Ratio solido/liquido (1:x)",
     "pasteur_temp_c": "Temperatura de pasteurizacion (C)",
     "pasteur_retention_s": "Retencion termica (s)",
-    "ro_tmp_bar": "TMP OI (bar)",
-    "ro_crossflow_ms": "Velocidad cruzada OI (m/s)",
-    "ro_feed_temp_c": "Temperatura alimentacion OI (C)",
-    "ro_feed_ph": "pH alimentacion OI",
-    "ro_sdi": "SDI",
     "evap_pressure_bar": "Presion evaporador (bar abs)",
     "evap_temp_c": "Temperatura evaporacion (C)",
+    "ro_tmp_bar": "Presion Transmembrana OI (bar)",
     "precip_ph": "pH de precipitacion",
     "precip_time_min": "Tiempo de precipitacion (min)",
     "centrifuge_g": "Factor G centrifuga",
@@ -240,8 +221,6 @@ CAPACITY_LIMIT_LABELS = {
     "stage_2_hex_max_thermal_load_fraction": "Maximo uso termico intercambiador",
     "stage_2_hex_min_area_m2": "Area minima eficiente intercambiador (m2)",
     "stage_2_hex_max_area_m2": "Area maxima eficiente intercambiador (m2)",
-    "stage_2_5_ro_min_flux_lmh": "Flujo minimo OI (LMH)",
-    "stage_2_5_ro_max_flux_lmh": "Flujo maximo OI (LMH)",
     "stage_3_evap_max_load_fraction": "Maximo uso evaporador",
     "stage_4_2_centrifuge_max_load_fraction": "Maximo uso centrifuga",
     "stage_5_dryer_max_load_fraction": "Maximo uso secador",
@@ -251,26 +230,42 @@ CAPACITY_LIMIT_LABELS = {
 
 STAGE_KPI_CONFIG = [
     {
-        "tab": "Etapa 0-1",
-        "title": "KPIs de preparacion y extraccion",
+        "tab": "Etapa 0",
+        "title": "KPIs de captacion y acondicionamiento",
         "metrics": [
             {"key": "stage_0_pump_kw", "label": "Bomba Etapa 0", "unit": "kW", "decimals": 2},
-            {"key": "stage_1_extraction_eff_pct", "label": "Eficiencia Etapa 1", "unit": "%", "decimals": 2},
-            {"key": "stage_1_2_extract_recovery_pct", "label": "Recuperacion Etapa 1.2", "unit": "%", "decimals": 2},
+            {"key": "capacity_stage_0_tank_utilization_pct", "label": "Uso tanque agua", "unit": "%", "decimals": 1},
         ],
     },
     {
-        "tab": "Etapa 2 + OI",
-        "title": "KPIs de pasteurizacion y OI",
+        "tab": "Etapa 1",
+        "title": "KPIs de lixiviacion y clarificacion",
+        "metrics": [
+            {"key": "stage_1_extraction_eff_pct", "label": "Eficiencia extraccion", "unit": "%", "decimals": 2},
+            {"key": "stage_1_2_extract_recovery_pct", "label": "Recuperacion centrifuga 1", "unit": "%", "decimals": 2},
+            {"key": "stage_1_protein_extracted_kg_h", "label": "Proteina extraida", "unit": "kg/h", "decimals": 2},
+        ],
+    },
+    {
+        "tab": "Etapa 2",
+        "title": "KPIs de pasteurizacion y sanitizacion",
         "metrics": [
             {"key": "stage_2_heat_required_mj_h", "label": "Calor pasteurizacion", "unit": "MJ/h", "decimals": 2},
-            {"key": "stage_2_5_ro_ro_recovery_pct", "label": "Recuperacion OI", "unit": "%", "decimals": 2},
-            {"key": "stage_2_5_ro_permeate_flow_m3_h", "label": "Permeado OI", "unit": "m3/h", "decimals": 3},
+            {"key": "capacity_stage_2_hex_thermal_load_pct", "label": "Uso termico HEX", "unit": "%", "decimals": 1},
+        ],
+    },
+    {
+        "tab": "Osmosis Inversa",
+        "title": "Salto Innovador: Pre-concentracion por OI",
+        "metrics": [
+            {"key": "stage_ro_permeate_kg_h", "label": "Agua removida (Permeado)", "unit": "kg/h", "decimals": 1},
+            {"key": "stage_ro_thermal_saved_kw", "label": "Ahorro termico estimado", "unit": "kW", "decimals": 1},
+            {"key": "stage_ro_pump_power_kw", "label": "Consumo bomba OI", "unit": "kW", "decimals": 2},
         ],
     },
     {
         "tab": "Etapa 3",
-        "title": "KPIs de evaporacion",
+        "title": "KPIs de evaporacion y concentracion",
         "metrics": [
             {"key": "stage_3_evaporated_water_m3_h", "label": "Agua evaporada", "unit": "m3/h", "decimals": 3},
             {"key": "stage_3_steam_required_kg_h", "label": "Vapor requerido", "unit": "kg/h", "decimals": 1},
@@ -279,16 +274,16 @@ STAGE_KPI_CONFIG = [
     },
     {
         "tab": "Etapa 4",
-        "title": "KPIs de precipitacion y centrifugacion",
+        "title": "KPIs de precipitacion e isoelectrico",
         "metrics": [
-            {"key": "stage_4_precip_eff_pct", "label": "Recuperacion precipitacion", "unit": "%", "decimals": 2},
-            {"key": "stage_4_2_solids_recovery_pct", "label": "Recuperacion centrifuga", "unit": "%", "decimals": 2},
-            {"key": "stage_4_2_paste_mass_kg_h", "label": "Pasta humeda", "unit": "kg/h", "decimals": 1},
+            {"key": "stage_4_precip_eff_pct", "label": "Eficiencia precipitacion", "unit": "%", "decimals": 2},
+            {"key": "stage_4_2_solids_recovery_pct", "label": "Recuperacion centrifuga 2", "unit": "%", "decimals": 2},
+            {"key": "stage_4_protein_precip_kg_h", "label": "Proteina precipitada", "unit": "kg/h", "decimals": 2},
         ],
     },
     {
         "tab": "Etapa 5",
-        "title": "KPIs de secado y rendimiento",
+        "title": "KPIs de secado y despacho",
         "metrics": [
             {"key": "stage_5_final_moisture_pct", "label": "Humedad final", "unit": "%", "decimals": 2},
             {"key": "stage_5_powder_mass_kg_h", "label": "Polvo final", "unit": "kg/h", "decimals": 1},
@@ -316,8 +311,9 @@ KPI_ERROR_BASE_PCT = {
     "stage_1_extraction_eff_pct": 0.8,
     "stage_1_2_extract_recovery_pct": 0.9,
     "stage_2_heat_required_mj_h": 1.4,
-    "stage_2_5_ro_ro_recovery_pct": 1.0,
-    "stage_2_5_ro_permeate_flow_m3_h": 1.3,
+    "stage_ro_permeate_kg_h": 1.1,
+    "stage_ro_thermal_saved_kw": 1.2,
+    "stage_ro_pump_power_kw": 1.0,
     "stage_3_evaporated_water_m3_h": 1.5,
     "stage_3_steam_required_kg_h": 1.5,
     "stage_3_target_solids_pct": 1.0,
@@ -327,6 +323,8 @@ KPI_ERROR_BASE_PCT = {
     "stage_5_final_moisture_pct": 0.8,
     "stage_5_powder_mass_kg_h": 1.2,
     "stage_5_overall_yield_pct": 1.0,
+    "capacity_stage_0_tank_utilization_pct": 1.0,
+    "capacity_stage_2_hex_thermal_load_pct": 1.0,
     "stage_ventas_cost_per_kg_bs": 0.4,
     "stage_ventas_revenue_per_kg_bs": 0.4,
     "stage_ventas_profit_per_kg_bs": 0.7,
@@ -354,19 +352,19 @@ def get_active_theme() -> dict:
     return VISUAL_THEMES.get(mode, VISUAL_THEMES["Baluarte (CAT)"])
 
 
-def apply_visual_theme_css() -> None:
-    theme = get_active_theme()
-    bg_deep = theme["bg_start"]
-    bg_surface = theme["bg_end"]
-    text_main = theme["text"]
-    text_muted = theme["muted_text"]
-    accent = theme["accent"]
-    border = theme["border"]
+@st.cache_data
+def get_visual_theme_css(mode: str) -> str:
+    bg_deep = "#0a0a0c"
+    bg_surface = "#111216"
+    text_main = "#d4d4d8"
+    text_muted = "#71717a"
+    accent = "#00f0ff"
+    border = "#27272a"
+    glow = "rgba(0, 240, 255, 0.2)"
 
-    st.markdown(
-        f"""
+    return f"""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
             :root {{
                 --bg-deep: {bg_deep};
@@ -375,6 +373,7 @@ def apply_visual_theme_css() -> None:
                 --text-muted: {text_muted};
                 --accent: {accent};
                 --border: {border};
+                --glow: {glow};
                 --font-sans: 'Inter', sans-serif;
                 --font-mono: 'JetBrains Mono', monospace;
             }}
@@ -401,235 +400,216 @@ def apply_visual_theme_css() -> None:
                 font-family: var(--font-mono) !important;
                 font-weight: 700 !important;
                 color: var(--accent) !important;
+                text-shadow: 0 0 8px var(--glow);
             }}
 
             /* Custom Cards for KPIs */
             div[data-testid="stMetric"] {{
                 background-color: var(--bg-surface);
                 border: 1px solid var(--border);
-                border-radius: 12px;
+                border-radius: 4px;
                 padding: 1rem !important;
-                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
             }}
 
             .kpi-meta {{
+                font-family: var(--font-mono) !important;
                 font-size: 0.75rem;
                 color: var(--text-muted);
                 margin-top: 4px;
+                text-transform: uppercase;
             }}
 
             .kpi-status {{
+                font-family: var(--font-mono) !important;
                 font-size: 0.75rem;
                 font-weight: 600;
                 margin-top: 4px;
-                padding: 2px 8px;
-                border-radius: 4px;
+                padding: 2px 6px;
+                border-radius: 2px;
                 display: inline-block;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
             }}
 
             .kpi-stable {{
-                background-color: rgba(16, 185, 129, 0.1);
-                color: #10b981;
+                background-color: rgba(57, 255, 20, 0.1);
+                color: #39ff14;
+                border: 1px solid rgba(57, 255, 20, 0.3);
             }}
 
             .kpi-unstable {{
-                background-color: rgba(239, 68, 68, 0.1);
-                color: #ef4444;
+                background-color: rgba(255, 0, 60, 0.1);
+                color: #ff003c;
+                border: 1px solid rgba(255, 0, 60, 0.3);
             }}
 
             div[data-testid="stMetric"]:hover {{
-                transform: translateY(-5px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
                 border-color: var(--accent);
+                box-shadow: 0 0 12px var(--glow), inset 0 0 8px var(--glow);
             }}
 
             /* Buttons */
             .stButton > button {{
                 width: 100%;
-                background-color: var(--bg-surface);
-                color: var(--text-main);
+                background-color: var(--bg-deep);
+                color: var(--accent);
                 border: 1px solid var(--border);
-                border-radius: 8px;
+                border-radius: 4px;
                 padding: 0.5rem 1rem;
+                font-family: var(--font-mono);
                 font-weight: 600;
-                transition: all 0.2s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                transition: all 0.15s ease;
             }}
 
             .stButton > button:hover {{
                 border-color: var(--accent);
-                color: var(--accent);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+                background-color: rgba(0, 240, 255, 0.05);
+                box-shadow: 0 0 8px var(--glow);
             }}
 
             .stButton > button:active {{
-                transform: translateY(0);
+                transform: scale(0.98);
             }}
 
             /* Inputs and Sliders */
             div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="textarea"] {{
                 background-color: var(--bg-deep) !important;
-                border-radius: 8px !important;
+                border-radius: 2px !important;
                 border: 1px solid var(--border) !important;
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            }}
+            
+            div[data-baseweb="input"]:focus-within {{
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 8px var(--glow) !important;
             }}
 
             div[data-baseweb="input"] input {{
-                color: var(--text-main) !important;
+                color: var(--accent) !important;
                 font-family: var(--font-mono) !important;
             }}
 
             div[role="slider"] {{
                 background-color: var(--accent) !important;
+                box-shadow: 0 0 6px var(--glow) !important;
             }}
 
             div[data-testid="stExpander"] {{
                 background-color: var(--bg-surface) !important;
                 border: 1px solid var(--border) !important;
-                border-radius: 12px !important;
+                border-radius: 4px !important;
                 margin-bottom: 1rem !important;
             }}
 
             div[data-testid="stExpander"] summary:hover {{
                 color: var(--accent) !important;
             }}
+            
+            div[data-testid="stExpander"] summary {{
+                font-family: var(--font-mono) !important;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }}
 
             div[data-testid="stDataFrame"] {{
                 background-color: var(--bg-surface) !important;
                 border: 1px solid var(--border) !important;
-                border-radius: 12px !important;
+                border-radius: 4px !important;
             }}
 
             /* Hero Panel & Chips */
             .hero-panel {{
                 background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
                 border: 1px solid var(--border);
-                border-left: 4px solid var(--accent);
-                border-radius: 12px;
+                border-left: 2px solid var(--accent);
+                border-radius: 4px;
                 padding: 1.5rem;
                 margin-bottom: 2rem;
+                box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
             }}
 
             .note-chip {{
-                background-color: rgba(56, 189, 248, 0.1);
-                border: 1px solid rgba(56, 189, 248, 0.2);
+                background-color: rgba(0, 240, 255, 0.05);
+                border: 1px solid rgba(0, 240, 255, 0.2);
                 color: var(--accent);
-                border-radius: 8px;
+                border-radius: 2px;
                 padding: 0.75rem 1rem;
                 margin-bottom: 1.5rem;
-                font-size: 0.9rem;
+                font-size: 0.85rem;
+                font-family: var(--font-mono);
             }}
 
-            /* Tabs Custom Styling (for where still used) */
+            /* Tabs Custom Styling */
             div[data-baseweb="tab-list"] {{
                 background-color: transparent !important;
-                gap: 1rem !important;
+                gap: 0.5rem !important;
             }}
 
             div[data-baseweb="tab"] {{
-                background-color: var(--bg-surface) !important;
+                background-color: var(--bg-deep) !important;
                 border: 1px solid var(--border) !important;
-                border-radius: 8px 8px 0 0 !important;
+                border-bottom: none !important;
+                border-radius: 4px 4px 0 0 !important;
                 color: var(--text-muted) !important;
-                padding: 0.5rem 1.5rem !important;
+                padding: 0.5rem 1rem !important;
+                font-family: var(--font-mono) !important;
+                text-transform: uppercase;
+                font-size: 0.8rem !important;
             }}
 
             div[data-baseweb="tab"][aria-selected="true"] {{
                 border-color: var(--accent) !important;
                 color: var(--accent) !important;
-                background-color: rgba(56, 189, 248, 0.05) !important;
+                background-color: var(--bg-surface) !important;
+                box-shadow: inset 0 4px 0 var(--accent);
             }}
 
             /* Scrollbar */
             ::-webkit-scrollbar {{
-                width: 8px;
-                height: 8px;
+                width: 6px;
+                height: 6px;
             }}
             ::-webkit-scrollbar-track {{
                 background: var(--bg-deep);
             }}
             ::-webkit-scrollbar-thumb {{
                 background: var(--border);
-                border-radius: 4px;
+                border-radius: 0;
             }}
             ::-webkit-scrollbar-thumb:hover {{
-                background: var(--text-muted);
+                background: var(--accent);
             }}
 
-            /* Animations */
-            @keyframes slideUp {{
-                from {{ opacity: 0; transform: translateY(20px); }}
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
-
+            /* Animations - disabled for faster updates */
             .stMarkdown, .stButton {{
-                animation: slideUp 0.4s ease-out forwards;
+                animation: none !important;
             }}
 
-            /* KPIs se actualizan rapido; evitar animacion para prevenir ghosting */
             div[data-testid="stMetric"] {{
                 animation: none !important;
             }}
 
             /* Status Indicators */
             .status-pill {{
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
                 border-radius: 50%;
                 display: inline-block;
                 margin-right: 8px;
             }}
-            .status-running {{ background-color: #10b981; box-shadow: 0 0 8px #10b981; }}
-            .status-paused {{ background-color: #ef4444; }}
-
-            /* Range Bar Styling */
-            .range-container {{
-                position: relative;
-                height: 24px;
-                width: 100%;
-                margin-top: 8px;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-            }}
-            .range-bar {{
-                height: 8px;
-                background: var(--border);
-                border-radius: 4px;
-                flex-grow: 1;
-                display: flex;
-                overflow: hidden;
-                position: relative;
-            }}
-            .range-ideal {{ background: #10b981; }}
-            .range-warning {{ background: #f59e0b; }}
-            .range-danger {{ background: #ef4444; }}
-
-            .range-pointer {{
-                position: absolute;
-                top: -6px;
-                width: 4px;
-                height: 20px;
-                background: var(--text-main);
-                border-radius: 2px;
-                border: 1px solid var(--bg-deep);
-                box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-                z-index: 10;
-                transition: left 0.3s ease-out;
-            }}
-
-            .range-label-container {{
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.7rem;
-                color: var(--text-muted);
-                margin-top: 4px;
-            }}
+            .status-running {{ background-color: #39ff14; box-shadow: 0 0 8px #39ff14; }}
+            .status-paused {{ background-color: #ff003c; box-shadow: 0 0 8px #ff003c; }}
 
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+"""
+
+def apply_visual_theme_css() -> None:
+    mode = st.session_state.get("visual_mode", "Baluarte (CAT)")
+    st.markdown(get_visual_theme_css(mode), unsafe_allow_html=True)
+
 
 
 def _append_sales_stage(result: dict) -> dict:
@@ -696,9 +676,9 @@ def init_state() -> None:
     if "running" not in st.session_state:
         st.session_state.running = False
     if "interval_s" not in st.session_state:
-        st.session_state.interval_s = 3
+        st.session_state.interval_s = 3.0
     else:
-        st.session_state.interval_s = int(max(1, min(5, st.session_state.interval_s)))
+        st.session_state.interval_s = float(max(0.5, min(5, st.session_state.interval_s)))
     if "visual_mode" not in st.session_state:
         st.session_state.visual_mode = "Baluarte (CAT)"
     elif st.session_state.visual_mode != "Baluarte (CAT)":
@@ -735,31 +715,11 @@ def init_state() -> None:
 
 
 def sync_controls_from_widgets() -> None:
-    st.session_state.controls = {
-        "soy_feed_kg_h": st.session_state.w_soy_feed_kg_h,
-        "water_flow_m3_h": st.session_state.w_water_flow_m3_h,
-        "water_temp_c": st.session_state.w_water_temp_c,
-        "extraction_ph": st.session_state.w_extraction_ph,
-        "extraction_temp_c": st.session_state.w_extraction_temp_c,
-        "extraction_residence_min": st.session_state.w_extraction_residence_min,
-        "agitator_rpm": st.session_state.w_agitator_rpm,
-        "solid_liquid_ratio": st.session_state.w_solid_liquid_ratio,
-        "pasteur_temp_c": st.session_state.w_pasteur_temp_c,
-        "pasteur_retention_s": st.session_state.w_pasteur_retention_s,
-        "ro_tmp_bar": st.session_state.w_ro_tmp_bar,
-        "ro_crossflow_ms": st.session_state.w_ro_crossflow_ms,
-        "ro_feed_temp_c": st.session_state.w_ro_feed_temp_c,
-        "ro_feed_ph": st.session_state.w_ro_feed_ph,
-        "ro_sdi": st.session_state.w_ro_sdi,
-        "evap_pressure_bar": st.session_state.w_evap_pressure_bar,
-        "evap_temp_c": st.session_state.w_evap_temp_c,
-        "precip_ph": st.session_state.w_precip_ph,
-        "precip_time_min": st.session_state.w_precip_time_min,
-        "centrifuge_g": st.session_state.w_centrifuge_g,
-        "centrifuge_time_min": st.session_state.w_centrifuge_time_min,
-        "dryer_temp_c": st.session_state.w_dryer_temp_c,
-        "dryer_residence_min": st.session_state.w_dryer_residence_min,
-    }
+    # Solo actualizamos los valores si el widget existe en el estado de sesion actual (esta renderizado)
+    for key in DEFAULT_CONTROLS:
+        widget_key = f"w_{key}"
+        if widget_key in st.session_state:
+            st.session_state.controls[key] = st.session_state[widget_key]
 
 
 def _get_widget_step(vmin: float, vmax: float) -> float:
@@ -776,19 +736,17 @@ def _get_widget_step(vmin: float, vmax: float) -> float:
 
 
 def sync_equipment_specs_from_widgets() -> None:
-    updated: dict[str, float] = {}
-    for key, default in EQUIPMENT_SPEC_DEFAULTS.items():
+    for key in EQUIPMENT_SPEC_DEFAULTS:
         widget_key = f"w_eq_{key}"
-        updated[key] = float(st.session_state.get(widget_key, st.session_state.equipment_specs.get(key, default)))
-    st.session_state.equipment_specs = updated
+        if widget_key in st.session_state:
+            st.session_state.equipment_specs[key] = float(st.session_state[widget_key])
 
 
 def sync_capacity_limits_from_widgets() -> None:
-    updated: dict[str, float] = {}
-    for key, default in CAPACITY_LIMIT_DEFAULTS.items():
+    for key in CAPACITY_LIMIT_DEFAULTS:
         widget_key = f"w_lim_{key}"
-        updated[key] = float(st.session_state.get(widget_key, st.session_state.capacity_limits.get(key, default)))
-    st.session_state.capacity_limits = updated
+        if widget_key in st.session_state:
+            st.session_state.capacity_limits[key] = float(st.session_state[widget_key])
 
 
 def sync_sales_price_from_widgets() -> None:
@@ -802,50 +760,19 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     if default is None:
         default = (vmin + vmax) / 2
 
-    # Overrides based on process knowledge
-    if key == "extraction_ph": return (8.5, 9.5), (7.0, 11.0)
-    if key == "pasteur_temp_c": return (75.0, 85.0), (70.0, 100.0)
-    if key == "precip_ph": return (4.3, 4.7), (3.5, 5.5)
+    # Overrides based on process knowledge from Gemelo Digital.md
+    if key == "extraction_ph": return (8.65, 8.80), (8.00, 9.50)
+    if key == "pasteur_temp_c": return (80.0, 85.0), (75.0, 95.0)
+    if key == "precip_ph": return (4.45, 4.55), (4.10, 4.90)
+    if key == "evap_pressure_bar": return (0.38, 0.42), (0.35, 0.60)
+    if key == "solid_liquid_ratio": return (11.5, 12.5), (9.0, 14.0)
     if key == "water_flow_m3_h": return (10.0, 14.0), (5.0, 25.0)
     if key == "soy_feed_kg_h": return (800.0, 1200.0), (500.0, 5000.0)
-    if key == "ro_tmp_bar": return (20.0, 30.0), (10.0, 40.0)
-    if key == "evap_pressure_bar": return (0.3, 0.5), (0.1, 0.8)
     if key == "dryer_temp_c": return (70.0, 90.0), (50.0, 150.0)
+    if key == "use_ro": return (0.0, 1.0), (0.0, 1.0)
 
     # Generic heuristic
     return (default * 0.9, default * 1.1), (default * 0.7, default * 1.3)
-
-
-def _render_range_bar(key: str, vmin: float, vmax: float, current_val: float):
-    ideal, warning = _get_variable_ranges(key, vmin, vmax)
-    i_min, i_max = ideal
-    w_min, w_max = warning
-
-    points = [
-        (w_min, "danger"),
-        (i_min, "warning"),
-        (i_max, "ideal"),
-        (w_max, "warning"),
-        (vmax, "danger")
-    ]
-
-    span = max(vmax - vmin, 1e-9)
-    # Clip pointer position between 0 and 100%
-    pointer_pos = max(0.0, min(100.0, (current_val - vmin) / span * 100))
-
-    html = '<div class="range-container"><div class="range-bar">'
-    prev = vmin
-    for end_val, ztype in points:
-        actual_end = max(prev, min(end_val, vmax))
-        width = (actual_end - prev) / span * 100
-        if width > 0.01:
-            html += f'<div class="range-segment range-{ztype}" style="width: {width}%"></div>'
-        prev = actual_end
-
-    html += f'</div><div class="range-pointer" style="left: calc({pointer_pos}% - 2px);"></div></div>'
-    html += f'<div class="range-label-container"><span>{vmin}</span><span>{vmax}</span></div>'
-
-    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_equipment_specs_editor() -> None:
@@ -863,7 +790,6 @@ def render_equipment_specs_editor() -> None:
                     step=_get_widget_step(vmin, vmax),
                     key=f"w_eq_{key}",
                 )
-                _render_range_bar(key, float(vmin), float(vmax), val)
 
     sync_equipment_specs_from_widgets()
 
@@ -924,7 +850,6 @@ def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step
     with col_pv:
         st.markdown(f"<div style='margin-top: 32px;'><small>PV:</small><br><b>{pv:.2f}</b></div>", unsafe_allow_html=True)
 
-    _render_range_bar(key, vmin, vmax, pv)
     return val
 
 def render_controls() -> None:
@@ -943,13 +868,6 @@ def render_controls() -> None:
     with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
         _render_control_with_pv("Temperatura de pasteurizacion (C)", "pasteur_temp_c", 50.0, 130.0, 0.5)
         _render_control_with_pv("Retencion termica (s)", "pasteur_retention_s", 2.0, 180.0, 1.0)
-
-    with st.expander("Etapa 2.5 · Osmosis inversa", expanded=False):
-        _render_control_with_pv("TMP OI (bar)", "ro_tmp_bar", 5.0, 45.0, 0.1)
-        _render_control_with_pv("Velocidad cruzada OI (m/s)", "ro_crossflow_ms", 0.2, 3.0, 0.05)
-        _render_control_with_pv("Temperatura alimentacion OI (C)", "ro_feed_temp_c", 5.0, 60.0, 0.5)
-        _render_control_with_pv("pH alimentacion OI", "ro_feed_ph", 3.0, 11.0, 0.01)
-        _render_control_with_pv("SDI", "ro_sdi", 1.0, 8.0, 0.1)
 
     with st.expander("Etapa 3 · Evaporacion", expanded=False):
         _render_control_with_pv("Presion evaporador (bar abs)", "evap_pressure_bar", 0.05, 1.20, 0.01)
@@ -994,11 +912,6 @@ def apply_process_inertia(dt: float) -> None:
         "solid_liquid_ratio": 15.0,
         "pasteur_temp_c": 35.0,
         "pasteur_retention_s": 3.0,
-        "ro_tmp_bar": 7.0,
-        "ro_crossflow_ms": 4.0,
-        "ro_feed_temp_c": 30.0,
-        "ro_feed_ph": 20.0,
-        "ro_sdi": 50.0,
         "evap_pressure_bar": 25.0,
         "evap_temp_c": 50.0,
         "precip_ph": 22.0,
@@ -1098,7 +1011,7 @@ def run_step() -> None:
 
     # Update sparkline history (last 60 seconds)
     # snapshot is flattened by build_snapshot, so we can iterate top-level keys
-    max_points = 60 // st.session_state.interval_s
+    max_points = int(60 / st.session_state.interval_s)
     for key in actual_noisy:
         if not (key.startswith("stage_") or key.startswith("capacity_")) or not isinstance(actual_noisy[key], (int, float)):
             continue
@@ -1138,24 +1051,31 @@ def _inject_independent_error(snapshot: dict) -> dict:
     return noisy_snapshot
 
 
-def _compute_kpi_window_stats(df, key: str) -> dict | None:
-    if key not in df.columns:
+def _compute_kpi_window_stats(key: str) -> dict | None:
+    rows = st.session_state.log._rows
+    if not rows:
         return None
 
-    all_series = df[key].dropna()
-    if all_series.empty:
+    values = [r[key] for r in rows if key in r and r[key] is not None]
+    if not values:
         return None
 
-    series = all_series.tail(STABILITY_WINDOW_POINTS)
+    current = float(values[-1])
+    previous = float(values[-2]) if len(values) > 1 else current
 
-    current = float(all_series.iloc[-1])
-    previous = float(all_series.iloc[-2]) if len(all_series) > 1 else current
+    average = sum(values) / len(values)
+    max_val = max(values)
+    min_val = min(values)
 
-    # Promedio dinámico basado en la corrida actual completa
-    average = float(all_series.mean())
-
-    # Desviación estándar de los puntos recientes para estabilidad
-    std_dev = float(series.std(ddof=0)) if len(series) > 1 else 0.0
+    recent_values = values[-STABILITY_WINDOW_POINTS:]
+    n_recent = len(recent_values)
+    
+    if n_recent > 1:
+        mean_recent = sum(recent_values) / n_recent
+        variance = sum((x - mean_recent) ** 2 for x in recent_values) / n_recent
+        std_dev = math.sqrt(variance)
+    else:
+        std_dev = 0.0
 
     base_error_pct = _error_base_pct_for_key(key)
     error_abs = abs(current) * (base_error_pct / 100.0)
@@ -1165,19 +1085,14 @@ def _compute_kpi_window_stats(df, key: str) -> dict | None:
     if lower_limit > upper_limit:
         lower_limit, upper_limit = upper_limit, lower_limit
 
-    if abs(previous) > 1e-9:
-        delta_pct = ((current - previous) / abs(previous)) * 100.0
-    else:
-        delta_pct = 0.0
-
-    if abs(average) > 1e-9:
-        relative_std_pct = (std_dev / abs(average)) * 100.0
-    else:
-        relative_std_pct = 0.0
+    delta_pct = ((current - previous) / abs(previous)) * 100.0 if abs(previous) > 1e-9 else 0.0
+    relative_std_pct = (std_dev / abs(average)) * 100.0 if abs(average) > 1e-9 else 0.0
 
     return {
         "current": current,
         "average": average,
+        "max": max_val,
+        "min": min_val,
         "lower_limit": lower_limit,
         "upper_limit": upper_limit,
         "delta_pct": delta_pct,
@@ -1195,65 +1110,65 @@ def _format_kpi_value(value: float, unit: str, decimals: int) -> str:
 
 
 def _render_kpi_chart(key: str, stats: dict, theme: dict, chart_key: str | None = None) -> None:
-    """Renderiza un mini gráfico de líneas (sparkline) para el KPI."""
     history = st.session_state.get("sparkline_history", {}).get(key, [])
     if len(history) < 2:
         return
 
     actual_values = [h["actual"] for h in history]
-    predicted_values = [h["predicted"] for h in history]
 
-    fig = go.Figure()
-
-    # Predicción del modelo (línea punteada)
-    fig.add_trace(go.Scatter(
-        y=predicted_values,
-        mode="lines",
-        name="Predicción",
-        line=dict(color=theme["muted_text"], width=1, dash="dot"),
-        hoverinfo="skip"
-    ))
-
-    # Valor actual (línea sólida)
-    # Extract stage (e.g., stage_1 -> s1)
     stage_key = "s0"
     parts = key.split("_")
     if len(parts) > 1 and parts[0] == "stage":
         stage_id = parts[1]
         if stage_id in ["0", "1", "2", "3", "4", "5"]:
             stage_key = f"s{stage_id}"
-        elif stage_id == "2" and len(parts) > 2 and parts[2] == "5":
-            stage_key = "s2_5"
 
-    color = theme["stage_colors"].get(stage_key, theme["stage_colors"].get("s0", "#38bdf8"))
-    fig.add_trace(go.Scatter(
-        y=actual_values,
-        mode="lines",
-        name="Actual",
-        line=dict(color=color, width=2),
-        hoverinfo="skip"
-    ))
+    color = theme["stage_colors"].get(stage_key, theme["stage_colors"].get("s0", "#4a90e2"))
+    
+    y_min = stats["min"]
+    y_max = stats["max"]
+    y_range = y_max - y_min
+    padding = abs(y_min) * 0.1 if y_range < 1e-6 and abs(y_min) > 1e-6 else (0.5 if y_range < 1e-6 else y_range * 0.1)
 
-    # Bandas de control (límites admisibles)
-    fig.add_hline(y=stats["upper_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.3)
-    fig.add_hline(y=stats["lower_limit"], line_dash="dash", line_color=theme["status"]["rojo"], opacity=0.3)
-
-    fig.update_layout(
-        height=60,
-        margin=dict(l=0, r=0, t=0, b=0),
-        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
-        yaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        showlegend=False,
-        template="plotly_dark",
-    )
-
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=chart_key or f"spark_{key}")
+    fig_dict = {
+        "data": [{
+            "type": "scatter",
+            "y": actual_values,
+            "mode": "lines",
+            "fill": "tozeroy",
+            "name": "Actual",
+            "line": {"color": color, "width": 3},
+            "fillcolor": f"rgba({int(color[1:3],16)}, {int(color[3:5],16)}, {int(color[5:7],16)}, 0.1)",
+            "hoverinfo": "y"
+        }],
+        "layout": {
+            "height": 220,
+            "margin": {"l": 10, "r": 10, "t": 30, "b": 10},
+            "xaxis": {"showgrid": True, "gridcolor": theme["grid"], "showticklabels": False},
+            "yaxis": {
+                "showgrid": True,
+                "gridcolor": theme["grid"],
+                "tickfont": {"size": 10, "color": theme["muted_text"]},
+                "range": [y_min - padding, y_max + padding]
+            },
+            "paper_bgcolor": "rgba(0,0,0,0)",
+            "plot_bgcolor": "rgba(0,0,0,0)",
+            "showlegend": False,
+            "template": "plotly_dark",
+            "shapes": [
+                {"type": "line", "y0": stats["max"], "y1": stats["max"], "x0": 0, "x1": 1, "xref": "paper", "line": {"color": theme["status"]["rojo"], "width": 1, "dash": "dash"}},
+                {"type": "line", "y0": stats["min"], "y1": stats["min"], "x0": 0, "x1": 1, "xref": "paper", "line": {"color": theme["status"]["amarillo"], "width": 1, "dash": "dash"}},
+                {"type": "line", "y0": stats["average"], "y1": stats["average"], "x0": 0, "x1": 1, "xref": "paper", "line": {"color": theme["accent"], "width": 2}},
+                {"type": "rect", "y0": stats["lower_limit"], "y1": stats["upper_limit"], "x0": 0, "x1": 1, "xref": "paper", "fillcolor": theme["grid"], "opacity": 0.2, "line": {"width": 0}}
+            ]
+        }
+    }
+    
+    st.plotly_chart(go.Figure(fig_dict), use_container_width=True, config={"displayModeBar": False}, key=chart_key or f"spark_{key}")
 
 
 def _render_kpi_card(
-    df,
+
     key: str,
     label: str,
     unit: str,
@@ -1265,11 +1180,10 @@ def _render_kpi_card(
     compact: bool = False,
     card_id: str | None = None,
 ) -> None:
-    stats = _compute_kpi_window_stats(df, key)
+    stats = _compute_kpi_window_stats(key)
     theme = get_active_theme()
     if not stats:
         st.metric(label, "Sin datos", delta="0.00%")
-        st.caption("Ejecuta la simulacion para activar historico.")
         return
 
     if compact:
@@ -1283,16 +1197,22 @@ def _render_kpi_card(
             delta=_format_pct_delta_es(stats["delta_pct"]),
         )
 
-        # Gráfico de líneas integrado
+        # Gráfico de líneas integrado (GRANDE)
         _render_kpi_chart(key, stats, theme, chart_key=f"spark_{card_id or key}")
 
+        # Meta info detallada
+        c1, c2, c3 = st.columns(3)
+        with c1: st.markdown(f"<div class='kpi-meta'><b>MIN</b><br>{_format_number_es(stats['min'], decimals)}</div>", unsafe_allow_html=True)
+        with c2: st.markdown(f"<div class='kpi-meta'><b>PROM</b><br>{_format_number_es(stats['average'], decimals)}</div>", unsafe_allow_html=True)
+        with c3: st.markdown(f"<div class='kpi-meta'><b>MAX</b><br>{_format_number_es(stats['max'], decimals)}</div>", unsafe_allow_html=True)
+
         st.markdown(
-            f"<div class='kpi-meta'>Error +/- {_format_kpi_value(stats['error_abs'], unit, decimals)} | Prom: {_format_number_es(stats['average'], decimals)}</div>",
+            f"<div class='kpi-meta'>Error +/- {_format_kpi_value(stats['error_abs'], unit, decimals)}</div>",
             unsafe_allow_html=True,
         )
 
         if secondary_key:
-            secondary_stats = _compute_kpi_window_stats(df, secondary_key)
+            secondary_stats = _compute_kpi_window_stats(secondary_key)
             if secondary_stats:
                 st.markdown(
                     f"<div class='kpi-meta'>{secondary_label}: {_format_kpi_value(secondary_stats['current'], secondary_unit, secondary_decimals)}</div>",
@@ -1308,37 +1228,31 @@ def _render_kpi_card(
 
 
 def render_kpis() -> None:
-    df = st.session_state.log.to_dataframe()
     result = st.session_state.last_result
     capacity = result.get("capacity", {})
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     with c1:
-        _render_kpi_card(df, "stage_5_protein_final_kg_h", "Proteina final", "kg/h", 1, card_id="top_protein")
+        _render_kpi_card("stage_5_protein_final_kg_h", "Proteina final", "kg/h", 1, card_id="top_protein")
     with c2:
-        _render_kpi_card(df, "stage_5_overall_yield_pct", "Rendimiento global", "%", 1, card_id="top_yield")
+        _render_kpi_card("stage_5_overall_yield_pct", "Rendimiento global", "%", 1, card_id="top_yield")
     with c3:
-        _render_kpi_card(df, "stage_2_5_ro_ro_recovery_pct", "Recuperacion OI", "%", 1, card_id="top_ro")
-    with c4:
-        _render_kpi_card(df, "stage_3_evaporated_water_m3_h", "Agua evaporada", "m3/h", 2, card_id="top_evap")
+        _render_kpi_card("stage_3_evaporated_water_m3_h", "Agua evaporada", "m3/h", 2, card_id="top_evap")
 
-    st.caption("Baselines documentales: extraccion 88%, OI 25%, pasteurizacion 80 C/22 s, evaporacion 0.40 bar.")
+    st.caption("Baselines documentales: extraccion 88%, pasteurizacion 80 C/22 s, evaporacion 0.40 bar.")
 
     if capacity:
-        u1, u2, u3, u4 = st.columns(4)
+        u1, u2, u3 = st.columns(3)
         with u1:
-            _render_kpi_card(df, "capacity_stage_0_tank_utilization_pct", "Uso tanque E0", "%", 1)
+            _render_kpi_card("capacity_stage_0_tank_utilization_pct", "Uso tanque E0", "%", 1)
         with u2:
-            _render_kpi_card(df, "capacity_stage_2_hex_thermal_load_pct", "Uso intercambiador", "%", 1)
+            _render_kpi_card("capacity_stage_2_hex_thermal_load_pct", "Uso intercambiador", "%", 1)
         with u3:
-            _render_kpi_card(df, "capacity_stage_2_5_ro_flux_lmh", "Flujo OI", "LMH", 1)
-        with u4:
-            _render_kpi_card(df, "capacity_stage_5_dryer_load_pct", "Uso secador", "%", 1)
+            _render_kpi_card("capacity_stage_5_dryer_load_pct", "Uso secador", "%", 1)
 
 
 def render_stage_panels() -> None:
-    df = st.session_state.log.to_dataframe()
-    if df.empty:
+    if not st.session_state.log._rows:
         st.info("Aun no hay historico. Usa 'Paso' o 'Iniciar' para comenzar el registro.")
         return
 
@@ -1350,7 +1264,6 @@ def render_stage_panels() -> None:
             for idx, metric in enumerate(stage["metrics"]):
                 with cols[idx % 3]:
                     _render_kpi_card(
-                        df,
                         key=metric["key"],
                         label=metric["label"],
                         unit=metric["unit"],
@@ -1363,88 +1276,255 @@ def render_stage_panels() -> None:
                     )
 
 
+def render_stage_tab(stage_idx: int) -> None:
+    has_data = bool(st.session_state.log._rows)
+    
+    # Mapeo de controles por etapa
+    stage_controls = {
+        0: [
+            ("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 100.0, 8000.0, 100.0),
+            ("Caudal de agua (m3/h)", "water_flow_m3_h", 2.0, 30.0, 0.1),
+            ("Temperatura de agua (C)", "water_temp_c", 5.0, 90.0, 0.5),
+        ],
+        1: [
+            ("pH extraccion", "extraction_ph", 6.0, 12.0, 0.01),
+            ("Temperatura extraccion (C)", "extraction_temp_c", 20.0, 95.0, 0.5),
+            ("Tiempo residencia (min)", "extraction_residence_min", 5.0, 180.0, 1.0),
+            ("Velocidad agitacion (RPM)", "agitator_rpm", 10.0, 500.0, 1.0),
+            ("Ratio solido/liquido (1:x)", "solid_liquid_ratio", 4.0, 30.0, 0.1),
+        ],
+        2: [
+            ("Temperatura de pasteurizacion (C)", "pasteur_temp_c", 50.0, 130.0, 0.5),
+            ("Retencion termica (s)", "pasteur_retention_s", 2.0, 180.0, 1.0),
+        ],
+        3: [
+            ("Presion Transmembrana OI (bar)", "ro_tmp_bar", 15.0, 40.0, 0.5),
+        ],
+        4: [
+            ("Presion evaporador (bar abs)", "evap_pressure_bar", 0.05, 1.20, 0.01),
+            ("Temperatura evaporacion (C)", "evap_temp_c", 20.0, 95.0, 0.5),
+        ],
+        5: [
+            ("pH de precipitacion", "precip_ph", 2.5, 7.0, 0.01),
+            ("Tiempo de precipitacion (min)", "precip_time_min", 2.0, 120.0, 1.0),
+            ("Factor G centrifuga", "centrifuge_g", 200.0, 5000.0, 10.0),
+            ("Tiempo centrifugacion (min)", "centrifuge_time_min", 1.0, 120.0, 1.0),
+        ],
+        6: [
+            ("Temperatura de secado (C)", "dryer_temp_c", 40.0, 220.0, 1.0),
+            ("Residencia en secador (min)", "dryer_residence_min", 1.0, 180.0, 1.0),
+        ]
+    }
+
+    # Mapeo de KPIs por etapa (heredado de STAGE_KPI_CONFIG)
+    
+    left, right = st.columns([1, 2], gap="large")
+    
+    with left:
+        st.subheader("Controles de Proceso")
+        if stage_idx in stage_controls:
+            for label, key, vmin, vmax, step in stage_controls[stage_idx]:
+                _render_control_with_pv(label, key, vmin, vmax, step)
+        
+        st.divider()
+        st.subheader("Especificaciones de Equipo")
+        if stage_idx < len(EQUIPMENT_GROUPS):
+            group_label, keys = EQUIPMENT_GROUPS[stage_idx]
+            st.caption(group_label)
+            for key in keys:
+                vmin, vmax = EQUIPMENT_SPEC_LIMITS[key]
+                val = st.number_input(
+                    EQUIPMENT_SPEC_LABELS.get(key, key),
+                    min_value=float(vmin),
+                    max_value=float(vmax),
+                    value=float(st.session_state.equipment_specs[key]),
+                    step=_get_widget_step(vmin, vmax),
+                    key=f"w_eq_{key}",
+                )
+        
+        sync_equipment_specs_from_widgets()
+        
+        st.divider()
+        st.subheader("Restricciones de Capacidad")
+        if stage_idx < len(CAPACITY_GROUPS):
+            c_group_label, c_keys = CAPACITY_GROUPS[stage_idx]
+            st.caption(c_group_label)
+            for key in c_keys:
+                vmin, vmax = CAPACITY_LIMIT_BOUNDS[key]
+                st.number_input(
+                    CAPACITY_LIMIT_LABELS.get(key, key),
+                    min_value=float(vmin),
+                    max_value=float(vmax),
+                    value=float(st.session_state.capacity_limits[key]),
+                    step=_get_widget_step(vmin, vmax),
+                    key=f"w_lim_{key}",
+                )
+        
+        sync_capacity_limits_from_widgets()
+        sync_controls_from_widgets()
+
+    with right:
+        st.subheader("Monitoreo en Tiempo Real")
+        if not has_data:
+            st.info("Sin datos de telemetria.")
+        else:
+            kpi_idx = stage_idx
+            
+            # Ajuste manual de indices KPI_CONFIG (0 a 6 para las etapas)
+            kpi_mapping = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
+            if stage_idx in kpi_mapping and kpi_mapping[stage_idx] < len(STAGE_KPI_CONFIG):
+                config = STAGE_KPI_CONFIG[kpi_mapping[stage_idx]]
+                st.caption(config["title"])
+                k_cols = st.columns(len(config["metrics"]))
+                for m_idx, metric in enumerate(config["metrics"]):
+                    with k_cols[m_idx]:
+                        _render_kpi_card(
+                            key=metric["key"],
+                            label=metric["label"],
+                            unit=metric["unit"],
+                            decimals=metric["decimals"],
+                            card_id=f"tab_{stage_idx}_{metric['key']}"
+                        )
+            
+            if stage_idx == 3: # OI Tab specific content
+                st.markdown("---")
+                st.image("assets/osmosis_inversa.png", caption="Esquema de Membranas de Poliamida TFC", use_container_width=True)
+
 init_state()
 apply_visual_theme_css()
 
-st.title("Gemelo Digital AJAX")
-st.markdown(
-    "<div class='hero-panel'><strong>Centro de Operacion Integrado:</strong> interfaz orientada al seguimiento operativo y de produccion en tiempo real.</div>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    "<div class='hero-panel'>Modo baluarte (CAT) activo: interfaz unificada para operacion, monitoreo y validacion en tiempo real.</div>",
-    unsafe_allow_html=True,
-)
+# HEADER CON CONTROLES TOP-RIGHT
+head_left, head_right = st.columns([2, 1])
 
-with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
-    st.markdown("### Navegación")
-    MENU_OPTIONS = [
-        "Sala de Operacion",
-        "Sala de Monitoreo",
-    ]
-    menu = st.radio(
-        "Selecciona una sección:",
-        MENU_OPTIONS,
-        label_visibility="collapsed",
-        key="main_menu",
+with head_left:
+    st.title("Gemelo Digital AJAX")
+    st.markdown(
+        "<div class='hero-panel'><strong>Consola Unificada:</strong> Operacion y monitoreo integrado por etapas.</div>",
+        unsafe_allow_html=True,
     )
 
-    st.divider()
-    st.markdown("### Ejecución")
-    st.session_state.interval_s = st.slider("Intervalo (s)", 1, 5, value=int(st.session_state.interval_s), step=1)
-
-    col1, col2 = st.columns(2)
-    if col1.button("Ejecutar Simulación", use_container_width=True):
+with head_right:
+    st.markdown("### Panel de Control")
+    c1, c2, c3, c4 = st.columns(4)
+    if c1.button("▶", help="Iniciar Simulación"):
         st.session_state.running = True
-    if col2.button("Parar Simulación", use_container_width=True):
+    if c2.button("⏸", help="Pausar Simulación"):
         st.session_state.running = False
-
-    col3, col4 = st.columns(2)
-    if col3.button("Paso", use_container_width=True):
+    if c3.button("⏭", help="Paso"):
         run_step()
-    if col4.button("Reiniciar Simulación", use_container_width=True):
+    if c4.button("🔄", help="Reiniciar"):
         st.session_state.pending_full_reset = True
         st.rerun()
-
+    
+    st.session_state.interval_s = st.slider("Ciclo (s)", 0.5, 5.0, value=float(st.session_state.interval_s), step=0.1)
+    
     if st.session_state.running:
-        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-running'></span> Simulacion Iniciada</div>", unsafe_allow_html=True)
+        st.markdown("<small><span class='status-pill status-running'></span> SISTEMA EN LINEA</small>", unsafe_allow_html=True)
     else:
-        st.markdown("<div style='display: flex; align-items: center;'><span class='status-pill status-paused'></span> Simulación Pausada</div>", unsafe_allow_html=True)
+        st.markdown("<small><span class='status-pill status-paused'></span> SISTEMA EN ESPERA</small>", unsafe_allow_html=True)
 
-    st.divider()
-    st.caption("Interfaz: Baluarte")
+# DASHBOARD PRINCIPAL
+render_capacity_issues()
 
-    st.divider()
-    render_sales_modification_panel()
-    render_capacity_issues()
+# ... (dentro de los tabs)
 
-menu_slots = {name: st.empty() for name in MENU_OPTIONS}
-for name, slot in menu_slots.items():
-    if name != menu:
-        slot.empty()
-        continue
+tab_labels = ["E0: Captacion", "E1: Extraccion", "E2: Pasteurizacion", "E-RO: Osmosis Inversa", "E3: Evaporacion", "E4: Precipitacion", "E5: Secado", "TOC & Sensibilidad", "Vista Global"]
+main_tabs = st.tabs(tab_labels)
 
-    with slot.container():
-        if name == "Sala de Operacion":
-            left, right = st.columns([1.5, 1.0], gap="large")
-            with left:
-                st.subheader("Variables de Control")
-                st.caption("Afectan la velocidad de cambio en los registros por etapa.")
-                render_controls()
-            with right:
-                st.subheader("Dimensiones y Capacidad")
-                st.caption("Parámetros fijos de inercia y tiempo de respuesta.")
-                render_equipment_specs_editor()
-                render_capacity_limits_editor()
+for i, tab in enumerate(main_tabs):
+    with tab:
+        if i < 7:
+            render_stage_tab(i)
+        elif i == 7:
+            # --- PESTAÑA TOC & SENSIBILIDAD ---
+            st.subheader("Analisis de Cuellos de Botella (TOC)")
+            
+            if not st.session_state.log._rows:
+                st.info("Inicia la simulacion para ver el analisis de restricciones.")
+            else:
+                last_res = st.session_state.last_result
+                if "toc_metadata" in last_res:
+                    toc = last_res["toc_metadata"]
+                    col_b1, col_b2 = st.columns([1, 2])
+                    
+                    with col_b1:
+                        st.metric("Cuello de Botella Actual", toc["primary_bottleneck"])
+                        color = "red" if toc["is_critical"] else "orange" if toc["utilization_pct"] > 80 else "green"
+                        st.markdown(f"<h2 style='color: {color}; text-align: center;'>{toc['utilization_pct']:.1f}%</h2>", unsafe_allow_html=True)
+                        st.caption("Utilizacion del recurso restrictivo")
+                    
+                    with col_b2:
+                        st.markdown(f"**Diagnostico TOC:**")
+                        if toc["primary_bottleneck"] == "TK-101":
+                            st.write("Restriccion Cinetica: El tiempo de residencia es el factor limitante. Forzar mas caudal reducira el rendimiento drasticamente.")
+                        elif toc["primary_bottleneck"] == "EV-301":
+                            st.write("Restriccion Termodinamica: Capacidad de evaporacion al limite. Considera aumentar el vacio o activar pre-concentracion por OI.")
+                        elif toc["primary_bottleneck"] == "SD-501":
+                            st.write("Restriccion de Secado: El atomizador esta llegando a su limite de remocion de agua.")
+                        else:
+                            st.write("El sistema opera balanceadamente. El cuello de botella es nominal.")
+                
+                st.divider()
+                st.subheader("Analisis de Sensibilidad (Gradientes)")
+                st.caption("Impacto relativo de variables en el Rendimiento Global (Overall Yield)")
+                
+                with st.spinner("Calculando gradientes..."):
+                    sens = perform_sensitivity_analysis(
+                        st.session_state.pv_controls,
+                        st.session_state.equipment_specs,
+                        st.session_state.capacity_limits
+                    )
+                    
+                    if sens:
+                        # Convertir a DataFrame para graficar
+                        df_sens = pd.DataFrame([
+                            {"Variable": k.replace("ctrl_", ""), "Sensibilidad": v} 
+                            for k, v in sens.items() if not math.isnan(v) and abs(v) > 0.001
+                        ])
+                        df_sens = df_sens.sort_values("Sensibilidad", ascending=False)
+                        
+                        fig_sens = go.Figure(go.Bar(
+                            x=df_sens["Sensibilidad"],
+                            y=df_sens["Variable"],
+                            orientation='h',
+                            marker_color=['#4caf50' if x > 0 else '#f44336' for x in df_sens["Sensibilidad"]]
+                        ))
+                        fig_sens.update_layout(
+                            margin=dict(l=20, r=20, t=20, b=20),
+                            height=400,
+                            xaxis_title="Indice de Sensibilidad (% Yield / % Variable)",
+                            plot_bgcolor='rgba(0,0,0,0)',
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            font=dict(color="#e0e0e0")
+                        )
+                        st.plotly_chart(fig_sens, use_container_width=True)
+                        
+                        st.info("💡 **Interpretacion:** Una sensibilidad de 0.5 significa que si aumentas esa variable un 1%, el rendimiento subira un 0.5%. Valores negativos indican un impacto inverso.")
 
-        elif name == "Sala de Monitoreo":
-            st.subheader("Panel de Indicadores en Vivo")
+        else:
+            # Vista Global
+            st.subheader("Balance de Masa y Energia")
             render_kpis()
             st.divider()
-            st.subheader("KPIs por Etapa de Proceso")
-            render_stage_panels()
-
+            
+            col_crit, col_eco = st.columns([1, 1])
+            with col_crit:
+                st.subheader("Matriz de Criticidad (FMEA)")
+                st.markdown("""
+                | Variable | Modo de Falla | Severidad | NPR | Estado |
+                | :--- | :--- | :--- | :--- | :--- |
+                | pH Extraccion | Baja Recuperacion | 8 | 64 | ✅ OK |
+                | T° Pasteurizacion | Peligro HACCP | 9 | 27 | ✅ OK |
+                | Vacío Evap. | Reaccion Maillard | 7 | 70 | ✅ OK |
+                | pH Precip. | Perdida Proteina | 8 | 144 | ⚠️ CRIT |
+                """)
+                st.caption("NPR = Severidad x Ocurrencia x Deteccion. Niveles > 100 requieren accion inmediata.")
+            
+            with col_eco:
+                render_sales_modification_panel()
+            
+            st.divider()
+            st.image("assets/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
 
 if st.session_state.running:
     run_step()

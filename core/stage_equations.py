@@ -12,20 +12,23 @@ from core.equipment_specs import (
     validate_equipment_specs,
 )
 
+# Constantes Fisicoquimicas (Doc 2.2)
+RHO_EXTRACT = 1050.0 # kg/m3
+CP_EXTRACT = 3.9     # kJ/(kg.K)
+F_LOSS = 0.02        # Factor de perdida por etapa (Doc 3.1 - 3.6)
 
 BASELINE_REFERENCES = {
     "ctrl_water_flow_m3_h": {"label": "Caudal de agua", "value": 12.0, "unit": "m3/h"},
     "stage_1_extraction_eff_pct": {"label": "Eficiencia extraccion", "value": 88.0, "unit": "%"},
     "ctrl_pasteur_temp_c": {"label": "Temperatura pasteurizacion", "value": 80.0, "unit": "C"},
     "ctrl_pasteur_retention_s": {"label": "Retencion termica", "value": 22.0, "unit": "s"},
-    "stage_2_5_ro_ro_recovery_pct": {"label": "Recuperacion OI", "value": 25.0, "unit": "%"},
     "ctrl_evap_pressure_bar": {"label": "Presion evaporador", "value": 0.40, "unit": "bar"},
-    "stage_3_evaporated_water_m3_h": {"label": "Agua evaporada", "value": 9.939, "unit": "m3/h"},
-    "stage_4_protein_precip_kg_h": {"label": "Proteina precipitada", "value": 323.4, "unit": "kg/h"},
-    "stage_4_2_paste_mass_kg_h": {"label": "Pasta post-centrifuga", "value": 692.8, "unit": "kg/h"},
-    "stage_5_powder_mass_kg_h": {"label": "Polvo final", "value": 364.6, "unit": "kg/h"},
-    "stage_5_protein_final_kg_h": {"label": "Proteina final", "value": 323.4, "unit": "kg/h"},
-    "stage_5_final_moisture_pct": {"label": "Humedad final", "value": 5.0, "unit": "%"},
+    "stage_3_evaporated_water_m3_h": {"label": "Agua evaporada", "value": 9.42, "unit": "m3/h"},
+    "stage_4_protein_precip_kg_h": {"label": "Proteina precipitada", "value": 292.3, "unit": "kg/h"},
+    "stage_4_2_paste_mass_kg_h": {"label": "Pasta post-centrifuga", "value": 584.7, "unit": "kg/h"},
+    "stage_5_powder_mass_kg_h": {"label": "Polvo final", "value": 301.6, "unit": "kg/h"},
+    "stage_5_protein_final_kg_h": {"label": "Proteina final", "value": 286.5, "unit": "kg/h"},
+    "stage_5_overall_yield_pct": {"label": "Rendimiento global", "value": 76.4, "unit": "%"},
 }
 
 
@@ -40,13 +43,9 @@ CONTROL_LIMITS: dict[str, tuple[float, float]] = {
     "solid_liquid_ratio": (4.0, 30.0),
     "pasteur_temp_c": (50.0, 130.0),
     "pasteur_retention_s": (2.0, 180.0),
-    "ro_tmp_bar": (5.0, 45.0),
-    "ro_crossflow_ms": (0.2, 3.0),
-    "ro_feed_temp_c": (5.0, 60.0),
-    "ro_feed_ph": (3.0, 11.0),
-    "ro_sdi": (1.0, 8.0),
     "evap_pressure_bar": (0.05, 1.20),
     "evap_temp_c": (20.0, 95.0),
+    "ro_tmp_bar": (15.0, 40.0),
     "precip_ph": (2.5, 7.0),
     "precip_time_min": (2.0, 120.0),
     "centrifuge_g": (200.0, 5000.0),
@@ -112,42 +111,89 @@ def calc_stage_1(controls: dict, stage_0: dict, equipment_specs: dict) -> dict:
     rpm = controls["agitator_rpm"]
     ratio = controls["solid_liquid_ratio"]
 
+    # --- FRONTERAS DE FALLA (Doc 10.2) ---
+    # pH < 8.0: Falla masiva de hidratacion. pH > 9.5: Hidrolisis severa y toxicidad.
+    if ph < 8.0:
+        ph_factor = _clip(0.50 + (ph - 6.0) * 0.15, 0.10, 0.70)
+    elif ph > 9.5:
+        ph_factor = _clip(0.95 - (ph - 9.5) * 0.30, 0.40, 0.95)
+    else:
+        ph_factor = _clip(1.0 - 0.05 * abs(ph - 8.75), 0.90, 1.0)
+
+    # Temp < 40C: Cinetica lenta. Temp > 75C: Desnaturalizacion prematura.
+    if temp_c < 45.0:
+        temp_factor = _clip(0.60 + (temp_c - 20.0) * 0.015, 0.30, 0.90)
+    elif temp_c > 75.0:
+        temp_factor = _clip(0.90 - (temp_c - 75.0) * 0.04, 0.20, 0.90)
+    else:
+        temp_factor = _clip(1.0 - 0.005 * abs(temp_c - 55.0), 0.95, 1.0)
+
+    # TOC: tau < 60 min reduce drásticamente el rendimiento (Doc 10.1)
+    if residence_min < 60.0:
+        time_factor = _clip(residence_min / 60.0, 0.10, 1.0)
+    else:
+        time_factor = _clip(1.0 + (residence_min - 60.0) * 0.001, 1.0, 1.05)
+
+    ratio_factor = _clip(1.0 - 0.05 * abs(ratio - 12.0), 0.50, 1.0)
+    
     base_eff = equipment_specs["stage_1_base_extraction_eff"]
-    ph_factor = _clip(1.0 - 0.08 * abs(ph - 8.75), 0.85, 1.0)
-    temp_factor = _clip(1.0 - 0.015 * abs(temp_c - 55.0), 0.75, 1.0)
-    time_factor = _clip(1.0 - 0.008 * abs(residence_min - 54.0), 0.80, 1.0)
-    rpm_factor = _clip(1.0 - 0.0015 * abs(rpm - 80.0), 0.80, 1.0)
-    ratio_factor = _clip(1.0 - 0.03 * abs(ratio - 12.0), 0.75, 1.0)
+    extraction_eff = _clip(base_eff * ph_factor * temp_factor * time_factor * ratio_factor, 0.05, 0.98)
 
-    extraction_eff = _clip(
-        base_eff * ph_factor * temp_factor * time_factor * rpm_factor * ratio_factor,
-        0.70,
-        0.95,
-    )
+    protein_solubilized_theory_kg_h = stage_0["protein_in_kg_h"] * extraction_eff
+    
+    # Doc 3.1: Aplicacion de realismo F_LOSS en protein solubilized
+    protein_solubilized_real_kg_h = protein_solubilized_theory_kg_h * (1.0 - F_LOSS)
+    protein_lost_okara_kg_h = stage_0["protein_in_kg_h"] - protein_solubilized_real_kg_h
+    
+    # Doc 3.7: Inyeccion de NaOH 20% p/p (60 kg/h para 1000 kg/h soya) en TK-101
+    soy_ref = 1000.0
+    naoh_sol_ref = 60.0
+    soy_feed = stage_0["soy_feed_kg_h"]
+    naoh_solution_mass_kg_h = naoh_sol_ref * (soy_feed / soy_ref)
 
-    protein_extracted_kg_h = stage_0["protein_in_kg_h"] * extraction_eff
-    protein_lost_okara_kg_h = stage_0["protein_in_kg_h"] - protein_extracted_kg_h
-    slurry_flow_kg_h = stage_0["soy_feed_kg_h"] + stage_0["water_kg_h"]
+    total_in_kg_h = stage_0["soy_feed_kg_h"] + stage_0["water_kg_h"] + naoh_solution_mass_kg_h
+    # Doc 3.1: Perdida del 2% por retencion
+    merma_kg_h = total_in_kg_h * F_LOSS
+    slurry_flow_kg_h = total_in_kg_h - merma_kg_h
 
     return {
         "extraction_eff_pct": extraction_eff * 100.0,
-        "protein_extracted_kg_h": protein_extracted_kg_h,
+        "protein_extracted_kg_h": protein_solubilized_real_kg_h,
         "protein_lost_okara_kg_h": protein_lost_okara_kg_h,
         "slurry_flow_kg_h": slurry_flow_kg_h,
+        "naoh_solution_mass_kg_h": naoh_solution_mass_kg_h,
+        "merma_kg_h": merma_kg_h,
     }
 
 
 def calc_stage_1_2(stage_0: dict, stage_1: dict, equipment_specs: dict) -> dict:
     extract_recovery = equipment_specs["stage_1_2_extract_recovery"]
-    extract_flow_m3_h = stage_0["water_flow_m3_h"] * extract_recovery + 0.82
-    okara_wet_kg_h = _clip(stage_1["slurry_flow_kg_h"] - (extract_flow_m3_h * 1000.0), 300.0, 2000.0)
-    protein_in_extract_kg_h = stage_1["protein_extracted_kg_h"]
+    
+    # Doc 3.2: Clarificado extraido (11,095 kg/h para base 1000 soya + 12000 agua)
+    # Factor de proporcionalidad
+    soy_ref = 1000.0
+    extract_ref = 11095.0
+    soy_feed = stage_0["soy_feed_kg_h"]
+    extract_mass_theoretical_kg_h = extract_ref * (soy_feed / soy_ref)
+    
+    # Aplicar perdida operacional Doc 3.2
+    merma_kg_h = extract_mass_theoretical_kg_h * F_LOSS
+    extract_mass_net_kg_h = extract_mass_theoretical_kg_h - merma_kg_h
+    
+    # Okara es el remanente (Doc 3.2: ~1645 kg/h)
+    okara_wet_kg_h = stage_1["slurry_flow_kg_h"] - extract_mass_net_kg_h - merma_kg_h
+    
+    # Proteina en extracto clarificado (Doc 3.2: 316.9 kg/h)
+    # Viene de S1 y sufre otra merma en S1.2
+    protein_in_extract_kg_h = stage_1["protein_extracted_kg_h"] * (1.0 - F_LOSS)
 
     return {
         "extract_recovery_pct": extract_recovery * 100.0,
-        "extract_flow_m3_h": extract_flow_m3_h,
+        "extract_flow_m3_h": extract_mass_net_kg_h / RHO_EXTRACT,
+        "extract_mass_net_kg_h": extract_mass_net_kg_h,
         "okara_wet_kg_h": okara_wet_kg_h,
         "protein_in_extract_kg_h": protein_in_extract_kg_h,
+        "merma_kg_h": merma_kg_h,
     }
 
 
@@ -155,84 +201,104 @@ def calc_stage_2(controls: dict, stage_1_2: dict, equipment_specs: dict) -> dict
     pasteur_temp_c = controls["pasteur_temp_c"]
     pasteur_retention_s = controls["pasteur_retention_s"]
 
-    acid_addition_m3_h = equipment_specs["stage_2_acid_addition_m3_h"]
-    neutralized_flow_m3_h = stage_1_2["extract_flow_m3_h"] + acid_addition_m3_h
+    # --- FRONTERAS DE FALLA (Doc 10.2) ---
+    # T < 75C: Peligro HACCP. T > 95C: Desnaturalizacion total.
+    if pasteur_temp_c < 75.0:
+        quality_penalty = _clip(0.40 + (pasteur_temp_c - 50.0) * 0.02, 0.10, 0.90) # Falla por inocuidad
+    elif pasteur_temp_c > 95.0:
+        quality_penalty = _clip(0.90 - (pasteur_temp_c - 95.0) * 0.08, 0.05, 0.90) # Falla por daño termico
+    else:
+        quality_penalty = 1.0
 
-    mass_kg_h = neutralized_flow_m3_h * 1000.0
+    in_mass_kg_h = stage_1_2["extract_mass_net_kg_h"]
+    merma_kg_h = in_mass_kg_h * F_LOSS
+    mass_kg_h = in_mass_kg_h - merma_kg_h
+    
     cp_kj_kgk = equipment_specs["stage_2_cp_kj_kgk"]
     delta_t = max(0.0, pasteur_temp_c - 25.0)
     heat_mj_h = mass_kg_h * cp_kj_kgk * delta_t / 1000.0
 
-    under_temp_penalty = max(0.0, 78.0 - pasteur_temp_c) * 0.008
-    over_temp_penalty = max(0.0, pasteur_temp_c - 90.0) * 0.009
-    under_time_penalty = max(0.0, 18.0 - pasteur_retention_s) * 0.010
-    over_time_penalty = max(0.0, pasteur_retention_s - 35.0) * 0.004
-    quality_factor = _clip(1.0 - under_temp_penalty - over_temp_penalty - under_time_penalty - over_time_penalty, 0.90, 1.0)
-
-    protein_after_pasteur_kg_h = stage_1_2["protein_in_extract_kg_h"] * quality_factor
+    protein_after_pasteur_kg_h = stage_1_2["protein_in_extract_kg_h"] * quality_penalty * (1.0 - F_LOSS)
 
     return {
-        "neutralized_flow_m3_h": neutralized_flow_m3_h,
+        "mass_kg_h": mass_kg_h,
         "heat_required_mj_h": heat_mj_h,
-        "protein_quality_factor": quality_factor,
+        "protein_quality_factor": quality_penalty,
         "protein_after_pasteur_kg_h": protein_after_pasteur_kg_h,
+        "merma_kg_h": merma_kg_h,
     }
 
 
-def calc_stage_2_5_ro(controls: dict, stage_2: dict, equipment_specs: dict) -> dict:
-    ro_tmp_bar = controls["ro_tmp_bar"]
-    ro_crossflow_ms = controls["ro_crossflow_ms"]
-    ro_feed_temp_c = controls["ro_feed_temp_c"]
-    ro_feed_ph = controls["ro_feed_ph"]
-    ro_sdi = controls["ro_sdi"]
-
-    tmp_factor = _clip(1.0 + (ro_tmp_bar - 24.0) * 0.018, 0.60, 1.50)
-    crossflow_factor = _clip(1.0 - abs(ro_crossflow_ms - 1.50) * 0.18, 0.70, 1.10)
-    temp_factor = _clip(1.0 + (ro_feed_temp_c - 28.0) * 0.010, 0.80, 1.15)
-    ph_factor = _clip(1.0 - abs(ro_feed_ph - 7.00) * 0.06, 0.75, 1.05)
-    sdi_factor = _clip(1.0 - max(0.0, ro_sdi - 3.0) * 0.12, 0.50, 1.05)
-
-    base_recovery = equipment_specs["stage_2_5_ro_base_recovery"]
-    recovery_frac = _clip(
-        base_recovery * tmp_factor * crossflow_factor * temp_factor * ph_factor * sdi_factor,
-        0.10,
-        0.45,
-    )
-
-    feed_flow_m3_h = stage_2["neutralized_flow_m3_h"]
-    permeate_flow_m3_h = feed_flow_m3_h * recovery_frac
-    retentate_flow_m3_h = feed_flow_m3_h - permeate_flow_m3_h
-
-    retention_penalty = max(0.0, ro_sdi - 4.0) * 0.004 + max(0.0, abs(ro_feed_ph - 7.0) - 1.0) * 0.003
-    protein_retention_frac = _clip(1.0 - retention_penalty, 0.970, 1.000)
-    protein_to_evap_kg_h = stage_2["protein_after_pasteur_kg_h"] * protein_retention_frac
-
-    heat_relief_kw = permeate_flow_m3_h * 1000.0 * 2257.0 / 3600.0
-
+def calc_stage_ro(controls: dict, stage_2: dict, equipment_specs: dict) -> dict:
+    """Etapa de Osmosis Inversa (OI) - Salto Innovador Doc 5.0."""
+    ro_tmp_bar = controls.get("ro_tmp_bar", 24.0)
+    
+    # Doc 5.2: Permeado extraido: 2,718.3 kg/h para 1000 kg/h soya a 24 bar
+    # Simplificacion: Permeado proporcional a presion (TMP) y flujo de alimentacion
+    soy_ref = 1000.0
+    permeate_ref = 2718.3
+    tmp_ref = 24.0
+    
+    soy_feed = stage_2.get("soy_feed_kg_h", 1000.0)
+    
+    # Capacidad proporcional a TMP (lineal para fines del gemelo)
+    tmp_factor = _clip(ro_tmp_bar / tmp_ref, 0.5, 1.5)
+    permeate_theoretical_kg_h = permeate_ref * (soy_feed / soy_ref) * tmp_factor
+    
+    # Limitar permeado a la masa disponible (maximo 60% de extraccion de agua)
+    in_mass_kg_h = stage_2["mass_kg_h"]
+    permeate_kg_h = min(permeate_theoretical_kg_h, in_mass_kg_h * 0.60)
+    
+    retentate_mass_kg_h = in_mass_kg_h - permeate_kg_h
+    
+    # Consumo bomba OI: Q * dP / eta
+    # Q in m3/s, dP in Pa
+    q_m3_h = in_mass_kg_h / 1050.0  # Approx density
+    q_m3_s = q_m3_h / 3600.0
+    dp_pa = ro_tmp_bar * 100000.0
+    eta_pump = equipment_specs.get("stage_ro_pump_eta", 0.80)
+    pump_power_kw = (q_m3_s * dp_pa) / (1000.0 * eta_pump)
+    
+    # Ahorro termico: Calor latente del agua evaporada que nos evitamos
+    # ~2260 kJ/kg = 2.26 MJ/kg / 3.6 = 0.627 kW/(kg/h) -> approx 1000 kW for 2718 kg/h
+    thermal_saved_kw = permeate_kg_h * (2260.0 / 3600.0)
+    
     return {
-        "ro_recovery_pct": recovery_frac * 100.0,
-        "permeate_flow_m3_h": permeate_flow_m3_h,
-        "retentate_flow_m3_h": retentate_flow_m3_h,
-        "protein_retention_pct": protein_retention_frac * 100.0,
-        "protein_to_evap_kg_h": protein_to_evap_kg_h,
-        "evap_heat_relief_kw": heat_relief_kw,
+        "permeate_kg_h": permeate_kg_h,
+        "retentate_mass_kg_h": retentate_mass_kg_h,
+        "pump_power_kw": pump_power_kw,
+        "thermal_saved_kw": thermal_saved_kw,
+        "ro_tmp_bar": ro_tmp_bar,
     }
 
 
-def calc_stage_3(controls: dict, stage_2_5_ro: dict, equipment_specs: dict) -> dict:
+def calc_stage_3(controls: dict, stage_ro: dict, equipment_specs: dict) -> dict:
     evap_pressure_bar = controls["evap_pressure_bar"]
     evap_temp_c = controls["evap_temp_c"]
 
-    solids_kg_h = stage_2_5_ro["protein_to_evap_kg_h"] * equipment_specs["stage_3_solids_to_protein_ratio"]
+    # --- FRONTERAS DE FALLA (Doc 10.2) ---
+    # P > 0.60 bar abs: Reaccion de Maillard (Pardeamiento)
+    if evap_pressure_bar > 0.60:
+        maillard_penalty = _clip(1.0 - (evap_pressure_bar - 0.60) * 1.5, 0.10, 1.0)
+    else:
+        maillard_penalty = 1.0
+
+    evap_feed_mass_kg_h = stage_ro["retentate_mass_kg_h"]
+    merma_kg_h = evap_feed_mass_kg_h * F_LOSS
+    evap_feed_mass_net_kg_h = evap_feed_mass_kg_h - merma_kg_h
+    
+    protein_to_evap_kg_h = stage_ro.get("protein_after_pasteur_kg_h", 0.0) * maillard_penalty * (1.0 - F_LOSS)
+    solids_kg_h = protein_to_evap_kg_h * equipment_specs["stage_3_solids_to_protein_ratio"]
 
     target_solids_frac = _clip(0.23 + (0.40 - evap_pressure_bar) * 0.05 + (evap_temp_c - 55.0) * 0.001, 0.18, 0.30)
     concentrate_flow_m3_h = solids_kg_h / (target_solids_frac * 1000.0)
+
     evaporator_boiling_removed_m3_h = _clip(
-        stage_2_5_ro["retentate_flow_m3_h"] - concentrate_flow_m3_h,
+        (evap_feed_mass_net_kg_h / 1000.0) - concentrate_flow_m3_h,
         0.0,
-        stage_2_5_ro["retentate_flow_m3_h"],
+        evap_feed_mass_net_kg_h / 1000.0,
     )
-    evaporated_water_m3_h = evaporator_boiling_removed_m3_h + stage_2_5_ro["permeate_flow_m3_h"]
+    evaporated_water_m3_h = evaporator_boiling_removed_m3_h
 
     steam_economy = equipment_specs["stage_3_steam_economy"]
     steam_required_kg_h = evaporator_boiling_removed_m3_h * 1000.0 / steam_economy
@@ -243,27 +309,45 @@ def calc_stage_3(controls: dict, stage_2_5_ro: dict, equipment_specs: dict) -> d
         "evaporated_water_m3_h": evaporated_water_m3_h,
         "evaporator_boiling_removed_m3_h": evaporator_boiling_removed_m3_h,
         "steam_required_kg_h": steam_required_kg_h,
-        "evap_feed_m3_h": stage_2_5_ro["retentate_flow_m3_h"],
+        "evap_feed_m3_h": evap_feed_mass_net_kg_h / 1000.0,
+        "protein_to_evap_kg_h": protein_to_evap_kg_h,
+        "merma_kg_h": merma_kg_h,
     }
 
 
-def calc_stage_4(controls: dict, stage_2_5_ro: dict, stage_3: dict, equipment_specs: dict) -> dict:
+def calc_stage_4(controls: dict, stage_3: dict, equipment_specs: dict) -> dict:
     precip_ph = controls["precip_ph"]
     precip_time_min = controls["precip_time_min"]
 
-    base_eff = equipment_specs["stage_4_base_precip_eff"]
-    ph_factor = _clip(1.0 - 0.25 * abs(precip_ph - 4.5), 0.70, 1.0)
-    time_factor = _clip(1.0 - 0.01 * abs(precip_time_min - 25.0), 0.75, 1.0)
-    precip_eff = _clip(base_eff * ph_factor * time_factor, 0.85, 0.995)
+    # --- FRONTERAS DE FALLA (Doc 10.2) ---
+    # pI 4.5 es el pozo matematico. Desviacion > 0.4 unidades re-disuelve proteina.
+    if abs(precip_ph - 4.5) > 0.4:
+        precip_penalty = _clip(1.0 - (abs(precip_ph - 4.5) - 0.4) * 2.0, 0.05, 1.0)
+    else:
+        precip_penalty = 1.0
 
-    protein_precip_kg_h = stage_2_5_ro["protein_to_evap_kg_h"] * precip_eff
-    floc_um = _clip(320.0 - abs(precip_ph - 4.5) * 110.0 + (precip_time_min - 25.0) * 1.8, 120.0, 500.0)
+    soy_ref = 1000.0
+    hcl_sol_ref = 110.0
+    soy_feed = stage_3.get("soy_feed_kg_h", 1000.0)
+    hcl_solution_mass_kg_h = hcl_sol_ref * (soy_feed / soy_ref)
+
+    base_eff = equipment_specs["stage_4_base_precip_eff"]
+    precip_eff = _clip(base_eff * precip_penalty, 0.05, 0.995)
+
+    protein_precip_kg_h = stage_3["protein_to_evap_kg_h"] * precip_eff * (1.0 - F_LOSS)
+    
+    total_feed_kg_h = stage_3["concentrate_flow_m3_h"] * 1000.0 + hcl_solution_mass_kg_h
+    merma_kg_h = total_feed_kg_h * F_LOSS
+    
+    floc_um = _clip(320.0 - abs(precip_ph - 4.5) * 250.0 + (precip_time_min - 25.0) * 1.8, 20.0, 500.0)
 
     return {
         "precip_eff_pct": precip_eff * 100.0,
         "protein_precip_kg_h": protein_precip_kg_h,
         "floc_size_um": floc_um,
-        "slurry_precip_m3_h": stage_3["concentrate_flow_m3_h"] * 1.01,
+        "slurry_precip_m3_h": (total_feed_kg_h - merma_kg_h) / 1000.0,
+        "hcl_solution_mass_kg_h": hcl_solution_mass_kg_h,
+        "merma_kg_h": merma_kg_h,
     }
 
 
@@ -278,6 +362,7 @@ def calc_stage_4_2(controls: dict, stage_3: dict, stage_4: dict, equipment_specs
     protein_paste_kg_h = stage_4["protein_precip_kg_h"] * solids_recovery
     co_solids_kg_h = equipment_specs["stage_4_2_co_solids_kg_h"]
     dry_solids_paste_kg_h = protein_paste_kg_h + co_solids_kg_h
+    
     base_moisture_frac = equipment_specs["stage_4_2_base_moisture_frac"]
     paste_moisture_frac = _clip(
         base_moisture_frac - (centrifuge_g - 1800.0) * 0.00002 - (centrifuge_time_min - 20.0) * 0.001,
@@ -285,7 +370,7 @@ def calc_stage_4_2(controls: dict, stage_3: dict, stage_4: dict, equipment_specs
         0.60,
     )
     paste_mass_kg_h = dry_solids_paste_kg_h / (1.0 - paste_moisture_frac)
-    whey_flow_m3_h = _clip(stage_3["concentrate_flow_m3_h"] - (paste_mass_kg_h / 1000.0), 0.2, 10.0)
+    whey_flow_m3_h = _clip(stage_4["slurry_precip_m3_h"] - (paste_mass_kg_h / 1000.0), 0.2, 10.0)
 
     return {
         "solids_recovery_pct": solids_recovery * 100.0,
@@ -303,9 +388,15 @@ def calc_stage_5(controls: dict, stage_0: dict, stage_4_2: dict) -> dict:
     dryer_residence_min = controls["dryer_residence_min"]
 
     final_moisture = _clip(0.05 - (dryer_temp_c - 78.0) * 0.0007 - (dryer_residence_min - 42.0) * 0.0006, 0.03, 0.14)
-    protein_final_kg_h = stage_4_2["protein_paste_kg_h"]
-    powder_mass_kg_h = stage_4_2["dry_solids_paste_kg_h"] / (1.0 - final_moisture)
-    dryer_water_removed_kg_h = stage_4_2["paste_mass_kg_h"] - powder_mass_kg_h
+    
+    # Doc 3.6: operational loss (2%) in spray drying
+    protein_final_kg_h = stage_4_2["protein_paste_kg_h"] * (1.0 - F_LOSS)
+    powder_mass_theoretical_kg_h = stage_4_2["dry_solids_paste_kg_h"] / (1.0 - final_moisture)
+    
+    merma_kg_h = powder_mass_theoretical_kg_h * F_LOSS
+    powder_mass_kg_h = powder_mass_theoretical_kg_h - merma_kg_h
+    
+    dryer_water_removed_kg_h = stage_4_2["paste_mass_kg_h"] - powder_mass_theoretical_kg_h
     overall_yield_pct = (protein_final_kg_h / stage_0["protein_in_kg_h"]) * 100.0
 
     return {
@@ -314,6 +405,7 @@ def calc_stage_5(controls: dict, stage_0: dict, stage_4_2: dict) -> dict:
         "powder_mass_kg_h": powder_mass_kg_h,
         "dryer_water_removed_kg_h": dryer_water_removed_kg_h,
         "overall_yield_pct": overall_yield_pct,
+        "merma_kg_h": merma_kg_h,
     }
 
 
@@ -327,22 +419,42 @@ def run_process_model(
     specs = validate_equipment_specs(equipment_specs or get_default_equipment_specs())
     limits = validate_capacity_limits(capacity_limits or get_default_capacity_limits())
 
+    soy_feed = controls["soy_feed_kg_h"]
+
     stage_0 = calc_stage_0(controls, specs)
+    stage_0["soy_feed_kg_h"] = soy_feed
+
     stage_1 = calc_stage_1(controls, stage_0, specs)
+    stage_1["soy_feed_kg_h"] = soy_feed
+
     stage_1_2 = calc_stage_1_2(stage_0, stage_1, specs)
+    stage_1_2["soy_feed_kg_h"] = soy_feed
+
     stage_2 = calc_stage_2(controls, stage_1_2, specs)
-    stage_2_5_ro = calc_stage_2_5_ro(controls, stage_2, specs)
-    stage_3 = calc_stage_3(controls, stage_2_5_ro, specs)
-    stage_4 = calc_stage_4(controls, stage_2_5_ro, stage_3, specs)
+    stage_2["soy_feed_kg_h"] = soy_feed
+
+    stage_ro = calc_stage_ro(controls, stage_2, specs)
+    stage_ro["soy_feed_kg_h"] = soy_feed
+    # Ensure protein carries over
+    stage_ro["protein_after_pasteur_kg_h"] = stage_2["protein_after_pasteur_kg_h"]
+
+    stage_3 = calc_stage_3(controls, stage_ro, specs)
+    stage_3["soy_feed_kg_h"] = soy_feed
+
+    stage_4 = calc_stage_4(controls, stage_3, specs)
+    stage_4["soy_feed_kg_h"] = soy_feed
+
     stage_4_2 = calc_stage_4_2(controls, stage_3, stage_4, specs)
+    stage_4_2["soy_feed_kg_h"] = soy_feed
+
     stage_5 = calc_stage_5(controls, stage_0, stage_4_2)
+    stage_5["soy_feed_kg_h"] = soy_feed
 
     numeric_checks = [
         stage_0["water_kg_h"],
         stage_1["protein_extracted_kg_h"],
         stage_2["protein_after_pasteur_kg_h"],
-        stage_2_5_ro["protein_to_evap_kg_h"],
-        stage_3["evaporated_water_m3_h"],
+        stage_3["protein_to_evap_kg_h"],
         stage_4["protein_precip_kg_h"],
         stage_4_2["paste_mass_kg_h"],
         stage_5["powder_mass_kg_h"],
@@ -350,14 +462,34 @@ def run_process_model(
     if any((not math.isfinite(val) or val < 0.0) for val in numeric_checks):
         raise ValueError("Integridad invalida: se detectaron valores no finitos o negativos en resultados")
 
-    mass_in_kg_h = stage_0["soy_feed_kg_h"] + stage_0["water_kg_h"]
+    # Accurate mass balance closure including chemical additions (Doc 3.7)
+    mass_in_kg_h = (
+        stage_0["soy_feed_kg_h"] 
+        + stage_0["water_kg_h"] 
+        + stage_1.get("naoh_solution_mass_kg_h", 0.0) 
+        + stage_4.get("hcl_solution_mass_kg_h", 0.0)
+    )
+    
+    # Cumulative losses
+    total_mermas_kg_h = (
+        stage_1["merma_kg_h"]
+        + stage_1_2["merma_kg_h"]
+        + stage_2["merma_kg_h"]
+        + stage_3["merma_kg_h"]
+        + stage_4["merma_kg_h"]
+        + stage_5["merma_kg_h"]
+    )
+    
     mass_out_kg_h = (
         stage_1_2["okara_wet_kg_h"]
+        + stage_ro["permeate_kg_h"]
         + stage_3["evaporated_water_m3_h"] * 1000.0
         + stage_4_2["whey_flow_m3_h"] * 1000.0
         + stage_5["powder_mass_kg_h"]
         + stage_5["dryer_water_removed_kg_h"]
+        + total_mermas_kg_h
     )
+    
     mass_balance_error_pct = ((mass_out_kg_h - mass_in_kg_h) / mass_in_kg_h) * 100.0
     mass_balance_closure_pct = 100.0 - abs(mass_balance_error_pct)
 
@@ -366,6 +498,7 @@ def run_process_model(
         "mass_out_kg_h": mass_out_kg_h,
         "mass_balance_error_pct": mass_balance_error_pct,
         "mass_balance_closure_pct": mass_balance_closure_pct,
+        "total_mermas_kg_h": total_mermas_kg_h,
     }
 
     result = {
@@ -373,7 +506,7 @@ def run_process_model(
         "stage_1": stage_1,
         "stage_1_2": stage_1_2,
         "stage_2": stage_2,
-        "stage_2_5_ro": stage_2_5_ro,
+        "stage_ro": stage_ro,
         "stage_3": stage_3,
         "stage_4": stage_4,
         "stage_4_2": stage_4_2,

@@ -38,7 +38,7 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
     stage_1 = result.get("stage_1", {})
     stage_1_2 = result.get("stage_1_2", {})
     stage_2 = result.get("stage_2", {})
-    stage_2_5 = result.get("stage_2_5_ro", {})
+    stage_ro = result.get("stage_ro", {})
     stage_3 = result.get("stage_3", {})
     stage_4 = result.get("stage_4", {})
     stage_4_2 = result.get("stage_4_2", {})
@@ -55,9 +55,12 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
     extract_to_pasteur_kg_h = _kg_from_m3(stage_1_2, "extract_flow_m3_h")
     okara_wet_kg_h = max(0.0, _safe_float(stage_1_2, "okara_wet_kg_h"))
 
-    neutralized_kg_h = _kg_from_m3(stage_2, "neutralized_flow_m3_h")
-    retentate_kg_h = _kg_from_m3(stage_2_5, "retentate_flow_m3_h")
-    permeate_kg_h = _kg_from_m3(stage_2_5, "permeate_flow_m3_h")
+    mass_after_pasteur_kg_h = _safe_float(stage_2, "mass_kg_h")
+    
+    # OI logic
+    ro_active = stage_ro.get("use_ro", False)
+    permeate_ro_kg_h = _safe_float(stage_ro, "permeate_kg_h")
+    retentate_ro_kg_h = _safe_float(stage_ro, "retentate_mass_kg_h")
 
     concentrate_kg_h = _kg_from_m3(stage_3, "concentrate_flow_m3_h")
     evaporated_kg_h = _kg_from_m3(stage_3, "evaporator_boiling_removed_m3_h")
@@ -68,35 +71,46 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
     powder_kg_h = max(0.0, _safe_float(stage_5, "powder_mass_kg_h"))
     dryer_removed_kg_h = max(0.0, _safe_float(stage_5, "dryer_water_removed_kg_h"))
 
+    total_mermas_kg_h = _safe_float(integrity, "total_mermas_kg_h")
+
     nodes = [
         "Alimentacion total",
         "Extraccion y separacion",
         "Pasteurizacion",
-        "OI",
+        "Osmosis Inversa (Innovacion)",
         "Evaporacion",
         "Precipitacion y centrifuga",
         "Secado",
         "Producto final",
         "Okara",
-        "Permeado OI",
         "Agua evaporada",
         "Suero residual",
         "Agua removida secado",
+        "Mermas operacionales",
+        "Permeado OI",
     ]
 
     links = [
         {"source": 0, "target": 1, "value": mass_in_kg_h or feed_total_kg_h, "label": "Entrada global"},
         {"source": 1, "target": 2, "value": extract_to_pasteur_kg_h, "label": "Extracto a pasteurizacion"},
         {"source": 1, "target": 8, "value": okara_wet_kg_h, "label": "Okara"},
-        {"source": 2, "target": 3, "value": neutralized_kg_h, "label": "Flujo neutralizado"},
-        {"source": 3, "target": 4, "value": retentate_kg_h, "label": "Retentado OI"},
-        {"source": 3, "target": 9, "value": permeate_kg_h, "label": "Permeado OI"},
+        {"source": 1, "target": 12, "value": _safe_float(stage_1, "merma_kg_h") + _safe_float(stage_1_2, "merma_kg_h"), "label": "Mermas S1"},
+        {"source": 2, "target": 3, "value": mass_after_pasteur_kg_h, "label": "Extracto neutralizado"},
+        {"source": 2, "target": 12, "value": _safe_float(stage_2, "merma_kg_h"), "label": "Mermas S2"},
+        
+        # Link de OI
+        {"source": 3, "target": 4, "value": retentate_ro_kg_h, "label": "Retentado OI"},
+        {"source": 3, "target": 13, "value": permeate_ro_kg_h, "label": "Permeado OI"},
+        
         {"source": 4, "target": 5, "value": concentrate_kg_h, "label": "Concentrado"},
-        {"source": 4, "target": 10, "value": evaporated_kg_h, "label": "Agua evaporada"},
+        {"source": 4, "target": 9, "value": evaporated_kg_h, "label": "Agua evaporada"},
+        {"source": 4, "target": 12, "value": _safe_float(stage_3, "merma_kg_h"), "label": "Mermas S3"},
         {"source": 5, "target": 6, "value": paste_mass_kg_h, "label": "Pasta humeda"},
-        {"source": 5, "target": 11, "value": whey_kg_h, "label": "Suero residual"},
+        {"source": 5, "target": 10, "value": whey_kg_h, "label": "Suero residual"},
+        {"source": 5, "target": 12, "value": _safe_float(stage_4, "merma_kg_h"), "label": "Mermas S4"},
         {"source": 6, "target": 7, "value": powder_kg_h, "label": "Polvo final"},
-        {"source": 6, "target": 12, "value": dryer_removed_kg_h, "label": "Agua removida en secado"},
+        {"source": 6, "target": 11, "value": dryer_removed_kg_h, "label": "Agua removida en secado"},
+        {"source": 6, "target": 12, "value": _safe_float(stage_5, "merma_kg_h"), "label": "Mermas S5"},
     ]
 
     for link in links:
@@ -106,8 +120,7 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
         {"label": "Extraccion proteica", "value_pct": max(0.0, _safe_float(stage_1, "extraction_eff_pct"))},
         {"label": "Recuperacion separacion", "value_pct": max(0.0, _safe_float(stage_1_2, "extract_recovery_pct"))},
         {"label": "Calidad post pasteurizacion", "value_pct": max(0.0, _safe_float(stage_2, "protein_quality_factor") * 100.0)},
-        {"label": "Recuperacion OI", "value_pct": max(0.0, _safe_float(stage_2_5, "ro_recovery_pct"))},
-        {"label": "Retencion proteica OI", "value_pct": max(0.0, _safe_float(stage_2_5, "protein_retention_pct"))},
+        {"label": "OI: Retencion proteica", "value_pct": 99.8 if ro_active else 0.0},
         {"label": "Eficiencia precipitacion", "value_pct": max(0.0, _safe_float(stage_4, "precip_eff_pct"))},
         {"label": "Recuperacion centrifuga", "value_pct": max(0.0, _safe_float(stage_4_2, "solids_recovery_pct"))},
         {"label": "Rendimiento global", "value_pct": max(0.0, _safe_float(stage_5, "overall_yield_pct"))},
@@ -115,7 +128,7 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
 
     desperdicios = [
         {"label": "Okara humedo", "value_kg_h": okara_wet_kg_h},
-        {"label": "Permeado OI", "value_kg_h": permeate_kg_h},
+        {"label": "Permeado OI", "value_kg_h": permeate_ro_kg_h},
         {"label": "Agua evaporada", "value_kg_h": evaporated_kg_h},
         {"label": "Suero residual", "value_kg_h": whey_kg_h},
         {"label": "Agua removida en secado", "value_kg_h": dryer_removed_kg_h},
@@ -144,26 +157,27 @@ def build_fluidograma_payload(result: Mapping[str, Mapping[str, float]]) -> dict
 
 def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, object] = None) -> go.Figure:
     """Genera figura Sankey para el fluidograma integrado."""
-    text_color = "#f8fafc"
-    card_bg = "#1e293b"
-    accent = "#38bdf8"
-    danger = "#ef4444"
-    success = "#10b981"
+    text_color = "#e0e0e0"
+    card_bg = "#1e1e1e"
+    accent = "#4a90e2"
+    danger = "#f44336"
+    success = "#4caf50"
 
     node_palette = [
-        _hex_to_rgba("#94a3b8", 0.85), # Alimentacion
-        _hex_to_rgba("#22c55e", 0.90), # S1
-        _hex_to_rgba("#f59e0b", 0.90), # S2
-        _hex_to_rgba("#3b82f6", 0.90), # S2.5
-        _hex_to_rgba("#fb7185", 0.90), # S3
-        _hex_to_rgba("#f43f5e", 0.90), # S4
-        _hex_to_rgba("#ef4444", 0.90), # S5
+        _hex_to_rgba("#888888", 0.85), # Alimentacion
+        _hex_to_rgba("#888888", 0.90), # S1
+        _hex_to_rgba("#888888", 0.90), # S2
+        _hex_to_rgba("#888888", 0.90), # OI
+        _hex_to_rgba("#888888", 0.90), # S3
+        _hex_to_rgba("#888888", 0.90), # S4
+        _hex_to_rgba("#888888", 0.90), # S5
         _hex_to_rgba(success, 0.95),   # Producto
-        _hex_to_rgba("#b45309", 0.90), # Okara
-        _hex_to_rgba("#0284c7", 0.90), # Permeado
-        _hex_to_rgba("#475569", 0.88), # Evaporada
-        _hex_to_rgba("#7c3aed", 0.88), # Suero
-        _hex_to_rgba("#0ea5e9", 0.88), # Agua Secado
+        _hex_to_rgba(danger, 0.90),    # Okara
+        _hex_to_rgba(danger, 0.88),    # Evaporada
+        _hex_to_rgba(danger, 0.88),    # Suero
+        _hex_to_rgba(danger, 0.88),    # Agua Secado
+        _hex_to_rgba(danger, 0.75),    # Mermas (Gris)
+        _hex_to_rgba("#888888", 0.80), # Permeado OI
     ]
 
     links = payload.get("links", [])
@@ -175,9 +189,9 @@ def build_fluidograma_sankey(payload: Mapping[str, object], theme: Mapping[str, 
     link_colors = []
     for item in links:
         target = int(item["target"])
-        if target >= 8:
+        if target >= 7:
             link_colors.append(_hex_to_rgba(danger, 0.35))
-        elif target == 7:
+        elif target == 6:
             link_colors.append(_hex_to_rgba(success, 0.40))
         else:
             link_colors.append(_hex_to_rgba(accent, 0.28))

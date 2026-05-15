@@ -3,12 +3,71 @@
 from __future__ import annotations
 
 DOC_EXCHANGE_RATE_BS_PER_USD = 6.96
-DOC_ANNUAL_OPERATING_HOURS = 8000.0
-DOC_OPEX_TOTAL_ANNUAL_USD = 4_959_920.0
-# Valor fijado segun el resumen documental (tabla 7.4).
+DOC_ANNUAL_OPERATING_HOURS = 7500.0
+# OPEX antiguo
 DOC_OPEX_TOTAL_ANNUAL_BS = 34_521_043.0
-DEFAULT_SALES_PRICE_BS_PER_KG = 18.10
+DEFAULT_SALES_PRICE_BS_PER_KG = 24.36 # ~3.5 USD/kg
 
+class FinancialModeler:
+    def __init__(self, powder_mass_kg_h: float = 301.6, sales_price_usd_kg: float = 3.50, annual_hours: float = 7500.0):
+        self.powder_mass_kg_h = max(0.0, float(powder_mass_kg_h))
+        self.sales_price_usd_kg = max(0.0, float(sales_price_usd_kg))
+        self.annual_hours = max(1.0, float(annual_hours))
+        
+        # CAPEX details from document
+        self.capex_direct_usd = 3_493_000.0
+        self.capex_indirect_usd = 698_600.0
+        self.capex_total_usd = self.capex_direct_usd + self.capex_indirect_usd
+        self.working_capital_usd = 450_000.0
+        self.total_initial_investment_usd = self.capex_total_usd + self.working_capital_usd
+        
+        # OPEX base details
+        self.opex_variable_usd = 4_761_550.0 # at nominal 7500h and 301.6 kg/h
+        self.opex_fixed_usd = 751_925.0
+        self.depreciation_usd = 377_244.0
+        self.circularity_offset_usd = 143_200.0
+        
+    def run_financial_simulation(self) -> dict[str, float]:
+        # Ajustar OPEX variable al ratio de produccion actual (escalado lineal simple)
+        ratio = self.powder_mass_kg_h / 301.6 if self.powder_mass_kg_h > 0 else 0
+        adj_opex_variable = self.opex_variable_usd * ratio
+        
+        opex_total_net_usd = adj_opex_variable + self.opex_fixed_usd - self.circularity_offset_usd
+        
+        annual_production_kg = self.powder_mass_kg_h * self.annual_hours
+        gross_revenue_usd = annual_production_kg * self.sales_price_usd_kg
+        
+        ebitda_usd = gross_revenue_usd - opex_total_net_usd
+        
+        # Taxes and simple NPV
+        ebit_usd = ebitda_usd - self.depreciation_usd
+        taxes_usd = max(0.0, ebit_usd * 0.25) # 25% tax
+        net_income_usd = ebit_usd - taxes_usd
+        operating_cash_flow_usd = net_income_usd + self.depreciation_usd
+        
+        npv_usd = -self.total_initial_investment_usd
+        wacc = 0.12
+        for year in range(1, 11):
+            npv_usd += operating_cash_flow_usd / ((1 + wacc) ** year)
+            
+        payback_years = 0.0
+        if operating_cash_flow_usd > 0:
+            payback_years = self.total_initial_investment_usd / operating_cash_flow_usd
+            
+        return {
+            "capex_total_usd": self.capex_total_usd,
+            "total_investment_usd": self.total_initial_investment_usd,
+            "opex_variable_usd": adj_opex_variable,
+            "opex_fixed_usd": self.opex_fixed_usd,
+            "circularity_offset_usd": self.circularity_offset_usd,
+            "opex_total_net_usd": opex_total_net_usd,
+            "gross_revenue_usd": gross_revenue_usd,
+            "ebitda_usd": ebitda_usd,
+            "net_income_usd": net_income_usd,
+            "operating_cash_flow_usd": operating_cash_flow_usd,
+            "npv_usd": npv_usd,
+            "payback_years": payback_years,
+        }
 
 def compute_sales_stage(
     powder_mass_kg_h: float,

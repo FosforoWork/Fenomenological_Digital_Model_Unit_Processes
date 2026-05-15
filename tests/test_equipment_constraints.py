@@ -20,12 +20,9 @@ BASELINE_CONTROLS = {
     "solid_liquid_ratio": 12.0,
     "pasteur_temp_c": 80.0,
     "pasteur_retention_s": 22.0,
-    "ro_tmp_bar": 24.0,
-    "ro_crossflow_ms": 1.5,
-    "ro_feed_temp_c": 28.0,
-    "ro_feed_ph": 7.0,
-    "ro_sdi": 3.0,
     "evap_pressure_bar": 0.40,
+    "enable_ro": 0.0,
+    "ro_tmp_bar": 24.0,
     "evap_temp_c": 55.0,
     "precip_ph": 4.5,
     "precip_time_min": 25.0,
@@ -51,15 +48,6 @@ class EquipmentConstraintsTests(unittest.TestCase):
 
         codes = {issue["code"] for issue in ctx.exception.issues}
         self.assertIn("STAGE2_HEX_THERMAL_CAPACITY", codes)
-
-    def test_ro_flux_limit_is_editable(self) -> None:
-        specs = get_default_equipment_specs()
-        specs["stage_2_5_ro_membrane_area_m2"] = 40.0
-        limits = get_default_capacity_limits()
-        limits["stage_2_5_ro_max_flux_lmh"] = 120.0
-
-        result = run_process_model(BASELINE_CONTROLS, equipment_specs=specs, capacity_limits=limits)
-        self.assertLessEqual(result["capacity"]["stage_2_5_ro_flux_lmh"], limits["stage_2_5_ro_max_flux_lmh"])
 
     def test_dryer_capacity_blocks(self) -> None:
         specs = get_default_equipment_specs()
