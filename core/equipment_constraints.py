@@ -61,7 +61,7 @@ def evaluate_capacity_constraints(
             )
         )
 
-    # --- ETAPA 1: LIXIVIACION (BOTTLENECK PRIMARIO - TOC Doc 10.1) ---
+    # --- ETAPA 1: LIXIVIACION  ---
     slurry_density = equipment_specs["stage_1_slurry_density_kg_m3"]
     slurry_flow_m3_h = stage_1["slurry_flow_kg_h"] / slurry_density
     # Restriccion cinetica: tau >= 60 min
@@ -109,7 +109,7 @@ def evaluate_capacity_constraints(
             )
         )
 
-    # --- ETAPA 3: EVAPORACION (BOTTLENECK SECUNDARIO - TOC Doc 10.1) ---
+    # --- ETAPA 3: EVAPORACION  ---
     evap_capacity = equipment_specs["stage_3_evap_capacity_m3_h"]
     evap_load_pct = (stage_3["evaporator_boiling_removed_m3_h"] / evap_capacity) * 100.0 if evap_capacity > 0 else 0.0
     indicators["stage_3_evap_load_pct"] = evap_load_pct
@@ -141,7 +141,7 @@ def evaluate_capacity_constraints(
             )
         )
 
-    # --- ETAPA 5: SECADO (BUFFER - TOC Doc 10.1) ---
+    # --- ETAPA 5: SECADO  ---
     dryer_capacity = equipment_specs["stage_5_dryer_evap_capacity_kg_h"]
     dryer_load_pct = (stage_5["dryer_water_removed_kg_h"] / dryer_capacity) * 100.0 if dryer_capacity > 0 else 0.0
     indicators["stage_5_dryer_load_pct"] = dryer_load_pct
@@ -149,29 +149,15 @@ def evaluate_capacity_constraints(
     chamber_volume = equipment_specs["stage_5_dryer_chamber_volume_m3"]
     specific_powder_load = stage_5["powder_mass_kg_h"] / chamber_volume if chamber_volume > 0 else 0.0
     indicators["stage_5_powder_load_kg_h_m3"] = specific_powder_load
-
-    # --- IDENTIFICACION DEL CUELLO DE BOTELLA (TOC) ---
-    utilizations = {
-        "TK-101": tank_1_util,
-        "HX-201": hex_load_pct,
-        "EV-301": evap_load_pct,
-        "CF-401": centrifuge_load_pct,
-        "SD-501": dryer_load_pct
-    }
-    
-    bottleneck_equipment = max(utilizations, key=utilizations.get)
-    bottleneck_utilization = utilizations[bottleneck_equipment]
-    
-    indicators["toc_bottleneck_equipment"] = 0.0 # Placeholder for string
-    indicators["toc_bottleneck_utilization_pct"] = bottleneck_utilization
-    
-    # Metadatos para el Gemelo Digital
-    result["toc_metadata"] = {
-        "primary_bottleneck": bottleneck_equipment,
-        "utilization_pct": bottleneck_utilization,
-        "is_critical": bottleneck_utilization > 95.0,
-        "all_utils": utilizations
-    }
+    if stage_5["dryer_water_removed_kg_h"] > dryer_capacity * capacity_limits["stage_5_dryer_max_load_fraction"]:
+        issues.append(
+            _new_issue(
+                code="STAGE5_DRYER_CAPACITY",
+                equipment="Secador SD-501",
+                message="Sobrecarga de Secado: Capacidad evaporativa superada.",
+                recommendation="Aumentar capacidad de secado o reducir alimentacion.",
+            )
+        )
 
     return indicators, issues
 

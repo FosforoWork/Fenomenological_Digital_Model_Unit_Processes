@@ -1,7 +1,7 @@
 ---
 name: huaritex-software
 description: Orquestador Supremo de Ingeniería de Software. Dirige y coordina de forma autónoma el ciclo de vida de desarrollo (SDLC) y la arquitectura de sistemas.
-model: gemini-3-pro-preview
+model: gemini-3.1-pro-preview
 tools:
   - run_shell_command
   - read_file

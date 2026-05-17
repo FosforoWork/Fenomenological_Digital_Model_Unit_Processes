@@ -31,11 +31,55 @@ BASELINE_REFERENCES = {
     "stage_5_overall_yield_pct": {"label": "Rendimiento global", "value": 76.4, "unit": "%"},
 }
 
+# Especificaciones de KPIs por Etapa (Doc 2.0)
+KPI_SPECS: dict[str, dict] = {
+    # Etapa 0
+    "stage_0_soy_moisture_pct": {"label": "Humedad grano", "unit": "%", "range": (10.0, 12.0)},
+    "stage_0_soy_density_kg_m3": {"label": "Densidad grano", "unit": "kg/m3", "range": (1120.0, 1150.0)},
+    "stage_0_grinding_size_mesh": {"label": "Tamano molienda", "unit": "mesh", "range": (100.0, 200.0)},
+    "stage_0_flour_bulk_density_kg_m3": {"label": "Densidad aparente harina", "unit": "kg/m3", "range": (700.0, 800.0)},
+    "stage_0_water_viscosity_cp": {"label": "Viscosidad agua", "unit": "cP", "range": (0.9, 1.1)},
+    
+    # Etapa 1
+    "stage_1_slurry_viscosity_cp": {"label": "Viscosidad lodo", "unit": "cP", "range": (15.0, 30.0)},
+    "stage_1_slurry_density_kg_m3": {"label": "Densidad lodo", "unit": "kg/m3", "range": (1040.0, 1080.0)},
+    "stage_1_naoh_conc_pct_pv": {"label": "Conc. NaOH", "unit": "% p/v", "range": (0.2, 0.4)},
+    "stage_1_protein_concentration_gl": {"label": "Proteina disuelta", "unit": "g/L", "range": (25.0, 27.0)},
+    "stage_1_conductivity_ms_cm": {"label": "Conductividad", "unit": "mS/cm", "range": (1.5, 2.5)},
+    
+    # Etapa 2
+    "stage_2_neutralized_viscosity_cp": {"label": "Viscosidad neutralizado", "unit": "cP", "range": (12.0, 20.0)},
+    "stage_2_neutralized_density_kg_m3": {"label": "Densidad neutralizado", "unit": "kg/m3", "range": (1010.0, 1050.0)},
+    "stage_2_residual_na_mg_l": {"label": "Na+ residual", "unit": "mg/L", "range": (100.0, 200.0)},
+    "stage_2_residual_cl_mg_l": {"label": "Cl- residual", "unit": "mg/L", "range": (80.0, 150.0)},
+    "stage_2_reynolds_number": {"label": "Num. Reynolds", "unit": "-", "range": (100.0, 500.0)},
+    "stage_2_prandtl_number": {"label": "Num. Prandtl", "unit": "-", "range": (150.0, 300.0)},
+    
+    # Etapa 3
+    "stage_3_concentrate_viscosity_cp": {"label": "Viscosidad concentrado", "unit": "cP", "range": (50.0, 100.0)},
+    "stage_3_concentrate_density_kg_m3": {"label": "Densidad concentrado", "unit": "kg/m3", "range": (1100.0, 1150.0)},
+    "stage_3_concentrate_protein_kg_m3": {"label": "Proteina concentrada", "unit": "kg/m3", "range": (240.0, 280.0)},
+    "stage_3_u_global_w_m2k": {"label": "Coeficiente U", "unit": "W/m2K", "range": (150.0, 300.0)},
+    
+    # Etapa 4
+    "stage_4_precipitate_viscosity_cp": {"label": "Viscosidad lodo precip.", "unit": "cP", "range": (100.0, 200.0)},
+    "stage_4_paste_density_kg_m3": {"label": "Densidad pasta", "unit": "kg/m3", "range": (1080.0, 1150.0)},
+    "stage_4_residual_protein_whey_kg_m3": {"label": "Proteina en suero", "unit": "kg/m3", "range": (0.3, 0.7)},
+    "stage_4_ionic_strength_mol_l": {"label": "Fuerza ionica", "unit": "mol/L", "range": (0.05, 0.15)},
+    "stage_4_zeta_potential_mv": {"label": "Potencial Zeta", "unit": "mV", "range": (-2.0, 2.0)},
+    
+    # Etapa 5
+    "stage_5_atomization_speed_m_s": {"label": "Vel. atomizacion", "unit": "m/s", "range": (250.0, 500.0)},
+    "stage_5_powder_bulk_density_kg_m3": {"label": "Densidad polvo", "unit": "kg/m3", "range": (500.0, 650.0)},
+    "stage_5_protein_in_powder_pct": {"label": "Proteina en polvo", "unit": "% p/p", "range": (88.0, 92.0)},
+    "stage_5_water_activity_aw": {"label": "Actividad agua", "unit": "aw", "range": (0.3, 0.65)},
+}
+
 
 CONTROL_LIMITS: dict[str, tuple[float, float]] = {
     "soy_feed_kg_h": (100.0, 8000.0),
     "water_flow_m3_h": (2.0, 30.0),
-    "water_temp_c": (5.0, 90.0),
+    "water_temp_c": (40.0, 90.0),
     "extraction_ph": (6.0, 12.0),
     "extraction_temp_c": (20.0, 95.0),
     "extraction_residence_min": (5.0, 180.0),
@@ -92,6 +136,13 @@ def calc_stage_0(controls: dict, equipment_specs: dict) -> dict:
 
     protein_in_kg_h = soy_feed_kg_h * 0.375
 
+    # KPIs de la Etapa (Doc 2.0)
+    soy_moisture_pct = 11.0 # Nominal
+    soy_density_kg_m3 = 1135.0 # Nominal
+    grinding_size_mesh = 150.0 # Nominal
+    flour_bulk_density_kg_m3 = 750.0 # Nominal
+    water_viscosity_cp = 1.0 # Nominal
+
     return {
         "soy_feed_kg_h": soy_feed_kg_h,
         "water_flow_m3_h": water_flow_m3_h,
@@ -101,6 +152,11 @@ def calc_stage_0(controls: dict, equipment_specs: dict) -> dict:
         "tank_capacity_m3": equipment_specs["stage_0_tank_capacity_m3"],
         "pump_kw": pump_kw,
         "protein_in_kg_h": protein_in_kg_h,
+        "kpi_soy_moisture_pct": soy_moisture_pct,
+        "kpi_soy_density_kg_m3": soy_density_kg_m3,
+        "kpi_grinding_size_mesh": grinding_size_mesh,
+        "kpi_flour_bulk_density_kg_m3": flour_bulk_density_kg_m3,
+        "kpi_water_viscosity_cp": water_viscosity_cp,
     }
 
 
@@ -156,6 +212,14 @@ def calc_stage_1(controls: dict, stage_0: dict, equipment_specs: dict) -> dict:
     merma_kg_h = total_in_kg_h * F_LOSS
     slurry_flow_kg_h = total_in_kg_h - merma_kg_h
 
+    # KPIs de la Etapa (Doc 2.0)
+    # Viscosidad afectada por pH y temperatura
+    slurry_viscosity_cp = 22.0 * (1.0 + 0.1 * abs(ph - 8.5)) * (1.0 - 0.005 * (temp_c - 55.0))
+    slurry_density_kg_m3 = 1060.0 # Nominal
+    naoh_conc_pct_pv = 0.3 * (ph / 8.5) # Estimado lineal
+    protein_concentration_gl = protein_solubilized_real_kg_h / (stage_0["water_flow_m3_h"] or 1.0)
+    conductivity_ms_cm = 2.0 * (ph / 8.5)
+
     return {
         "extraction_eff_pct": extraction_eff * 100.0,
         "protein_extracted_kg_h": protein_solubilized_real_kg_h,
@@ -163,6 +227,11 @@ def calc_stage_1(controls: dict, stage_0: dict, equipment_specs: dict) -> dict:
         "slurry_flow_kg_h": slurry_flow_kg_h,
         "naoh_solution_mass_kg_h": naoh_solution_mass_kg_h,
         "merma_kg_h": merma_kg_h,
+        "kpi_slurry_viscosity_cp": slurry_viscosity_cp,
+        "kpi_slurry_density_kg_m3": slurry_density_kg_m3,
+        "kpi_naoh_conc_pct_pv": naoh_conc_pct_pv,
+        "kpi_protein_concentration_gl": protein_concentration_gl,
+        "kpi_conductivity_ms_cm": conductivity_ms_cm,
     }
 
 
@@ -220,12 +289,26 @@ def calc_stage_2(controls: dict, stage_1_2: dict, equipment_specs: dict) -> dict
 
     protein_after_pasteur_kg_h = stage_1_2["protein_in_extract_kg_h"] * quality_penalty * (1.0 - F_LOSS)
 
+    # KPIs de la Etapa (Doc 2.0)
+    neutralized_viscosity_cp = 16.0 * (1.0 - 0.01 * (pasteur_temp_c - 80.0))
+    neutralized_density_kg_m3 = 1030.0 # Nominal
+    residual_na_mg_l = 150.0 # Nominal
+    residual_cl_mg_l = 115.0 # Nominal
+    reynolds_number = 300.0 * (mass_kg_h / 12000.0)
+    prandtl_number = 225.0 * (neutralized_viscosity_cp / 16.0)
+
     return {
         "mass_kg_h": mass_kg_h,
         "heat_required_mj_h": heat_mj_h,
         "protein_quality_factor": quality_penalty,
         "protein_after_pasteur_kg_h": protein_after_pasteur_kg_h,
         "merma_kg_h": merma_kg_h,
+        "kpi_neutralized_viscosity_cp": neutralized_viscosity_cp,
+        "kpi_neutralized_density_kg_m3": neutralized_density_kg_m3,
+        "kpi_residual_na_mg_l": residual_na_mg_l,
+        "kpi_residual_cl_mg_l": residual_cl_mg_l,
+        "kpi_reynolds_number": reynolds_number,
+        "kpi_prandtl_number": prandtl_number,
     }
 
 
@@ -290,7 +373,7 @@ def calc_stage_3(controls: dict, stage_ro: dict, equipment_specs: dict) -> dict:
     protein_to_evap_kg_h = stage_ro.get("protein_after_pasteur_kg_h", 0.0) * maillard_penalty * (1.0 - F_LOSS)
     solids_kg_h = protein_to_evap_kg_h * equipment_specs["stage_3_solids_to_protein_ratio"]
 
-    target_solids_frac = _clip(0.23 + (0.40 - evap_pressure_bar) * 0.05 + (evap_temp_c - 55.0) * 0.001, 0.18, 0.30)
+    target_solids_frac = _clip(0.23 + (0.40 - evap_pressure_bar) * 0.05 + (evap_temp_c - 75.0) * 0.001, 0.18, 0.30)
     concentrate_flow_m3_h = solids_kg_h / (target_solids_frac * 1000.0)
 
     evaporator_boiling_removed_m3_h = _clip(
@@ -303,6 +386,12 @@ def calc_stage_3(controls: dict, stage_ro: dict, equipment_specs: dict) -> dict:
     steam_economy = equipment_specs["stage_3_steam_economy"]
     steam_required_kg_h = evaporator_boiling_removed_m3_h * 1000.0 / steam_economy
 
+    # KPIs de la Etapa (Doc 2.0)
+    concentrate_viscosity_cp = 75.0 * (target_solids_frac / 0.25)**2
+    concentrate_density_kg_m3 = 1125.0 * (target_solids_frac / 0.25)
+    concentrate_protein_kg_m3 = protein_to_evap_kg_h / (concentrate_flow_m3_h or 1.0)
+    u_global_w_m2k = 225.0 * (0.40 / evap_pressure_bar)
+
     return {
         "target_solids_pct": target_solids_frac * 100.0,
         "concentrate_flow_m3_h": concentrate_flow_m3_h,
@@ -312,6 +401,10 @@ def calc_stage_3(controls: dict, stage_ro: dict, equipment_specs: dict) -> dict:
         "evap_feed_m3_h": evap_feed_mass_net_kg_h / 1000.0,
         "protein_to_evap_kg_h": protein_to_evap_kg_h,
         "merma_kg_h": merma_kg_h,
+        "kpi_concentrate_viscosity_cp": concentrate_viscosity_cp,
+        "kpi_concentrate_density_kg_m3": concentrate_density_kg_m3,
+        "kpi_concentrate_protein_kg_m3": concentrate_protein_kg_m3,
+        "kpi_u_global_w_m2k": u_global_w_m2k,
     }
 
 
@@ -341,6 +434,13 @@ def calc_stage_4(controls: dict, stage_3: dict, equipment_specs: dict) -> dict:
     
     floc_um = _clip(320.0 - abs(precip_ph - 4.5) * 250.0 + (precip_time_min - 25.0) * 1.8, 20.0, 500.0)
 
+    # KPIs de la Etapa (Doc 2.0)
+    precipitate_viscosity_cp = 150.0 * (1.0 + 0.5 * abs(precip_ph - 4.5))
+    paste_density_kg_m3 = 1115.0 # Nominal
+    residual_protein_whey_kg_m3 = 0.5 * (1.0 + abs(precip_ph - 4.5) * 10.0)
+    ionic_strength_mol_l = 0.10 * (hcl_solution_mass_kg_h / 110.0)
+    zeta_potential_mv = 2.0 * (precip_ph - 4.5) / 0.5
+
     return {
         "precip_eff_pct": precip_eff * 100.0,
         "protein_precip_kg_h": protein_precip_kg_h,
@@ -348,6 +448,11 @@ def calc_stage_4(controls: dict, stage_3: dict, equipment_specs: dict) -> dict:
         "slurry_precip_m3_h": (total_feed_kg_h - merma_kg_h) / 1000.0,
         "hcl_solution_mass_kg_h": hcl_solution_mass_kg_h,
         "merma_kg_h": merma_kg_h,
+        "kpi_precipitate_viscosity_cp": precipitate_viscosity_cp,
+        "kpi_paste_density_kg_m3": paste_density_kg_m3,
+        "kpi_residual_protein_whey_kg_m3": residual_protein_whey_kg_m3,
+        "kpi_ionic_strength_mol_l": ionic_strength_mol_l,
+        "kpi_zeta_potential_mv": zeta_potential_mv,
     }
 
 
@@ -387,7 +492,7 @@ def calc_stage_5(controls: dict, stage_0: dict, stage_4_2: dict) -> dict:
     dryer_temp_c = controls["dryer_temp_c"]
     dryer_residence_min = controls["dryer_residence_min"]
 
-    final_moisture = _clip(0.05 - (dryer_temp_c - 78.0) * 0.0007 - (dryer_residence_min - 42.0) * 0.0006, 0.03, 0.14)
+    final_moisture = _clip(0.05 - (dryer_temp_c - 190.0) * 0.0007 - (dryer_residence_min - 42.0) * 0.0006, 0.03, 0.14)
     
     # Doc 3.6: operational loss (2%) in spray drying
     protein_final_kg_h = stage_4_2["protein_paste_kg_h"] * (1.0 - F_LOSS)
@@ -399,6 +504,12 @@ def calc_stage_5(controls: dict, stage_0: dict, stage_4_2: dict) -> dict:
     dryer_water_removed_kg_h = stage_4_2["paste_mass_kg_h"] - powder_mass_theoretical_kg_h
     overall_yield_pct = (protein_final_kg_h / stage_0["protein_in_kg_h"]) * 100.0
 
+    # KPIs de la Etapa (Doc 2.0)
+    atomization_speed_m_s = 375.0 # Nominal
+    powder_bulk_density_kg_m3 = 575.0 # Nominal
+    protein_in_powder_pct = (protein_final_kg_h / (powder_mass_kg_h or 1.0)) * 100.0
+    water_activity_aw = final_moisture * 10.0 # Simplificacion
+
     return {
         "final_moisture_pct": final_moisture * 100.0,
         "protein_final_kg_h": protein_final_kg_h,
@@ -406,7 +517,53 @@ def calc_stage_5(controls: dict, stage_0: dict, stage_4_2: dict) -> dict:
         "dryer_water_removed_kg_h": dryer_water_removed_kg_h,
         "overall_yield_pct": overall_yield_pct,
         "merma_kg_h": merma_kg_h,
+        "kpi_atomization_speed_m_s": atomization_speed_m_s,
+        "kpi_powder_bulk_density_kg_m3": powder_bulk_density_kg_m3,
+        "kpi_protein_in_powder_pct": protein_in_powder_pct,
+        "kpi_water_activity_aw": water_activity_aw,
     }
+
+
+def enrich_with_kpis(result: dict) -> dict:
+    """Añade metadatos de status (Normal, Warning, Critical) a los KPIs."""
+    for stage_key in ["stage_0", "stage_1", "stage_2", "stage_3", "stage_4", "stage_5"]:
+        if stage_key not in result:
+            continue
+            
+        stage_data = result[stage_key]
+        stage_kpis = {}
+        
+        for kpi_key, kpi_val in stage_data.items():
+            if not kpi_key.startswith("kpi_"):
+                continue
+                
+            spec_key = f"{stage_key}_{kpi_key[4:]}"
+            spec = KPI_SPECS.get(spec_key, {})
+            
+            if not spec:
+                continue
+                
+            vmin, vmax = spec["range"]
+            status = "Normal"
+            if kpi_val < vmin or kpi_val > vmax:
+                # Tolerancia del 10% para Warning, mas alla es Critical
+                margin = (vmax - vmin) * 0.10
+                if kpi_val < vmin - margin or kpi_val > vmax + margin:
+                    status = "Critical"
+                else:
+                    status = "Warning"
+            
+            stage_kpis[kpi_key] = {
+                "value": kpi_val,
+                "label": spec["label"],
+                "unit": spec["unit"],
+                "range": spec["range"],
+                "status": status
+            }
+            
+        result[stage_key]["enriched_kpis"] = stage_kpis
+        
+    return result
 
 
 def run_process_model(
@@ -521,5 +678,8 @@ def run_process_model(
         result=result,
     )
     result["capacity"] = capacity
+    
+    # Enriquecer con KPIs antes de retornar
+    result = enrich_with_kpis(result)
 
     return result

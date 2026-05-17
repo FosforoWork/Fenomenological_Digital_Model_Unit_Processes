@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{abstract}
+\usepackage{titlesec}
+\usepackage{authblk}
+
+\geometry{top=2cm, bottom=2cm, left=1.5cm, right=1.5cm}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{1em}{}
+
+\title{\textbf{Desarrollo de un Gemelo Digital Basado en Modelado Fenomenológico para la Optimización de la Producción de Proteína Aislada de Soya (ISP)}}
+
+\author[1]{Ingeniería de Procesos Senior}
+\affil[1]{Departamento de Ingeniería Química y de Procesos}
+
+\date{\today}
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+      Este artículo presenta el diseño integral y la implementación computacional de un Gemelo Digital (\textit{Digital Twin}) para una planta de producción de Proteína Aislada de Soya (ISP) con una capacidad de 1000 kg/h. El modelo integra balances de materia y energía no lineales, cinéticas de solubilización proteica basadas en el pH y cinéticas de secado psicrométrico. La arquitectura del software, desarrollada en Python, permite la simulación en tiempo real de variables críticas, la evaluación de restricciones mecánicas e hidráulicas bajo estándares EHEDG/ASME BPE, y un análisis económico exhaustivo bajo la metodología EBITDA. Los resultados demuestran que la integración de una etapa de pre-concentración por Ósmosis Inversa (OI) reduce el OPEX térmico en un 25.4\%, validando el uso de sistemas ciberfísicos para la toma de decisiones estratégicas en la Industria 5.0.
+      \vspace{1em}
+      \\ \textbf{Palabras clave:} Gemelo Digital, Proteína de Soya, Modelado Fenomenológico, Industria 5.0, Eficiencia Energética.
+      \vspace{2em}
+    \end{abstract}
+  \end{@twocolumnfalse}
+]
+
+\section{Introducción}
+La demanda global de proteínas vegetales ha impulsado la necesidad de optimizar los procesos de extracción de soya. El Aislado de Proteína de Soya (ISP) representa el nivel más alto de purificación ($>90\%$ proteína), eliminando carbohidratos, lípidos y factores antinutricionales. 
+
+El diseño de plantas de ISP enfrenta desafíos multivariables: la solubilidad de la glicinina y $\beta$-conglicinina depende críticamente del pH, la temperatura y la fuerza iónica. Tradicionalmente, la ingeniería se ha apoyado en simulaciones estáticas (ASPEN, HYSYS); sin embargo, la variabilidad de la materia prima y la necesidad de resiliencia operativa demandan el uso de \textbf{Gemelos Digitales}. Un Gemelo Digital se define como una representación virtual dinámica de un activo físico que utiliza modelos basados en primeros principios para predecir el comportamiento del sistema ante perturbaciones.
+
+Este estudio detalla la creación de un sistema ciberfísico que acopla la rigorosidad del diseño de ingeniería química con la flexibilidad de la computación interactiva, permitiendo una optimización \textit{online} de la planta.
+
+\section{Fundamentos de Diseño y Proceso}
+
+\subsection{Matriz Composicional y Bases de Cálculo}
+El diseño se fundamenta en una alimentación de soya desgrasada de 1000 kg/h. La matriz termodinámica considera:
+\begin{itemize}
+    \item Proteína Bruta: 37.5\%
+    \item Humedad: 10\%
+    \item Lípidos/Cenizas/Fibra: Residuales
+\end{itemize}
+El caudal de agua se fija mediante un ratio sólido-líquido de 1:12, resultando en 12,000 kg/h de solvente. La densidad operativa se modela como $\rho \approx 1050 \text{ kg/m}^3$ y la viscosidad dinámica como $\mu \approx 0.020 \text{ Pa}\cdot\text{s}$.
+
+\subsection{Lixiviación y Solubilización Proteica}
+La extracción se realiza a pH 8.75 y 55°C. La solubilidad ($S$) se modela siguiendo la curva en "U" característica de las globulinas de soya, donde el mínimo de solubilidad ocurre en el punto isoeléctrico ($pI \approx 4.5$).
+La masa de proteína solubilizada ($\dot{m}_{p,sol}$) se calcula como:
+\begin{equation}
+    \dot{m}_{p,sol} = \dot{m}_{soy} \cdot X_{p} \cdot \eta_{ext} \cdot f_{loss}
+\end{equation}
+Donde $\eta_{ext} = 0.88$ es la eficiencia de extracción y $f_{loss} = 0.98$ representa las pérdidas mecánicas en tanques y tuberías.
+
+\section{Metodología de Desarrollo del Gemelo Digital}
+
+\subsection{Arquitectura del Software}
+El software se estructuró en tres capas jerárquicas:
+\begin{enumerate}
+    \item \textbf{Capa de Fenomenología (Core):} Implementación de balances de materia y energía mediante sistemas de ecuaciones algebraicas estabilizados.
+    \item \textbf{Capa de Restricciones (Constraints):} Un motor de reglas que verifica la integridad física. Por ejemplo, evalúa el NPSH disponible vs requerido para evitar cavitación en bombas centrífugas.
+    \item \textbf{Capa de Visualización (Streamlit):} Interfaz dinámica que presenta KPIs, semáforos de criticidad y gráficas de inercia temporal.
+\end{enumerate}
+
+\subsection{Traducción de Teoría a Código}
+A diferencia de un simulador comercial, el Gemelo Digital codifica la \textbf{Lógica de Negocio Técnica}. Por ejemplo, el módulo de secado no solo resta agua, sino que calcula la temperatura de bulbo húmedo para asegurar que la proteína no se desnaturalice térmicamente (manteniendo $T_{partícula} < 70^\circ$C).
+
+\section{Modelado Detallado por Etapas}
+
+\subsection{Etapa 1: Clarificación Centrífuga}
+La separación del lodo proteico se modela mediante la Ley de Stokes generalizada para campo centrífugo:
+\begin{equation}
+    v_s = \frac{d^2 (\rho_p - \rho_f) r \omega^2}{18 \mu}
+\end{equation}
+El software simula centrífugas decantadoras operando a 1800 g, calculando una salida de 1645 kg/h de Okara húmedo (65\% humedad). El Gemelo identifica esta etapa como un cuello de botella hidráulico si el caudal excede los 16 m$^3$/h.
+
+\subsection{Etapa 2: Pasteurización HTST}
+Se modela un intercambiador de calor de placas (PHE). El balance entálpico incorpora una sección de regeneración térmica del 55\%.
+\begin{equation}
+    \dot{Q}_{util} = \dot{m} C_p (T_2 - T_1) (1 - HR)
+\end{equation}
+Donde $HR = 0.55$. El sistema dispara alertas de inocuidad si $T < 80^\circ$C, basándose en la cinética de inactivación de la \textit{Salmonella}.
+
+\subsection{Etapa 3: Concentración por OI y Evaporación}
+Se integra un modelo híbrido. Primero, una Ósmosis Inversa (OI) operando a 24 bar retira 2718 kg/h de agua. El software calcula el consumo eléctrico de la bomba de alta presión (9 kW) y el ahorro térmico equivalente en el evaporador (945 kW). 
+El evaporador de doble efecto se modela con una economía de vapor de 1.85 y un vacío de 0.40 bar para prevenir la \textbf{Reacción de Maillard}.
+
+\subsection{Etapa 4: Precipitación Isoeléctrica}
+El modelo bioquímico ajusta el pH a 4.5. La recuperación sólida se fija en 98\%. El programa calcula la masa de ácido clorhídrico (HCl 10\%) necesaria mediante una función de titulación empírica que considera el poder tampón de la soya.
+
+\subsection{Etapa 5: Secado por Atomización}
+El Spray Dryer se modela con aire de entrada a 190°C. El Gemelo Digital evalúa el balance de masa final para obtener un polvo con 5\% de humedad. La masa final proyectada es de 301.6 kg/h, con un rendimiento proteico global del 76.4\%.
+
+\section{Ingeniería Mecánica e Hidráulica}
+
+\subsection{Diseño Higiénico y Mantenimiento}
+Toda la red de tuberías se modela bajo el estándar \textbf{ASME BPE}. El software asume el uso de acero AISI 316L y rugosidades $Ra < 0.8 \mu$m. Se implementa la filosofía \textbf{SMED} para el mantenimiento de uniones Tri-Clamp, asegurando tiempos de intervención mínimos.
+
+\subsection{Verificación de NPSH}
+El sistema calcula el NPSH disponible en la succión de la bomba P-102:
+\begin{equation}
+    NPSH_a = \frac{P_{atm} - P_v}{\rho g} + H_s - h_f
+\end{equation}
+Garantizando un valor de 9.6 m, superando ampliamente el requerimiento de 2.5 m, evitando la degradación estructural por cavitación.
+
+\section{Análisis Económico y Circularidad}
+
+\subsection{Inversión y Operación}
+El CAPEX total se estima en \$4.64 MM USD. El software desglosa el OPEX en variables (materia prima, energía, químicos) y fijos (laboral, mantenimiento). El costo unitario de producción se sitúa en \$2.37 USD/kg, con un precio de venta proyectado de \$3.50 USD/kg.
+
+\subsection{Monetización de Subproductos}
+La circularidad se logra mediante la comercialización de Okara y Suero ácido. El modelo no solo suma ingresos por ventas (\$133k USD/año), sino que resta el \textbf{Costo Evitado} de tratamiento de efluentes, mejorando la rentabilidad neta del proyecto.
+
+\section{Resultados de la Simulación del Gemelo}
+El análisis de sensibilidad indica que el pH de extracción es la variable con mayor impacto en el rendimiento. Una desviación de 0.5 unidades de pH hacia la neutralidad reduce la producción en un 12.1\%. La integración de la OI se confirma como la mejora tecnológica más viable, con un periodo de retorno de inversión de la unidad de membranas inferior a 1.5 años.
+
+\section{Conclusiones}
+El desarrollo del Gemelo Digital AJAX permite una gestión técnica y económica sin precedentes en la industria de la soya. Al unificar la fenomenología química con restricciones de diseño real y análisis financiero, el sistema se posiciona como una herramienta esencial para la transición hacia la Industria 5.0, garantizando procesos sostenibles, seguros y altamente rentables.
+
+\section*{Referencias}
+\begin{enumerate}
+    \item Codex Alimentarius (1989). Stan 175-1989.
+    \item Lusas, E. W., \& Riaz, M. N. (1995). Soy protein products.
+    \item Kinsella, J. E. (1979). Functional properties of soy proteins.
+    \item ASME BPE (2019). Bioprocessing Equipment Standard.
+    \item EHEDG Guidelines (2018). Hygienic Design.
+\end{enumerate}
+
+\end{document}

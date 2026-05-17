@@ -12,10 +12,10 @@ from core.stage_equations import run_process_model
 BASELINE_CONTROLS = {
     "soy_feed_kg_h": 1000.0,
     "water_flow_m3_h": 12.0,
-    "water_temp_c": 25.0,
+    "water_temp_c": 55.0,
     "extraction_ph": 8.75,
     "extraction_temp_c": 55.0,
-    "extraction_residence_min": 54.0,
+    "extraction_residence_min": 60.0,
     "agitator_rpm": 80.0,
     "solid_liquid_ratio": 12.0,
     "pasteur_temp_c": 80.0,
@@ -23,12 +23,12 @@ BASELINE_CONTROLS = {
     "evap_pressure_bar": 0.40,
     "enable_ro": 0.0,
     "ro_tmp_bar": 24.0,
-    "evap_temp_c": 55.0,
+    "evap_temp_c": 75.0,
     "precip_ph": 4.5,
     "precip_time_min": 25.0,
     "centrifuge_g": 1800.0,
     "centrifuge_time_min": 20.0,
-    "dryer_temp_c": 78.0,
+    "dryer_temp_c": 190.0,
     "dryer_residence_min": 42.0,
 }
 

@@ -26,7 +26,6 @@ from core.sales_economics import (
     compute_sales_stage,
 )
 from core.stage_equations import run_process_model
-from core.sensitivity_analysis import perform_sensitivity_analysis, analyze_equipment_sensitivity
 
 
 VISUAL_THEMES = {
@@ -86,21 +85,21 @@ VISUAL_THEMES = {
 DEFAULT_CONTROLS = {
     "soy_feed_kg_h": 1000.0,
     "water_flow_m3_h": 12.0,
-    "water_temp_c": 25.0,
+    "water_temp_c": 55.0,
     "extraction_ph": 8.75,
     "extraction_temp_c": 55.0,
-    "extraction_residence_min": 54.0,
+    "extraction_residence_min": 60.0,
     "agitator_rpm": 80.0,
     "solid_liquid_ratio": 12.0,
     "pasteur_temp_c": 80.0,
     "pasteur_retention_s": 22.0,
     "evap_pressure_bar": 0.40,
-    "evap_temp_c": 55.0,
+    "evap_temp_c": 75.0,
     "precip_ph": 4.5,
     "precip_time_min": 25.0,
     "centrifuge_g": 1800.0,
     "centrifuge_time_min": 20.0,
-    "dryer_temp_c": 78.0,
+    "dryer_temp_c": 190.0,
     "dryer_residence_min": 42.0,
     "ro_tmp_bar": 24.0,
 }
@@ -235,6 +234,8 @@ STAGE_KPI_CONFIG = [
         "metrics": [
             {"key": "stage_0_pump_kw", "label": "Bomba Etapa 0", "unit": "kW", "decimals": 2},
             {"key": "capacity_stage_0_tank_utilization_pct", "label": "Uso tanque agua", "unit": "%", "decimals": 1},
+            {"key": "stage_0_kpi_soy_moisture_pct", "label": "Humedad grano", "unit": "%", "decimals": 1},
+            {"key": "stage_0_kpi_grinding_size_mesh", "label": "Molienda", "unit": "mesh", "decimals": 0},
         ],
     },
     {
@@ -244,6 +245,9 @@ STAGE_KPI_CONFIG = [
             {"key": "stage_1_extraction_eff_pct", "label": "Eficiencia extraccion", "unit": "%", "decimals": 2},
             {"key": "stage_1_2_extract_recovery_pct", "label": "Recuperacion centrifuga 1", "unit": "%", "decimals": 2},
             {"key": "stage_1_protein_extracted_kg_h", "label": "Proteina extraida", "unit": "kg/h", "decimals": 2},
+            {"key": "stage_1_kpi_protein_concentration_gl", "label": "Proteina disuelta", "unit": "g/L", "decimals": 2},
+            {"key": "stage_1_kpi_slurry_viscosity_cp", "label": "Viscosidad lodo", "unit": "cP", "decimals": 1},
+            {"key": "stage_1_kpi_naoh_conc_pct_pv", "label": "Conc. NaOH", "unit": "% p/v", "decimals": 2},
         ],
     },
     {
@@ -252,6 +256,8 @@ STAGE_KPI_CONFIG = [
         "metrics": [
             {"key": "stage_2_heat_required_mj_h", "label": "Calor pasteurizacion", "unit": "MJ/h", "decimals": 2},
             {"key": "capacity_stage_2_hex_thermal_load_pct", "label": "Uso termico HEX", "unit": "%", "decimals": 1},
+            {"key": "stage_2_kpi_reynolds_number", "label": "Reynolds", "unit": "-", "decimals": 0},
+            {"key": "stage_2_protein_quality_factor", "label": "Calidad (Inocuidad)", "unit": "frac", "decimals": 2},
         ],
     },
     {
@@ -268,8 +274,9 @@ STAGE_KPI_CONFIG = [
         "title": "KPIs de evaporacion y concentracion",
         "metrics": [
             {"key": "stage_3_evaporated_water_m3_h", "label": "Agua evaporada", "unit": "m3/h", "decimals": 3},
-            {"key": "stage_3_steam_required_kg_h", "label": "Vapor requerido", "unit": "kg/h", "decimals": 1},
             {"key": "stage_3_target_solids_pct", "label": "Solidos objetivo", "unit": "%", "decimals": 2},
+            {"key": "stage_3_kpi_concentrate_viscosity_cp", "label": "Visc. concentrado", "unit": "cP", "decimals": 1},
+            {"key": "stage_3_kpi_u_global_w_m2k", "label": "Coeficiente U", "unit": "W/m2K", "decimals": 1},
         ],
     },
     {
@@ -279,6 +286,8 @@ STAGE_KPI_CONFIG = [
             {"key": "stage_4_precip_eff_pct", "label": "Eficiencia precipitacion", "unit": "%", "decimals": 2},
             {"key": "stage_4_2_solids_recovery_pct", "label": "Recuperacion centrifuga 2", "unit": "%", "decimals": 2},
             {"key": "stage_4_protein_precip_kg_h", "label": "Proteina precipitada", "unit": "kg/h", "decimals": 2},
+            {"key": "stage_4_kpi_residual_protein_whey_kg_m3", "label": "Prot. en suero", "unit": "kg/m3", "decimals": 2},
+            {"key": "stage_4_kpi_zeta_potential_mv", "label": "Potencial Zeta", "unit": "mV", "decimals": 2},
         ],
     },
     {
@@ -288,6 +297,7 @@ STAGE_KPI_CONFIG = [
             {"key": "stage_5_final_moisture_pct", "label": "Humedad final", "unit": "%", "decimals": 2},
             {"key": "stage_5_powder_mass_kg_h", "label": "Polvo final", "unit": "kg/h", "decimals": 1},
             {"key": "stage_5_overall_yield_pct", "label": "Rendimiento global", "unit": "%", "decimals": 2},
+            {"key": "stage_5_kpi_water_activity_aw", "label": "Actividad agua", "unit": "aw", "decimals": 3},
         ],
     },
     {
@@ -766,9 +776,9 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     if key == "precip_ph": return (4.45, 4.55), (4.10, 4.90)
     if key == "evap_pressure_bar": return (0.38, 0.42), (0.35, 0.60)
     if key == "solid_liquid_ratio": return (11.5, 12.5), (9.0, 14.0)
-    if key == "water_flow_m3_h": return (10.0, 14.0), (5.0, 25.0)
+    if key == "water_flow_m3_h": return (11.0, 13.0), (10.0, 14.0)
     if key == "soy_feed_kg_h": return (800.0, 1200.0), (500.0, 5000.0)
-    if key == "dryer_temp_c": return (70.0, 90.0), (50.0, 150.0)
+    if key == "dryer_temp_c": return (185.0, 195.0), (150.0, 220.0)
     if key == "use_ro": return (0.0, 1.0), (0.0, 1.0)
 
     # Generic heuristic
@@ -907,18 +917,18 @@ def apply_process_inertia(dt: float) -> None:
         "water_temp_c": tau_water,
         "extraction_ph": tau_ext * 0.6,
         "extraction_temp_c": tau_ext,
-        "extraction_residence_min": 5.0,
+        "extraction_residence_min": 60.0,
         "agitator_rpm": 4.0,
         "solid_liquid_ratio": 15.0,
         "pasteur_temp_c": 35.0,
         "pasteur_retention_s": 3.0,
         "evap_pressure_bar": 25.0,
-        "evap_temp_c": 50.0,
+        "evap_temp_c": 75.0,
         "precip_ph": 22.0,
         "precip_time_min": 8.0,
         "centrifuge_g": 12.0,
         "centrifuge_time_min": 4.0,
-        "dryer_temp_c": 55.0,
+        "dryer_temp_c": 190.0,
         "dryer_residence_min": 8.0,
     }
 
@@ -1168,7 +1178,6 @@ def _render_kpi_chart(key: str, stats: dict, theme: dict, chart_key: str | None 
 
 
 def _render_kpi_card(
-
     key: str,
     label: str,
     unit: str,
@@ -1191,23 +1200,23 @@ def _render_kpi_card(
         return
 
     with st.container():
+        # Arriba: Título, Valor y Varianza (Delta)
         st.metric(
             label,
             _format_kpi_value(stats["current"], unit, decimals),
             delta=_format_pct_delta_es(stats["delta_pct"]),
         )
 
-        # Gráfico de líneas integrado (GRANDE)
-        _render_kpi_chart(key, stats, theme, chart_key=f"spark_{card_id or key}")
-
-        # Meta info detallada
-        c1, c2, c3 = st.columns(3)
-        with c1: st.markdown(f"<div class='kpi-meta'><b>MIN</b><br>{_format_number_es(stats['min'], decimals)}</div>", unsafe_allow_html=True)
-        with c2: st.markdown(f"<div class='kpi-meta'><b>PROM</b><br>{_format_number_es(stats['average'], decimals)}</div>", unsafe_allow_html=True)
-        with c3: st.markdown(f"<div class='kpi-meta'><b>MAX</b><br>{_format_number_es(stats['max'], decimals)}</div>", unsafe_allow_html=True)
-
+        # En medio: Error Porcentual y Status
+        error_pct = (stats['error_abs'] / abs(stats['current'])) * 100 if stats['current'] != 0 else 0.0
+        status_class = "kpi-stable" if stats["stable"] else "kpi-unstable"
+        status_text = "Estable" if stats["stable"] else "Inestable"
+        
         st.markdown(
-            f"<div class='kpi-meta'>Error +/- {_format_kpi_value(stats['error_abs'], unit, decimals)}</div>",
+            f"<div style='margin-top: -10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;'>"
+            f"<div class='kpi-meta'><b>Error:</b> ±{error_pct:.2f}% ({_format_kpi_value(stats['error_abs'], unit, decimals)})</div>"
+            f"<div class='kpi-status {status_class}' style='width: fit-content;'>{status_text} | Var: {stats['relative_std_pct']:.2f}%</div>"
+            f"</div>",
             unsafe_allow_html=True,
         )
 
@@ -1215,16 +1224,12 @@ def _render_kpi_card(
             secondary_stats = _compute_kpi_window_stats(secondary_key)
             if secondary_stats:
                 st.markdown(
-                    f"<div class='kpi-meta'>{secondary_label}: {_format_kpi_value(secondary_stats['current'], secondary_unit, secondary_decimals)}</div>",
+                    f"<div class='kpi-meta' style='margin-bottom: 10px;'>{secondary_label}: {_format_kpi_value(secondary_stats['current'], secondary_unit, secondary_decimals)}</div>",
                     unsafe_allow_html=True,
                 )
 
-        status_class = "kpi-stable" if stats["stable"] else "kpi-unstable"
-        status_text = "Estable" if stats["stable"] else "Inestable"
-        st.markdown(
-            f"<div class='kpi-status {status_class}'>{status_text} | Var: {stats['relative_std_pct']:.2f}%</div>",
-            unsafe_allow_html=True,
-        )
+        # Abajo: Gráfico de líneas/Sparkline
+        _render_kpi_chart(key, stats, theme, chart_key=f"spark_{card_id or key}")
 
 
 def render_kpis() -> None:
@@ -1428,7 +1433,7 @@ render_capacity_issues()
 
 # ... (dentro de los tabs)
 
-tab_labels = ["E0: Captacion", "E1: Extraccion", "E2: Pasteurizacion", "E-RO: Osmosis Inversa", "E3: Evaporacion", "E4: Precipitacion", "E5: Secado", "TOC & Sensibilidad", "Vista Global"]
+tab_labels = ["E0: Captacion", "E1: Extraccion", "E2: Pasteurizacion", "E-RO: Osmosis Inversa", "E3: Evaporacion", "E4: Precipitacion", "E5: Secado", "Vista Global"]
 main_tabs = st.tabs(tab_labels)
 
 for i, tab in enumerate(main_tabs):
@@ -1436,72 +1441,6 @@ for i, tab in enumerate(main_tabs):
         if i < 7:
             render_stage_tab(i)
         elif i == 7:
-            # --- PESTAÑA TOC & SENSIBILIDAD ---
-            st.subheader("Analisis de Cuellos de Botella (TOC)")
-            
-            if not st.session_state.log._rows:
-                st.info("Inicia la simulacion para ver el analisis de restricciones.")
-            else:
-                last_res = st.session_state.last_result
-                if "toc_metadata" in last_res:
-                    toc = last_res["toc_metadata"]
-                    col_b1, col_b2 = st.columns([1, 2])
-                    
-                    with col_b1:
-                        st.metric("Cuello de Botella Actual", toc["primary_bottleneck"])
-                        color = "red" if toc["is_critical"] else "orange" if toc["utilization_pct"] > 80 else "green"
-                        st.markdown(f"<h2 style='color: {color}; text-align: center;'>{toc['utilization_pct']:.1f}%</h2>", unsafe_allow_html=True)
-                        st.caption("Utilizacion del recurso restrictivo")
-                    
-                    with col_b2:
-                        st.markdown(f"**Diagnostico TOC:**")
-                        if toc["primary_bottleneck"] == "TK-101":
-                            st.write("Restriccion Cinetica: El tiempo de residencia es el factor limitante. Forzar mas caudal reducira el rendimiento drasticamente.")
-                        elif toc["primary_bottleneck"] == "EV-301":
-                            st.write("Restriccion Termodinamica: Capacidad de evaporacion al limite. Considera aumentar el vacio o activar pre-concentracion por OI.")
-                        elif toc["primary_bottleneck"] == "SD-501":
-                            st.write("Restriccion de Secado: El atomizador esta llegando a su limite de remocion de agua.")
-                        else:
-                            st.write("El sistema opera balanceadamente. El cuello de botella es nominal.")
-                
-                st.divider()
-                st.subheader("Analisis de Sensibilidad (Gradientes)")
-                st.caption("Impacto relativo de variables en el Rendimiento Global (Overall Yield)")
-                
-                with st.spinner("Calculando gradientes..."):
-                    sens = perform_sensitivity_analysis(
-                        st.session_state.pv_controls,
-                        st.session_state.equipment_specs,
-                        st.session_state.capacity_limits
-                    )
-                    
-                    if sens:
-                        # Convertir a DataFrame para graficar
-                        df_sens = pd.DataFrame([
-                            {"Variable": k.replace("ctrl_", ""), "Sensibilidad": v} 
-                            for k, v in sens.items() if not math.isnan(v) and abs(v) > 0.001
-                        ])
-                        df_sens = df_sens.sort_values("Sensibilidad", ascending=False)
-                        
-                        fig_sens = go.Figure(go.Bar(
-                            x=df_sens["Sensibilidad"],
-                            y=df_sens["Variable"],
-                            orientation='h',
-                            marker_color=['#4caf50' if x > 0 else '#f44336' for x in df_sens["Sensibilidad"]]
-                        ))
-                        fig_sens.update_layout(
-                            margin=dict(l=20, r=20, t=20, b=20),
-                            height=400,
-                            xaxis_title="Indice de Sensibilidad (% Yield / % Variable)",
-                            plot_bgcolor='rgba(0,0,0,0)',
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            font=dict(color="#e0e0e0")
-                        )
-                        st.plotly_chart(fig_sens, use_container_width=True)
-                        
-                        st.info("💡 **Interpretacion:** Una sensibilidad de 0.5 significa que si aumentas esa variable un 1%, el rendimiento subira un 0.5%. Valores negativos indican un impacto inverso.")
-
-        else:
             # Vista Global
             st.subheader("Balance de Masa y Energia")
             render_kpis()
