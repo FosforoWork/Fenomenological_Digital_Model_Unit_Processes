@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemelo Digital — Industria 5.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00f5d4;
+    --electric: #00b4d8;
+    --neon: #7400b8;
+    --deep: #03001c;
+    --dark: #050a30;
+    --mid: #0a1628;
+    --accent: #f72585;
+    --gold: #ffd60a;
+    --green: #06d6a0;
+    --white: #e8f4fd;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    font-family: 'Exo 2', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  /* ─── GRID BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,212,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,212,.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridPulse 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes gridPulse {
+    0%,100% { opacity: .6; }
+    50% { opacity: 1; }
+  }
+
+  /* ─── SLIDE CONTAINER ─── */
+  .slides-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 60px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .7s ease, transform .7s ease;
+    transform: translateX(80px);
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+
+  /* ─── PARTICLES ─── */
+  #particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+  }
+
+  /* ─── SLIDE 1: COVER ─── */
+  .cover {
+    background: radial-gradient(ellipse at 30% 50%, rgba(116,0,184,.4) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(0,180,216,.3) 0%, transparent 60%),
+                var(--deep);
+  }
+
+  .cover-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: spin linear infinite;
+  }
+
+  .cover-ring:nth-child(1) { width: 500px; height: 500px; border-color: rgba(0,245,212,.15); animation-duration: 20s; }
+  .cover-ring:nth-child(2) { width: 380px; height: 380px; border-color: rgba(247,37,133,.2); animation-duration: 15s; animation-direction: reverse; }
+  .cover-ring:nth-child(3) { width: 260px; height: 260px; border-color: rgba(0,180,216,.25); animation-duration: 10s; }
+
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .cover-content {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(0,245,212,.15), rgba(0,180,216,.15));
+    border: 1px solid var(--cyan);
+    padding: 6px 20px;
+    border-radius: 30px;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeInUp .8s ease .3s both;
+  }
+
+  .cover-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 5vw, 72px);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--electric) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp .8s ease .5s both;
+    margin-bottom: 16px;
+  }
+
+  .cover-sub {
+    font-size: 18px;
+    color: var(--electric);
+    font-weight: 300;
+    letter-spacing: 2px;
+    animation: fadeInUp .8s ease .7s both;
+    margin-bottom: 40px;
+  }
+
+  .cover-tags {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp .8s ease .9s both;
+  }
+
+  .tag {
+    background: rgba(0,245,212,.08);
+    border: 1px solid rgba(0,245,212,.3);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--white);
+    letter-spacing: 1px;
+    transition: all .3s;
+  }
+
+  .tag:hover { background: rgba(0,245,212,.2); transform: translateY(-2px); }
+
+  /* ─── SLIDE HEADER ─── */
+  .slide-header {
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 36px;
+    animation: fadeInDown .6s ease both;
+  }
+
+  .slide-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    opacity: .7;
+    margin-bottom: 8px;
+  }
+
+  .slide-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(20px, 3vw, 38px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+  }
+
+  .slide-title .accent { color: var(--cyan); }
+  .slide-title .accent2 { color: var(--accent); }
+  .slide-title .accent3 { color: var(--gold); }
+
+  .slide-line {
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--accent), transparent);
+    margin-top: 12px;
+    border-radius: 2px;
+  }
+
+  /* ─── CONTENT GRID ─── */
+  .content-grid {
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    gap: 20px;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-1-2 { grid-template-columns: 1fr 2fr; }
+
+  .card {
+    background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    border: 1px solid rgba(0,245,212,.15);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--electric));
+    opacity: 0;
+    transition: opacity .3s;
+  }
+
+  .card:hover { border-color: rgba(0,245,212,.4); transform: translateY(-3px); }
+  .card:hover::before { opacity: 1; }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .card-text {
+    font-size: 13px;
+    color: rgba(232,244,253,.7);
+    line-height: 1.7;
+  }
+
+  .card.accent-card { border-color: rgba(247,37,133,.25); }
+  .card.accent-card::before { background: linear-gradient(90deg, var(--accent), var(--neon)); }
+  .card.gold-card { border-color: rgba(255,214,10,.25); }
+  .card.gold-card::before { background: linear-gradient(90deg, var(--gold), #ff9500); }
+  .card.green-card { border-color: rgba(6,214,160,.25); }
+  .card.green-card::before { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+
+  /* ─── HIGHLIGHT BOXES ─── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,245,212,.1), rgba(0,180,216,.05));
+    border: 1px solid rgba(0,245,212,.3);
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .highlight-box::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(0,245,212,.1), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .highlight-box h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    color: var(--cyan);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .highlight-box p {
+    font-size: 13px;
+    color: rgba(232,244,253,.75);
+    line-height: 1.7;
+  }
+
+  /* ─── KPI BOXES ─── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 1100px;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .kpi-box {
+    background: linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+    border: 1px solid rgba(0,245,212,.2);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,245,212,.08), transparent 70%);
+  }
+
+  .kpi-box:hover { transform: translateY(-5px) scale(1.02); border-color: var(--cyan); }
+
+  .kpi-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--cyan);
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+
+  .kpi-unit {
+    font-size: 11px;
+    color: var(--electric);
+    letter-spacing: 2px;
+  }
+
+  .kpi-label {
+    font-size: 11px;
+    color: rgba(232,244,253,.55);
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ─── PROCESS FLOW ─── */
+  .process-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 1100px;
+    overflow-x: auto;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .process-step {
+    background: linear-gradient(135deg, rgba(0,245,212,.08), rgba(0,180,216,.04));
+    border: 1px solid rgba(0,245,212,.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    min-width: 100px;
+    flex: 1;
+    transition: all .3s;
+    cursor: default;
+  }
+
+  .process-step:hover {
+    background: linear-gradient(135deg, rgba(0,245,212,.18), rgba(0,180,216,.1));
+    border-color: var(--cyan);
+    transform: translateY(-4px);
+  }
+
+  .process-step .step-icon { font-size: 20px; margin-bottom: 6px; }
+  .process-step .step-name { font-size: 10px; color: var(--cyan); font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: .5px; }
+  .process-step .step-detail { font-size: 10px; color: rgba(232,244,253,.5); margin-top: 4px; }
+
+  .arrow-connector {
+    color: var(--cyan);
+    font-size: 18px;
+    opacity: .6;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    max-width: 1100px;
+    border-collapse: separate;
+    border-spacing: 0;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .data-table th {
+    background: linear-gradient(135deg, rgba(0,245,212,.15), rgba(0,180,216,.08));
+    color: var(--cyan);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,245,212,.3);
+    text-transform: uppercase;
+  }
+
+  .data-table td {
+    color: rgba(232,244,253,.8);
+    font-size: 13px;
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+
+  .data-table tr:hover td { background: rgba(0,245,212,.04); }
+
+  .data-table td .highlight { color: var(--cyan); font-weight: 700; }
+  .data-table td .warning { color: var(--gold); }
+  .data-table td .danger { color: var(--accent); }
+
+  /* ─── ANIMATED ICONS ─── */
+  .icon-spin { animation: spin 6s linear infinite; display: inline-block; }
+  .icon-float { animation: iconFloat 3s ease-in-out infinite; display: inline-block; }
+  @keyframes iconFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .icon-pulse { animation: iconPulse 2s ease-in-out infinite; display: inline-block; }
+  @keyframes iconPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+  /* ─── TWIN VISUAL ─── */
+  .twin-visual {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    width: 100%;
+    max-width: 1100px;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .twin-side {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,.1);
+    text-align: center;
+  }
+
+  .twin-side.physical { border-color: rgba(247,37,133,.25); }
+  .twin-side.digital { border-color: rgba(0,245,212,.25); }
+
+  .twin-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .twin-connector .line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(var(--cyan), var(--accent));
+    animation: lineFlow 2s ease-in-out infinite;
+  }
+
+  @keyframes lineFlow {
+    0%,100% { opacity: .4; }
+    50% { opacity: 1; }
+  }
+
+  .sync-badge {
+    background: linear-gradient(135deg, var(--cyan), var(--electric));
+    color: var(--deep);
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  /* ─── CIRCULAR ECONOMY ─── */
+  .circular-container {
+    position: relative;
+    width: 340px;
+    height: 340px;
+    flex-shrink: 0;
+  }
+
+  .circular-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(6,214,160,.3);
+    animation: spin 20s linear infinite;
+  }
+
+  .circular-ring::after {
+    content: '';
+    position: absolute;
+    top: -4px; left: 50%;
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-left: -4px;
+    box-shadow: 0 0 10px var(--green);
+  }
+
+  .circular-center {
+    position: absolute;
+    inset: 60px;
+    background: radial-gradient(circle, rgba(6,214,160,.15), transparent 70%);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .circular-center .main-icon { font-size: 48px; }
+  .circular-center p { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--green); letter-spacing: 1px; margin-top: 6px; }
+
+  .circular-node {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(6,214,160,.12), rgba(0,180,216,.08));
+    border: 1px solid rgba(6,214,160,.35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+    font-size: 11px;
+    width: 100px;
+  }
+
+  .circular-node .n-icon { font-size: 18px; }
+  .circular-node .n-title { color: var(--green); font-size: 10px; font-weight: 600; margin-top: 4px; }
+  .circular-node .n-value { color: rgba(232,244,253,.6); font-size: 9px; margin-top: 2px; }
+
+  .n-top { top: -30px; left: 50%; transform: translateX(-50%); }
+  .n-right { right: -50px; top: 50%; transform: translateY(-50%); }
+  .n-bottom { bottom: -30px; left: 50%; transform: translateX(-50%); }
+  .n-left { left: -50px; top: 50%; transform: translateY(-50%); }
+
+  /* ─── NAVIGATION ─── */
+  .nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+    background: rgba(3,0,28,.7);
+    border: 1px solid rgba(0,245,212,.2);
+    padding: 10px 20px;
+    border-radius: 40px;
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid rgba(0,245,212,.3);
+    color: var(--cyan);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .nav-btn:hover { background: rgba(0,245,212,.15); border-color: var(--cyan); }
+  .nav-btn:disabled { opacity: .3; cursor: default; }
+
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(0,245,212,.25);
+    cursor: pointer;
+    transition: all .3s;
+  }
+
+  .nav-dot.active {
+    background: var(--cyan);
+    width: 20px;
+    border-radius: 3px;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  .slide-counter {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: rgba(0,245,212,.6);
+    min-width: 44px;
+    text-align: center;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--accent));
+    z-index: 100;
+    transition: width .5s ease;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+
+  /* ─── LIST ITEMS ─── */
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    color: rgba(232,244,253,.75);
+    line-height: 1.6;
+    padding: 10px 14px;
+    background: rgba(255,255,255,.02);
+    border-radius: 8px;
+    border-left: 2px solid rgba(0,245,212,.3);
+    transition: all .3s;
+  }
+
+  .feature-list li:hover {
+    background: rgba(0,245,212,.05);
+    border-left-color: var(--cyan);
+    transform: translateX(4px);
+  }
+
+  .feature-list li .bullet {
+    color: var(--cyan);
+    font-size: 16px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+
+  /* ─── NORMATIVE GRID ─── */
+  .norm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 1100px;
+    animation: fadeInUp .6s ease .2s both;
+  }
+
+  .norm-card {
+    background: linear-gradient(135deg, rgba(255,214,10,.06), rgba(255,150,0,.04));
+    border: 1px solid rgba(255,214,10,.2);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all .3s;
+  }
+
+  .norm-card:hover { border-color: var(--gold); transform: scale(1.02); }
+  .norm-card .n-badge {
+    display: inline-block;
+    background: rgba(255,214,10,.15);
+    color: var(--gold);
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .norm-card .n-name { font-size: 12px; color: var(--white); font-weight: 600; margin-bottom: 6px; }
+  .norm-card .n-desc { font-size: 11px; color: rgba(232,244,253,.55); line-height: 1.6; }
+
+  /* ─── SCAN LINE ─── */
+  @keyframes scanLine {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+
+  .scan-effect {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,245,212,.4), transparent);
+    animation: scanLine 4s linear infinite;
+    pointer-events: none;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* STAGGER CHILDREN */
+  .stagger > * { animation: fadeInUp .5s ease both; }
+  .stagger > *:nth-child(1) { animation-delay: .1s; }
+  .stagger > *:nth-child(2) { animation-delay: .2s; }
+  .stagger > *:nth-child(3) { animation-delay: .3s; }
+  .stagger > *:nth-child(4) { animation-delay: .4s; }
+  .stagger > *:nth-child(5) { animation-delay: .5s; }
+  .stagger > *:nth-child(6) { animation-delay: .6s; }
+
+  /* ─── GLOW TEXT ─── */
+  .glow { text-shadow: 0 0 20px currentColor; }
+
+  /* ─── SEPARATOR SLIDE ─── */
+  .separator-slide {
+    background: radial-gradient(ellipse at center, rgba(116,0,184,.3) 0%, var(--deep) 70%);
+    text-align: center;
+  }
+
+  .separator-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 120px;
+    font-weight: 900;
+    color: rgba(0,245,212,.05);
+    position: absolute;
+    z-index: 0;
+    line-height: 1;
+    animation: fadeInUp .6s ease both;
+  }
+
+  .separator-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-1-2 { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .norm-grid { grid-template-columns: repeat(2, 1fr); }
+    .twin-visual { flex-direction: column; }
+    .process-flow { overflow-x: auto; }
+    .slide { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<canvas id="particles"></canvas>
+
+<div class="slides-wrapper" id="slidesWrapper">
+
+  <!-- ─── SLIDE 1: COVER ─── -->
+  <div class="slide cover active" data-slide="0">
+    <div class="cover-ring"></div>
+    <div class="cover-ring"></div>
+    <div class="cover-ring"></div>
+    <div class="scan-effect"></div>
+    <div class="cover-content">
+      <div class="cover-badge">🏭 Ingeniería de Procesos Senior</div>
+      <h1 class="cover-title">GEMELO<br>DIGITAL</h1>
+      <p class="cover-sub">Planta de Proteína Aislada de Soya · Industria 5.0</p>
+      <div class="cover-tags">
+        <span class="tag">⚙️ Digital Twin</span>
+        <span class="tag">♻️ Economía Circular</span>
+        <span class="tag">🤖 Robótica Colaborativa</span>
+        <span class="tag">🌿 Sostenibilidad</span>
+        <span class="tag">📡 IoT · OPC-UA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 2: ¿QUÉ ES? ─── -->
+  <div class="slide" data-slide="1">
+    <div class="slide-header">
+      <div class="slide-number">// 01 — CONCEPTO</div>
+      <h2 class="slide-title">¿Qué es el <span class="accent">Gemelo Digital</span>?</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="twin-visual">
+      <div class="twin-side physical">
+        <span class="icon-pulse" style="font-size:52px">🏭</span>
+        <h3 style="font-family:'Orbitron',monospace;font-size:14px;color:var(--accent);margin:12px 0 8px;text-transform:uppercase;letter-spacing:2px">Planta Física</h3>
+        <p style="font-size:12px;color:rgba(232,244,253,.65);line-height:1.7">1,000 kg/h soya<br>Equipo Real · Sensores · Actuadores<br>Datos en Tiempo Real</p>
+      </div>
+      <div class="twin-connector">
+        <div class="line"></div>
+        <div class="sync-badge">OPC-UA · IoT · SYNC</div>
+        <div class="line"></div>
+        <span style="font-size:22px;animation:pulse 1.5s infinite">⇄</span>
+        <div class="line"></div>
+        <div class="sync-badge">BIDIRECCIONAL</div>
+        <div class="line"></div>
+      </div>
+      <div class="twin-side digital">
+        <span class="icon-spin" style="font-size:52px">🌐</span>
+        <h3 style="font-family:'Orbitron',monospace;font-size:14px;color:var(--cyan);margin:12px 0 8px;text-transform:uppercase;letter-spacing:2px">Réplica Digital</h3>
+        <p style="font-size:12px;color:rgba(232,244,253,.65);line-height:1.7">Python: stage_equations.py<br>Modelos Fenomenológicos<br>Análisis What-if en tiempo real</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="width:100%;max-width:1100px;margin-top:20px;animation:fadeInUp .6s ease .4s both">
+      <h3>💡 Valor Central</h3>
+      <p>Al simular una caída de pH a 7.0 en el extractor, el gemelo predice algorítmicamente una caída del rendimiento del <strong style="color:var(--cyan)">12.1%</strong>, justificando la inversión en lazos de control redundantes sin arriesgar la planta real.</p>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 3: INDUSTRIA 5.0 ─── -->
+  <div class="slide" data-slide="2">
+    <div class="slide-header">
+      <div class="slide-number">// 02 — PARADIGMA</div>
+      <h2 class="slide-title">Transición a la <span class="accent">Industria 5.0</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-3 stagger" style="width:100%;max-width:1100px">
+      <div class="card">
+        <span class="card-icon icon-float">🧑‍🤝‍🧑</span>
+        <div class="card-title">Human-Centricity</div>
+        <div class="card-text">El ser humano vuelve al centro del ecosistema productivo. Los cobots asisten a operarios mitigando riesgos ergonómicos severos en paletizado y dosificación.</div>
+      </div>
+      <div class="card accent-card">
+        <span class="card-icon icon-pulse">🌱</span>
+        <div class="card-title">Sostenibilidad</div>
+        <div class="card-text">Descarbonización industrial mediante Ósmosis Inversa (ahorro ~1,000 kW), evaporación al vacío y economía circular con subproductos (Okara, Suero).</div>
+      </div>
+      <div class="card gold-card">
+        <span class="card-icon icon-float">🛡️</span>
+        <div class="card-title">Resiliencia</div>
+        <div class="card-text">Análisis topológico What-if predice perturbaciones. Arquitectura redundante PLC S7-1500, SCADA, DCS. Sistema SIS hardwired como capa de seguridad.</div>
+      </div>
+    </div>
+    <div class="kpi-grid" style="margin-top:20px">
+      <div class="kpi-box">
+        <div class="kpi-value glow">I.5</div>
+        <div class="kpi-unit">INDUSTRIA</div>
+        <div class="kpi-label">Paradigma adoptado</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--accent)">3</div>
+        <div class="kpi-unit">PILARES</div>
+        <div class="kpi-label">HC · Sust. · Resil.</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--gold)">AMMRs</div>
+        <div class="kpi-unit">ROBÓTICA</div>
+        <div class="kpi-label">Autónomos colaborativos</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--green)">Zero</div>
+        <div class="kpi-unit">WASTE</div>
+        <div class="kpi-label">Economía circular</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 4: MATERIA PRIMA ─── -->
+  <div class="slide" data-slide="3">
+    <div class="slide-header">
+      <div class="slide-number">// 03 — BASE DE DISEÑO</div>
+      <h2 class="slide-title">Materia Prima y <span class="accent">Parámetros Fisicoquímicos</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-1-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card green-card">
+          <div class="card-title">🌱 Soya de diseño</div>
+          <div class="card-text">
+            <strong style="color:var(--green);font-size:20px;font-family:'Orbitron',monospace">1,000</strong><span style="color:var(--green);font-size:11px"> kg/h</span><br>
+            Proteína bruta: <strong style="color:var(--cyan)">37.5%</strong><br>
+            Humedad: 10–12% | Lípidos: residual<br>
+            Granulometría: <strong style="color:var(--cyan)">&lt;75 μm</strong>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🌊 Relación Agua:Soya</div>
+          <div class="card-text">
+            Ratio óptimo: <strong style="color:var(--cyan);font-size:18px">1:12</strong><br>
+            <span style="font-size:11px;opacity:.7">Equilibrio termodinámico: evita saturación sin inflar costos de evaporación downstream</span><br>
+            Agua: <strong style="color:var(--cyan)">12,000 kg/h</strong>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:24px">
+        <div class="card-title">📊 Propiedades del fluido de proceso</div>
+        <table class="data-table" style="margin-top:8px">
+          <tr><th>Propiedad</th><th>Valor</th><th>Condición</th></tr>
+          <tr><td>Densidad (ρ)</td><td class="highlight">1,050 kg/m³</td><td style="font-size:11px;opacity:.6">55°C</td></tr>
+          <tr><td>Viscosidad (μ)</td><td class="highlight">0.020 Pa·s</td><td style="font-size:11px;opacity:.6">Pseudoplástico</td></tr>
+          <tr><td>Calor Específico (Cp)</td><td class="highlight">3.9 kJ/(kg·K)</td><td style="font-size:11px;opacity:.6">Siebel Corr.</td></tr>
+          <tr><td>Proteína entrante</td><td class="highlight">375.0 kg/h</td><td style="font-size:11px;opacity:.6">Calculado</td></tr>
+          <tr><td>Sólidos totales</td><td class="highlight">~7.6%</td><td style="font-size:11px;opacity:.6">Extracto diluido</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 5: PROCESO PFD ─── -->
+  <div class="slide" data-slide="4">
+    <div class="slide-header">
+      <div class="slide-number">// 04 — PFD</div>
+      <h2 class="slide-title">Diagrama de Flujo del <span class="accent">Proceso</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="process-flow">
+      <div class="process-step">
+        <div class="step-icon">🌾</div>
+        <div class="step-name">Molienda</div>
+        <div class="step-detail">M-100<br>&lt;75 μm</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">🫧</div>
+        <div class="step-name">Extracción</div>
+        <div class="step-detail">TK-101<br>pH 8.75 · 55°C</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">⚙️</div>
+        <div class="step-name">Decanters</div>
+        <div class="step-detail">CF-102<br>1,800 g</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">🌡️</div>
+        <div class="step-name">HTST</div>
+        <div class="step-detail">HX-201<br>80°C · 22s</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">💧</div>
+        <div class="step-name">Evaporación</div>
+        <div class="step-detail">EV-301<br>0.40 bar · 2E</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">⚗️</div>
+        <div class="step-name">Precipitación</div>
+        <div class="step-detail">TK-401<br>pH 4.5 (pI)</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step">
+        <div class="step-icon">💨</div>
+        <div class="step-name">Spray Dry</div>
+        <div class="step-detail">SD-501<br>190°C · &lt;5% H</div>
+      </div>
+      <div class="arrow-connector">→</div>
+      <div class="process-step" style="background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(0,180,216,.1));border-color:var(--cyan)">
+        <div class="step-icon">✅</div>
+        <div class="step-name" style="color:var(--white)">ISP Final</div>
+        <div class="step-detail" style="color:var(--cyan)">301.6 kg/h<br>&gt;90% Prot.</div>
+      </div>
+    </div>
+    <div class="kpi-grid" style="margin-top:22px;grid-template-columns:repeat(5,1fr)">
+      <div class="kpi-box">
+        <div class="kpi-value glow">301.6</div>
+        <div class="kpi-unit">kg/h</div>
+        <div class="kpi-label">Producción ISP</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--accent)">76.4%</div>
+        <div class="kpi-unit">GLOBAL</div>
+        <div class="kpi-label">Rendimiento proteico</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--gold)">88%</div>
+        <div class="kpi-unit">EXTRACCIÓN</div>
+        <div class="kpi-label">Eficiencia Etapa 1</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--green)">98%</div>
+        <div class="kpi-unit">PRECIPITACIÓN</div>
+        <div class="kpi-label">Eficiencia Etapa 4</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--electric)">&lt;5%</div>
+        <div class="kpi-unit">HUMEDAD</div>
+        <div class="kpi-label">Polvo final</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 6: EXTRACCIÓN ALCALINA ─── -->
+  <div class="slide" data-slide="5">
+    <div class="slide-header">
+      <div class="slide-number">// 05 — ETAPA 1</div>
+      <h2 class="slide-title">Extracción <span class="accent">Alcalina</span> · TK-101</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="highlight-box">
+          <h3>🔬 Fundamento Molecular</h3>
+          <p>Al elevar pH &gt; pI con NaOH, las proteínas (glicinina y β-conglicinina) se despliegan por repulsión electrostática, solubilizándose en la fase acuosa. NSI alcanza <strong style="color:var(--cyan)">92–96%</strong> a pH 8.75.</p>
+        </div>
+        <div class="card green-card">
+          <div class="card-title">⚙️ Equipo: Tanque PBT</div>
+          <div class="card-text">
+            Impulsor de Palas Inclinadas (Pitched Blade Turbine).<br>
+            Capacidad: <strong style="color:var(--green)">14.0 m³</strong> · Agitador EKATO 7.5 kW<br>
+            Flujo axial: mantiene partículas en suspensión sin desnaturalización mecánica<br>
+            AISI 316L · Ra ≤ 0.4 μm
+          </div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <div class="card-title">📈 Variables de Control Críticas</div>
+        <table class="data-table" style="margin-top:4px">
+          <tr><th>Variable</th><th>Setpoint</th><th>Rango</th></tr>
+          <tr><td>pH extracción</td><td class="highlight">8.75</td><td style="font-size:11px">8.0 – 9.5</td></tr>
+          <tr><td>Temperatura</td><td class="highlight">55°C</td><td style="font-size:11px">50 – 60°C</td></tr>
+          <tr><td>Ratio agua:soya</td><td class="highlight">1:12</td><td style="font-size:11px">1:9 – 1:14</td></tr>
+          <tr><td>Granulometría</td><td class="highlight">&lt;75 μm</td><td style="font-size:11px">Crítico</td></tr>
+          <tr><td>Proteína en extracto</td><td class="highlight">316.9 kg/h</td><td style="font-size:11px">Post clarif.</td></tr>
+        </table>
+        <div style="background:rgba(247,37,133,.08);border:1px solid rgba(247,37,133,.25);border-radius:8px;padding:12px;font-size:12px;color:rgba(232,244,253,.7)">
+          ⚠️ <strong style="color:var(--accent)">Cuello de Botella Primario (TOC)</strong><br>
+          Utilización: 96.5% — Limitado por cinética de difusión (tiempo de residencia en TK-101).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 7: PASTEURIZACIÓN + EVAPORACIÓN ─── -->
+  <div class="slide" data-slide="6">
+    <div class="slide-header">
+      <div class="slide-number">// 06 — ETAPAS 2 y 3</div>
+      <h2 class="slide-title">Pasteurización <span class="accent">HTST</span> y Evaporación <span class="accent2">Doble Efecto</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div class="card">
+        <span class="card-icon">🌡️</span>
+        <div class="card-title">HX-201 — Pasteurizador PHE HTST</div>
+        <div class="card-text">
+          <strong style="color:var(--cyan)">80°C × 22 segundos</strong> (PCC HACCP Biológico)<br><br>
+          Balance de energía:<br>
+          Q<sub>total</sub> = 3.02 kg/s × 3.9 × 55K = <strong style="color:var(--cyan)">647.7 kW</strong><br>
+          Con HR = 55%: Q<sub>útil</sub> = <strong style="color:var(--cyan)">310 kW</strong><br><br>
+          Área real: <strong style="color:var(--cyan)">39.6 m²</strong> (GEA/Alfa Laval)<br>
+          FDD automático activa si T &lt; 80°C
+        </div>
+      </div>
+      <div class="card accent-card">
+        <span class="card-icon">💨</span>
+        <div class="card-title">EV-301 — Evaporador Falling Film 2E</div>
+        <div class="card-text">
+          Vacío: <strong style="color:var(--accent)">0.40 bar abs</strong> → ebullición a ~75°C<br>
+          Economía de vapor: <strong style="color:var(--accent)">E = 1.85</strong><br><br>
+          Entrada: 10,873 kg/h @ 3.57% ST<br>
+          Salida: <strong style="color:var(--accent)">1,688 kg/h @ 23% ST</strong><br>
+          Agua evaporada: <strong style="color:var(--accent)">8,967.6 kg/h</strong><br><br>
+          Q<sub>teórica</sub> = 5,767 kW → Q<sub>real</sub> = <strong style="color:var(--accent)">3,530 kW</strong>
+        </div>
+      </div>
+    </div>
+    <div class="highlight-box" style="width:100%;max-width:1100px;margin-top:18px;background:linear-gradient(135deg,rgba(0,245,212,.08),rgba(116,0,184,.06));border-color:rgba(116,0,184,.3);animation:fadeInUp .6s ease .4s both">
+      <h3 style="color:var(--neon)">🚀 Innovación: Pre-concentración por Ósmosis Inversa (RO-205)</h3>
+      <p>TMP = 24 bar · Permeado extraído: <strong style="color:var(--cyan)">2,718 kg/h</strong> · Ahorro térmico: <strong style="color:var(--cyan)">~1,000 kW</strong> · Consumo eléctrico adicional: solo 9 kW · Reducción OPEX térmico: <strong style="color:var(--cyan)">~25%</strong></p>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 8: PRECIPITACIÓN + SECADO ─── -->
+  <div class="slide" data-slide="7">
+    <div class="slide-header">
+      <div class="slide-number">// 07 — ETAPAS 4 y 5</div>
+      <h2 class="slide-title">Precipitación <span class="accent">Isoeléctrica</span> y Secado <span class="accent2">Spray</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card gold-card">
+          <div class="card-title">⚗️ TK-401 — Precipitación pH 4.5</div>
+          <div class="card-text">
+            Dosificación HCl hasta punto isoeléctrico (pI = 4.5)<br>
+            Las proteínas pierden carga neta → precipitan<br><br>
+            Proteína precipitada: <strong style="color:var(--gold)">292.3 kg/h</strong><br>
+            Pasta centrífuga (50% sólidos): <strong style="color:var(--gold)">584.7 kg/h</strong><br>
+            Suero generado: 1,057.7 kg/h (subproducto)<br><br>
+            <strong style="color:var(--accent)">NPR 144 — CRÍTICO (FMEA)</strong>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin:0">
+          <h3>⚠️ Control Split-Range</h3>
+          <p>pH controlado con HCl en control de rango dividido (Split-Range). Riesgo: pérdida masiva de proteína al suero si pH se desvía ±0.2 del setpoint.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💨 SD-501 — Spray Dryer Rotativo</div>
+        <div class="card-text">
+          Atomizador rotativo: <strong style="color:var(--cyan)">18,000 RPM</strong><br>
+          Gotas: 10–50 μm · Temperatura entrada: <strong style="color:var(--cyan)">190°C</strong><br><br>
+          Alimentación: 584.7 kg/h @ 50% H₂O<br>
+          Polvo teórico: 307.7 kg/h<br>
+          Pérdida operativa (2%): −6.1 kg/h<br>
+          <strong style="color:var(--cyan)">ISP Final: 301.6 kg/h @ &lt;5% H</strong><br><br>
+          Rendimiento global: <strong style="color:var(--cyan)">76.4%</strong><br><br>
+          <div style="background:rgba(247,37,133,.08);border-radius:6px;padding:8px;font-size:11px;margin-top:6px">
+            🔒 Seguridad NFPA 61/654 — Paneles de venteo ATEX<br>
+            Detección CO + NFPA 68 en cámara de secado
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 9: INSTRUMENTACIÓN DCS ─── -->
+  <div class="slide" data-slide="8">
+    <div class="slide-header">
+      <div class="slide-number">// 08 — CONTROL</div>
+      <h2 class="slide-title">Arquitectura DCS · <span class="accent">Control e Instrumentación</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-3 stagger" style="width:100%;max-width:1100px">
+      <div class="card">
+        <span class="card-icon">🔌</span>
+        <div class="card-title">Nivel de Campo</div>
+        <div class="card-text">
+          IO-Link / PROFINET<br>
+          Sensores de presión, temperatura, pH, conductividad, flujo<br>
+          Visión hiperespectral (molienda/empaque)<br>
+          Detección <em>Salmonella</em>, <em>Listeria</em> en tiempo real
+        </div>
+      </div>
+      <div class="card accent-card">
+        <span class="card-icon">🖥️</span>
+        <div class="card-title">Nivel de Control</div>
+        <div class="card-text">
+          PLCs Redundantes Siemens S7-1500<br>
+          Lazos: FFC (ratio 1:12) · pHC (NaOH/HCl)<br>
+          FDD automático (pasteurizador)<br>
+          PC vacío (0.40 bar) · DC densidad (23% ST)
+        </div>
+      </div>
+      <div class="card gold-card">
+        <span class="card-icon">📡</span>
+        <div class="card-title">Nivel SCADA / Gemelo</div>
+        <div class="card-text">
+          OPC-UA → Gemelo Digital Python<br>
+          SCADA en tiempo real<br>
+          Análisis predictivo y What-if<br>
+          Trazabilidad total IoT / Blockchain ready
+        </div>
+      </div>
+    </div>
+    <div class="highlight-box" style="width:100%;max-width:1100px;margin-top:18px;animation:fadeInUp .6s ease .4s both">
+      <h3>🔒 Funciones SIS (Safety Instrumented System)</h3>
+      <p>Interruptores LSHH hardwired (anti-derrames) · Sistema ATEX en secador · Duchas emergencia ANSI Z358.1 en CIP · Aislamiento OSHA 1910 en líneas calientes · NFPA 654 para polvos combustibles.</p>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 10: HIDRÁULICA ─── -->
+  <div class="slide" data-slide="9">
+    <div class="slide-header">
+      <div class="slide-number">// 09 — HIDRÁULICA</div>
+      <h2 class="slide-title">Perfil Hidráulico · <span class="accent">Diseño Sanitario ASME BPE</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <table class="data-table" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <tr>
+        <th>Bomba</th>
+        <th>Caudal (m³/h)</th>
+        <th>Tubería</th>
+        <th>Velocidad</th>
+        <th>TDH</th>
+        <th>Motor</th>
+      </tr>
+      <tr><td>P-101 Agua → TK-101</td><td class="highlight">12.00</td><td>DN65</td><td>1.07 m/s</td><td class="warning">5.29 m</td><td>1.5 kW</td></tr>
+      <tr><td>P-102 Lodo → Decanters</td><td class="highlight">12.13</td><td>DN65</td><td>1.08 m/s</td><td class="warning">6.15 m</td><td>2.2 kW</td></tr>
+      <tr><td>P-201 Extracto → Past.</td><td class="highlight">10.56</td><td>DN50</td><td>1.43 m/s</td><td class="warning">8.16 m</td><td>2.2 kW</td></tr>
+      <tr><td>P-301 Past. → Evap.</td><td class="highlight">10.35</td><td>DN65</td><td>0.92 m/s</td><td class="warning">10.87 m</td><td>3.0 kW</td></tr>
+      <tr><td>P-401 Conc. → TK-401</td><td class="highlight">1.60</td><td>DN32</td><td>0.46 m/s</td><td class="warning">5.93 m</td><td>1.1 kW</td></tr>
+      <tr><td>P-501 Pasta → Spray</td><td class="highlight">0.55</td><td>DN32</td><td>0.16 m/s</td><td class="warning">8.10 m</td><td>1.5 kW</td></tr>
+    </table>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;margin-top:16px;animation:fadeInUp .6s ease .4s both">
+      <div class="highlight-box" style="margin:0">
+        <h3>✅ NPSH Verificado — P-102</h3>
+        <p>NPSHa = 9.6 m · Margen &gt;7 m sobre NPSHr = 2.5 m · Sin riesgo de cavitación</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🔧 Diseño Sanitario</div>
+        <div class="card-text">316L con Ra ≤ 0.4 μm · Conexiones Tri-Clamp SMED &lt;3 min · Válvulas anti-retorno sin zonas muertas · Pisos epóxicos pendiente 2%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 11: CIP ─── -->
+  <div class="slide" data-slide="10">
+    <div class="slide-header">
+      <div class="slide-number">// 10 — HIGIENE</div>
+      <h2 class="slide-title">Diseño Higiénico · <span class="accent">CIP Automatizado</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="card-title">🧹 Secuencia CIP (5 Fases)</div>
+          <ul class="feature-list" style="margin-top:8px">
+            <li><span class="bullet">1</span>Purga inicial — desplazamiento de producto</li>
+            <li><span class="bullet">2</span>Lavado alcalino: NaOH 1.5% @ 75°C</li>
+            <li><span class="bullet">3</span>Enjuague intermedio agua caliente</li>
+            <li><span class="bullet">4</span>Lavado ácido: HNO₃ 1.0% @ 65°C (intermitente)</li>
+            <li><span class="bullet">5</span>Enjuague final + Higienización 90°C</li>
+          </ul>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card green-card">
+          <div class="card-title">🛡️ Estándares Higiénicos</div>
+          <div class="card-text">
+            <strong style="color:var(--green)">EHEDG / 3-A Sanitary Standards</strong><br>
+            ASME BPE: soldaduras orbitales · Ra &lt; 0.8 μm<br>
+            Pasivación de acero inoxidable<br>
+            Mixproof valves: elimina zonas muertas<br>
+            Válvulas de diafragma sanitarias<br><br>
+            PCC HACCP: HX-201 como barrera biológica crítica<br>
+            Conductivímetro final: verifica residuos CIP (químico)
+          </div>
+        </div>
+        <div class="kpi-box" style="text-align:left;padding:16px">
+          <div style="display:flex;gap:24px;align-items:center">
+            <div><div class="kpi-value glow" style="font-size:22px">OEE</div><div class="kpi-unit">92%</div></div>
+            <div style="font-size:12px;color:rgba(232,244,253,.7)">7,500 h/año operativas<br>3 turnos × 8h<br>Rotación 6×2 (4 cuadrillas)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 12: ECONOMÍA CIRCULAR ─── -->
+  <div class="slide" data-slide="11">
+    <div class="slide-header">
+      <div class="slide-number">// 11 — CIRCULARIDAD</div>
+      <h2 class="slide-title">Economía <span class="accent">Circular</span> · Zero Waste</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div style="display:flex;gap:32px;align-items:center;width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div class="circular-container">
+        <div class="circular-ring"></div>
+        <div class="circular-center">
+          <span class="main-icon icon-spin">♻️</span>
+          <p>ZERO<br>WASTE</p>
+        </div>
+        <div class="circular-node n-top">
+          <div class="n-icon">🌾</div>
+          <div class="n-title">Soya</div>
+          <div class="n-value">1,000 kg/h</div>
+        </div>
+        <div class="circular-node n-right">
+          <div class="n-icon">🥛</div>
+          <div class="n-title">ISP Final</div>
+          <div class="n-value">301.6 kg/h</div>
+        </div>
+        <div class="circular-node n-bottom">
+          <div class="n-icon">🐷</div>
+          <div class="n-title">Suero</div>
+          <div class="n-value">Porcicultura</div>
+        </div>
+        <div class="circular-node n-left">
+          <div class="n-icon">🌿</div>
+          <div class="n-title">Okara</div>
+          <div class="n-value">1,645 kg/h</div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+        <div class="card green-card">
+          <div class="card-title">🌿 Okara (Fibra Húmeda)</div>
+          <div class="card-text">
+            1,645 kg/h @ 65% humedad<br>
+            Destino: <strong style="color:var(--green)">Lecherías del Norte Integrado</strong> (suplemento proteico)<br>
+            Cero CAPEX pesado: tolvas y tanques HDPE
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🐷 Suero / Whey</div>
+          <div class="card-text">
+            1,057.7 kg/h de suero rico en péptidos<br>
+            Destino: <strong style="color:var(--cyan)">Porcicultores de Warnes</strong> (probiótico natural)<br>
+            Valor añadido sin tratamiento adicional
+          </div>
+        </div>
+        <div class="highlight-box" style="margin:0;background:linear-gradient(135deg,rgba(6,214,160,.1),rgba(0,180,216,.05));border-color:rgba(6,214,160,.3)">
+          <h3 style="color:var(--green)">💰 Impacto Financiero Circular</h3>
+          <p>Beneficio total (ingreso + costo evitado): <strong style="color:var(--green)">+578,190 Bs/mes</strong><br>Offset annual en costos: ~143,200 USD/año</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 13: CAPEX ─── -->
+  <div class="slide" data-slide="12">
+    <div class="slide-header">
+      <div class="slide-number">// 12 — FINANCIERO</div>
+      <h2 class="slide-title">Estructura de <span class="accent3">CAPEX</span> · Estimación Clase 3 AACE</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div class="card" style="padding:24px">
+        <div class="card-title">📊 CAPEX Detallado</div>
+        <table class="data-table" style="margin-top:10px">
+          <tr><th>Rubro</th><th>USD</th></tr>
+          <tr><td>🏭 Maquinaria Principal</td><td class="highlight">1,960,000</td></tr>
+          <tr><td>⚡ Utilidades</td><td class="highlight">450,000</td></tr>
+          <tr><td>🤖 Robótica / AMMRs</td><td class="highlight">185,000</td></tr>
+          <tr><td>📡 Instrumentación / DCS</td><td class="highlight">320,000</td></tr>
+          <tr><td>🏗️ Obras Civiles / Piping</td><td class="highlight">588,000</td></tr>
+          <tr><td style="font-weight:700">Subtotal Directo</td><td class="highlight" style="font-weight:700">3,493,000</td></tr>
+          <tr><td>📎 Indirecto (20%)</td><td class="warning">698,600</td></tr>
+          <tr><td style="font-weight:800;color:var(--cyan)">CAPEX TOTAL</td><td class="highlight" style="font-size:16px;font-weight:900">4,191,600</td></tr>
+          <tr><td>💼 Capital de Trabajo (OWC)</td><td class="warning">450,000</td></tr>
+          <tr><td style="font-weight:800;color:var(--accent)">INVERSIÓN INICIAL TOTAL</td><td class="danger" style="font-weight:900;font-size:16px">4,641,600</td></tr>
+        </table>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr">
+          <div class="kpi-box">
+            <div class="kpi-value glow" style="font-size:20px">2.15</div>
+            <div class="kpi-unit">AÑOS</div>
+            <div class="kpi-label">Payback Period</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-value glow" style="color:var(--green);font-size:20px">32.1%</div>
+            <div class="kpi-unit">MARGEN</div>
+            <div class="kpi-label">EBITDA</div>
+          </div>
+        </div>
+        <div class="card gold-card">
+          <div class="card-title">📦 OPEX Anual</div>
+          <div class="card-text">
+            Variable: <strong style="color:var(--gold)">4,761,550 USD/año</strong> (soya @430 USD/t)<br>
+            Fijo: 751,925 USD/año<br>
+            Depreciación (10 años): 377,244 USD/año<br>
+            Offset circular: −143,200 USD/año<br><br>
+            Costo unitario neto: <strong style="color:var(--gold)">~2.37 USD/kg ISP</strong>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin:0;background:linear-gradient(135deg,rgba(6,214,160,.1),rgba(0,245,212,.05));border-color:rgba(6,214,160,.3)">
+          <h3 style="color:var(--green)">Revenue Anual @ 3.50 USD/kg</h3>
+          <p><strong style="color:var(--cyan);font-size:20px">7,917,000 USD/año</strong><br>EBITDA: <strong style="color:var(--green)">2,546,725 USD/año</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 14: FMEA / CRITICIDAD ─── -->
+  <div class="slide" data-slide="13">
+    <div class="slide-header">
+      <div class="slide-number">// 13 — RIESGOS</div>
+      <h2 class="slide-title">Matriz de Criticidad <span class="accent2">FMEA</span> · Gestión de Riesgos</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div>
+        <table class="data-table">
+          <tr><th>Variable</th><th>NPR</th><th>Nivel</th><th>Consecuencia</th></tr>
+          <tr>
+            <td>pH Precipitación TK-401</td>
+            <td class="danger" style="font-weight:900;font-size:16px">144</td>
+            <td><span style="background:rgba(247,37,133,.2);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px">CRÍTICO</span></td>
+            <td style="font-size:11px">Pérdida masiva proteína → suero</td>
+          </tr>
+          <tr>
+            <td>Humedad Final SD-501</td>
+            <td class="warning" style="font-weight:700;font-size:15px">108</td>
+            <td><span style="background:rgba(255,214,10,.15);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:11px">ALTA</span></td>
+            <td style="font-size:11px">Caking + riesgo microbiológico</td>
+          </tr>
+          <tr>
+            <td>Vacío Evaporador EV-301</td>
+            <td class="warning" style="font-weight:700;font-size:15px">70</td>
+            <td><span style="background:rgba(255,214,10,.15);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:11px">ALTA</span></td>
+            <td style="font-size:11px">Reacción Maillard (>0.6 bar)</td>
+          </tr>
+        </table>
+        <div class="highlight-box" style="margin-top:14px">
+          <h3>📊 Rangos Críticos de Operabilidad</h3>
+          <p>
+            Ratio agua:soya: entre 1:9 y 1:14<br>
+            pH extracción: 8.0 – 9.5 (hidrólisis si >9.5)<br>
+            Punto de equilibrio mínimo: <strong style="color:var(--cyan)">680 kg/h soya</strong>
+          </p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="card-title">🦠 PCC HACCP</div>
+          <ul class="feature-list">
+            <li><span class="bullet">🌡️</span><strong>Biológico:</strong> HX-201 → T ≥ 80°C por 22s (pasteurización)</li>
+            <li><span class="bullet">🔩</span><strong>Físico:</strong> ML-601 → Detectores de metales en línea final</li>
+            <li><span class="bullet">⚗️</span><strong>Químico:</strong> Conductivímetro CIP → verifica residuos de limpieza</li>
+          </ul>
+        </div>
+        <div class="card accent-card">
+          <div class="card-title">🔒 Seguridad Industrial</div>
+          <ul class="feature-list">
+            <li><span class="bullet">💥</span>NFPA 61/654 en secador spray (polvo combustible)</li>
+            <li><span class="bullet">🚿</span>Duchas ANSI Z358.1 en estación CIP</li>
+            <li><span class="bullet">🌡️</span>Aislamiento OSHA 1910 en líneas calientes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 15: ROBÓTICA ─── -->
+  <div class="slide" data-slide="14">
+    <div class="slide-header">
+      <div class="slide-number">// 14 — INDUSTRIA 5.0</div>
+      <h2 class="slide-title">Robótica <span class="accent">Colaborativa</span> · AMMRs y Cobots</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-3 stagger" style="width:100%;max-width:1100px">
+      <div class="card accent-card">
+        <span class="card-icon icon-float">🤖</span>
+        <div class="card-title">AMMRs</div>
+        <div class="card-text">Robots Manipuladores Móviles Autónomos para paletizado de sacos 20 kg y dosificación de reactivos. Operan en espacios no confinados (sin jaulas de seguridad).</div>
+      </div>
+      <div class="card gold-card">
+        <span class="card-icon icon-pulse">🦾</span>
+        <div class="card-title">Cobots + Agentic AI</div>
+        <div class="card-text">Sensores de fuerza/torque permiten colaboración segura human-robot. Reducen riesgos ergonómicos severos en operadores. Filosofía Industria 5.0: humano al centro.</div>
+      </div>
+      <div class="card green-card">
+        <span class="card-icon icon-float">👁️</span>
+        <div class="card-title">Visión Hiperespectral</div>
+        <div class="card-text">Detección de <em>Salmonella</em> y <em>Listeria</em> en molienda y empaque. Cuerpos extraños identificados en tiempo real. Alimenta directamente el Gemelo Digital con trazabilidad total.</div>
+      </div>
+    </div>
+    <div class="kpi-grid" style="margin-top:20px">
+      <div class="kpi-box">
+        <div class="kpi-value glow">185K</div>
+        <div class="kpi-unit">USD</div>
+        <div class="kpi-label">CAPEX robótica</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--accent)">0</div>
+        <div class="kpi-unit">JAULAS</div>
+        <div class="kpi-label">Espacios confinados</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--green)">IoT</div>
+        <div class="kpi-unit">NATIVO</div>
+        <div class="kpi-label">Trazabilidad total</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--gold)">Real</div>
+        <div class="kpi-unit">TIME</div>
+        <div class="kpi-label">Detección patógenos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 16: NORMATIVA ─── -->
+  <div class="slide" data-slide="15">
+    <div class="slide-header">
+      <div class="slide-number">// 15 — NORMATIVA</div>
+      <h2 class="slide-title">Marco <span class="accent3">Normativo</span> Internacional</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="norm-grid">
+      <div class="norm-card">
+        <div class="n-badge">FDA</div>
+        <div class="n-name">CFR Title 21</div>
+        <div class="n-desc">CGMP (Current Good Manufacturing Practice). Regulación para alimentos en EE.UU. Trazabilidad y registros.</div>
+      </div>
+      <div class="norm-card">
+        <div class="n-badge">ISO 22000</div>
+        <div class="n-name">HACCP + ISO</div>
+        <div class="n-desc">Sistema de gestión de inocuidad. Identificación temprana de PCCs. Análisis de peligros biológicos, físicos y químicos.</div>
+      </div>
+      <div class="norm-card">
+        <div class="n-badge">ASME BPE</div>
+        <div class="n-name">Bioprocessing Equipment</div>
+        <div class="n-desc">Soldaduras orbitales, Ra &lt; 0.8 μm, pasivación de AISI 316L. Estándar obligatorio para equipos farmacéuticos y alimentarios.</div>
+      </div>
+      <div class="norm-card">
+        <div class="n-badge">EHEDG / 3-A</div>
+        <div class="n-name">Hygienic Design</div>
+        <div class="n-desc">Eliminación de zonas muertas, dead legs y biopelículas. Criterios de diseño para tuberías, bombas, válvulas y tanques.</div>
+      </div>
+      <div class="norm-card">
+        <div class="n-badge">NFPA 61/654</div>
+        <div class="n-name">Polvo Combustible</div>
+        <div class="n-desc">Diseño de sistemas de venteo y detección de CO en spray dryer. Paneles de alivio para explosiones de polvo de soya.</div>
+      </div>
+      <div class="norm-card">
+        <div class="n-badge">Codex Stan 175</div>
+        <div class="n-name">Proteína de Soya</div>
+        <div class="n-desc">Estándar Codex Alimentarius para proteína aislada de soya. Pureza ≥ 90% en base seca. Parámetros microbiológicos y físico-químicos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 17: LOGÍSTICA ─── -->
+  <div class="slide" data-slide="16">
+    <div class="slide-header">
+      <div class="slide-number">// 16 — LOGÍSTICA</div>
+      <h2 class="slide-title">Empaque · Shelf-Life · <span class="accent">Exportación</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-3 stagger" style="width:100%;max-width:1100px">
+      <div class="card">
+        <span class="card-icon">📦</span>
+        <div class="card-title">Packaging Premium</div>
+        <div class="card-text">
+          Sacos de <strong style="color:var(--cyan)">20 kg</strong><br>
+          Liner de barrera multicapa:<br>
+          <strong style="color:var(--electric)">PET / NY / AL / PE</strong><br>
+          Atmósfera modificada N₂<br>
+          Protección O₂, humedad y luz
+        </div>
+      </div>
+      <div class="card green-card">
+        <span class="card-icon">⏱️</span>
+        <div class="card-title">Shelf-Life</div>
+        <div class="card-text">
+          Vida útil: <strong style="color:var(--green)">24 meses</strong><br>
+          T: 18–22°C<br>
+          HR: &lt;60%<br><br>
+          Máxima estabilidad proteica sin aditivos artificiales. Cumple FDA y Codex Stan 175.
+        </div>
+      </div>
+      <div class="card gold-card">
+        <span class="card-icon">🚢</span>
+        <div class="card-title">Ruta de Exportación</div>
+        <div class="card-text">
+          <strong style="color:var(--gold)">Corredor Pacífico</strong><br>
+          Santa Cruz → Arica → Asia<br><br>
+          Incoterm: <strong style="color:var(--gold)">FCA Planta Santa Cruz</strong><br>
+          Mitiga riesgos de transporte externo<br>
+          Incoterms 2020
+        </div>
+      </div>
+    </div>
+    <div class="kpi-grid" style="margin-top:20px">
+      <div class="kpi-box">
+        <div class="kpi-value glow">2.26M</div>
+        <div class="kpi-unit">kg/año</div>
+        <div class="kpi-label">Producción anual ISP</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--gold)">FCA</div>
+        <div class="kpi-unit">INCOTERM</div>
+        <div class="kpi-label">Incoterms 2020</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--green)">24M</div>
+        <div class="kpi-unit">MESES</div>
+        <div class="kpi-label">Vida útil del producto</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--accent)">Asia</div>
+        <div class="kpi-unit">MERCADO</div>
+        <div class="kpi-label">Vía Corredor Pacífico</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 18: ESCALABILIDAD / TOC ─── -->
+  <div class="slide" data-slide="17">
+    <div class="slide-header">
+      <div class="slide-number">// 17 — ESCALABILIDAD</div>
+      <h2 class="slide-title">Análisis TOC · <span class="accent">Escalabilidad</span> y Sensibilidad</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card accent-card">
+          <div class="card-title">🔴 Cuello de Botella Primario</div>
+          <div class="card-text">
+            <strong style="color:var(--accent)">TK-101 Extracción → 96.5% utilización</strong><br>
+            Limitante: cinética de difusión (tiempo de residencia). Es el constraint a explotar según TOC.
+          </div>
+        </div>
+        <div class="card gold-card">
+          <div class="card-title">🟡 Restricción Secundaria</div>
+          <div class="card-text">
+            <strong style="color:var(--gold)">EV-301 Evaporador → 89.6% utilización</strong><br>
+            Restricción térmica. La OI (Ósmosis Inversa) alivia este cuello al retirar agua antes.
+          </div>
+        </div>
+        <div class="card green-card">
+          <div class="card-title">🟢 Buffer de Seguridad</div>
+          <div class="card-text">
+            <strong style="color:var(--green)">SD-501 Spray Dryer → 70.8% utilización</strong><br>
+            Capacidad disponible. Permite absorber variaciones de producción sin riesgo.
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="highlight-box">
+          <h3>📈 Escenario de Escalabilidad</h3>
+          <p>
+            Configuración actual: <strong style="color:var(--cyan)">1,000 kg/h soya</strong><br>
+            Escalabilidad posible: <strong style="color:var(--cyan)">1,500 kg/h (+50%)</strong><br>
+            Palancas: TK-101B (paralelo) + RO-205 plena<br><br>
+            Punto de equilibrio térmico: <strong style="color:var(--gold)">mínimo 680 kg/h</strong>
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Sensibilidad OPEX (Precio Soya)</div>
+          <table class="data-table" style="margin-top:8px">
+            <tr><th>Precio Soya</th><th>Costo Unit.</th><th>EBITDA</th></tr>
+            <tr><td>380 USD/t</td><td class="highlight">~2.15 USD</td><td class="highlight">↑ Alto</td></tr>
+            <tr><td>430 USD/t (base)</td><td class="highlight">2.37 USD</td><td class="highlight">2.55M USD</td></tr>
+            <tr><td>480 USD/t</td><td class="warning">~2.59 USD</td><td class="warning">↓ Presión</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 19: ORGANIGRAMA / OEE ─── -->
+  <div class="slide" data-slide="18">
+    <div class="slide-header">
+      <div class="slide-number">// 18 — ORGANIZACIÓN</div>
+      <h2 class="slide-title">Estructura Organizacional · <span class="accent">Métodos y OEE</span></h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="content-grid grid-2" style="width:100%;max-width:1100px;animation:fadeInUp .6s ease .2s both">
+      <div class="card" style="padding:24px">
+        <div class="card-title">🏢 Organigrama</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+          <div style="background:linear-gradient(135deg,rgba(0,245,212,.12),rgba(0,180,216,.06));border:1px solid rgba(0,245,212,.3);border-radius:8px;padding:10px 16px;text-align:center;font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);letter-spacing:1px">CEO y Fundador</div>
+          <div style="display:flex;justify-content:center;gap:4px;padding:2px 0">
+            <div style="width:1px;height:16px;background:rgba(0,245,212,.4)"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;background:rgba(247,37,133,.08);border:1px solid rgba(247,37,133,.25);border-radius:8px;padding:8px;text-align:center;font-size:10px;color:var(--accent)">Operaciones</div>
+            <div style="flex:1;background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.25);border-radius:8px;padding:8px;text-align:center;font-size:10px;color:var(--gold)">Comercial</div>
+            <div style="flex:1;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.25);border-radius:8px;padding:8px;text-align:center;font-size:10px;color:var(--green)">Finanzas</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <div style="flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px;font-size:9px;color:rgba(232,244,253,.6);text-align:center">Supervisores<br>de Turno</div>
+            <div style="flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px;font-size:9px;color:rgba(232,244,253,.6);text-align:center">Jefatura<br>Mantenimiento</div>
+            <div style="flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px;font-size:9px;color:rgba(232,244,253,.6);text-align:center">Jefatura<br>Calidad</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <div style="flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:6px;font-size:8px;color:rgba(232,244,253,.45);text-align:center">Operadores de Línea</div>
+            <div style="flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:6px;font-size:8px;color:rgba(232,244,253,.45);text-align:center">Técnicos Mant.</div>
+            <div style="flex:1;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:6px;font-size:8px;color:rgba(232,244,253,.45);text-align:center">Analistas Lab</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr">
+          <div class="kpi-box">
+            <div class="kpi-value glow">92%</div>
+            <div class="kpi-unit">OEE</div>
+            <div class="kpi-label">Efectividad global</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-value glow" style="color:var(--gold)">7,500</div>
+            <div class="kpi-unit">h/año</div>
+            <div class="kpi-label">Tiempo operativo</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">⏰ Esquema de Turnos</div>
+          <div class="card-text">
+            3 turnos de 8h diarios — 24/7<br>
+            Rotación <strong style="color:var(--cyan)">6×2</strong> (6 días trabajo, 2 descanso)<br>
+            4 cuadrillas rotativas<br><br>
+            Mantenimiento preventivo: 2.5% del CAPEX/año<br>
+            Plan TPM integrado al Gemelo Digital
+          </div>
+        </div>
+        <div class="highlight-box" style="margin:0">
+          <h3>📐 Filosofía SMED</h3>
+          <p>Cambios de formato con Tri-Clamp en &lt;3 minutos. Cambios de producto con CIP completo en secuencia automatizada.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SLIDE 20: RESUMEN EJECUTIVO ─── -->
+  <div class="slide" data-slide="19">
+    <div class="slide-header">
+      <div class="slide-number">// 19 — CONCLUSIONES</div>
+      <h2 class="slide-title">Resumen <span class="accent">Ejecutivo</span> · Planta ISP Industria 5.0</h2>
+      <div class="slide-line"></div>
+    </div>
+    <div class="kpi-grid" style="margin-bottom:18px;grid-template-columns:repeat(5,1fr)">
+      <div class="kpi-box">
+        <div class="kpi-value glow">301.6</div>
+        <div class="kpi-unit">kg/h</div>
+        <div class="kpi-label">ISP &gt;90% proteína</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--accent)">4.19M</div>
+        <div class="kpi-unit">USD CAPEX</div>
+        <div class="kpi-label">Inversión total</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--gold)">2.15</div>
+        <div class="kpi-unit">AÑOS</div>
+        <div class="kpi-label">Recuperación</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--green)">~1,000</div>
+        <div class="kpi-unit">kW ahorrado</div>
+        <div class="kpi-label">OI vs. evaporación</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-value glow" style="color:var(--electric)">Zero</div>
+        <div class="kpi-unit">WASTE</div>
+        <div class="kpi-label">100% circularidad</div>
+      </div>
+    </div>
+    <div class="content-grid grid-3 stagger" style="width:100%;max-width:1100px">
+      <div class="card green-card">
+        <span class="card-icon">🌱</span>
+        <div class="card-title">Sostenibilidad Demostrada</div>
+        <div class="card-text">Ósmosis Inversa reduce OPEX térmico 25%. Economía circular genera +578K Bs/mes. Descarbonización desde el diseño, no como añadido.</div>
+      </div>
+      <div class="card accent-card">
+        <span class="card-icon">🤖</span>
+        <div class="card-title">Tecnología de Vanguardia</div>
+        <div class="card-text">Gemelo Digital + OPC-UA + DCS redundante. AMMRs y cobots con Agentic AI. Visión hiperespectral para inocuidad. ISA 5.1 compliance.</div>
+      </div>
+      <div class="card gold-card">
+        <span class="card-icon">📈</span>
+        <div class="card-title">Rentabilidad Sólida</div>
+        <div class="card-text">EBITDA 32.1% · Payback 2.15 años · Revenue 7.9M USD/año. Escalable a 1,500 kg/h con bajo CAPEX incremental. Mercado Asia vía Corredor Pacífico.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:18px;animation:fadeInUp .6s ease .6s both">
+      <p style="font-family:'Orbitron',monospace;font-size:12px;color:var(--cyan);letter-spacing:4px;opacity:.7">GEMELO DIGITAL · INDUSTRIA 5.0 · SANTA CRUZ — BOLIVIA</p>
+    </div>
+  </div>
+
+</div><!-- /slides-wrapper -->
+
+<!-- ─── NAVIGATION ─── -->
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <span class="slide-counter" id="slideCounter">01 / 20</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">→</button>
+</nav>
+
+<script>
+  // ─── PARTICLES ───
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#00f5d4','#00b4d8','#7400b8','#f72585','#ffd60a'];
+
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + .5,
+      speed: Math.random() * .4 + .1,
+      opacity: Math.random() * .4 + .05,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      dx: (Math.random() - .5) * .3
+    });
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.round(p.opacity * 255).toString(16).padStart(2,'0');
+      ctx.fill();
+      p.y -= p.speed;
+      p.x += p.dx;
+      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  // ─── SLIDES ───
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let transitioning = false;
+
+  const dotsContainer = document.getElementById('navDots');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  }
+
+  function updateUI() {
+    document.getElementById('slideCounter').textContent =
+      String(current + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function goTo(n) {
+    if (n === current || transitioning) return;
+    transitioning = true;
+    const prev = slides[current];
+    prev.classList.add('exit');
+    setTimeout(() => {
+      prev.classList.remove('active','exit');
+    }, 700);
+    current = n;
+    const next = slides[current];
+    next.classList.add('active');
+    updateUI();
+    setTimeout(() => { transitioning = false; }, 700);
+  }
+
+  function changeSlide(dir) {
+    const n = current + dir;
+    if (n >= 0 && n < total) goTo(n);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+
+  // Touch swipe
+  let touchStart = 0;
+  document.addEventListener('touchstart', e => { touchStart = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+  updateUI();
+</script>
+</body>
+</html>

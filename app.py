@@ -1265,20 +1265,26 @@ def render_stage_panels() -> None:
     for tab, stage in zip(tabs, STAGE_KPI_CONFIG):
         with tab:
             st.caption(stage["title"])
-            cols = st.columns(3)
-            for idx, metric in enumerate(stage["metrics"]):
-                with cols[idx % 3]:
-                    _render_kpi_card(
-                        key=metric["key"],
-                        label=metric["label"],
-                        unit=metric["unit"],
-                        decimals=metric["decimals"],
-                        secondary_key=metric.get("secondary_key"),
-                        secondary_label=metric.get("secondary_label", "Referencia"),
-                        secondary_unit=metric.get("secondary_unit", ""),
-                        secondary_decimals=int(metric.get("secondary_decimals", 2)),
-                        compact=bool(metric.get("compact", False)),
-                    )
+            cols_per_row = 3
+            for i in range(0, len(stage["metrics"]), cols_per_row):
+                cols = st.columns(cols_per_row, gap="medium")
+                for j in range(cols_per_row):
+                    idx = i + j
+                    if idx < len(stage["metrics"]):
+                        metric = stage["metrics"][idx]
+                        with cols[j]:
+                            _render_kpi_card(
+                                key=metric["key"],
+                                label=metric["label"],
+                                unit=metric["unit"],
+                                decimals=metric["decimals"],
+                                secondary_key=metric.get("secondary_key"),
+                                secondary_label=metric.get("secondary_label", "Referencia"),
+                                secondary_unit=metric.get("secondary_unit", ""),
+                                secondary_decimals=int(metric.get("secondary_decimals", 2)),
+                                compact=bool(metric.get("compact", False)),
+                            )
+                    st.write("") # Espaciado vertical entre filas
 
 
 def render_stage_tab(stage_idx: int) -> None:
@@ -1380,16 +1386,22 @@ def render_stage_tab(stage_idx: int) -> None:
             if stage_idx in kpi_mapping and kpi_mapping[stage_idx] < len(STAGE_KPI_CONFIG):
                 config = STAGE_KPI_CONFIG[kpi_mapping[stage_idx]]
                 st.caption(config["title"])
-                k_cols = st.columns(len(config["metrics"]))
-                for m_idx, metric in enumerate(config["metrics"]):
-                    with k_cols[m_idx]:
-                        _render_kpi_card(
-                            key=metric["key"],
-                            label=metric["label"],
-                            unit=metric["unit"],
-                            decimals=metric["decimals"],
-                            card_id=f"tab_{stage_idx}_{metric['key']}"
-                        )
+                cols_per_row = 2
+                for i in range(0, len(config["metrics"]), cols_per_row):
+                    k_cols = st.columns(cols_per_row, gap="medium")
+                    for j in range(cols_per_row):
+                        m_idx = i + j
+                        if m_idx < len(config["metrics"]):
+                            metric = config["metrics"][m_idx]
+                            with k_cols[j]:
+                                _render_kpi_card(
+                                    key=metric["key"],
+                                    label=metric["label"],
+                                    unit=metric["unit"],
+                                    decimals=metric["decimals"],
+                                    card_id=f"tab_{stage_idx}_{metric['key']}"
+                                )
+                    st.write("") # Espaciado vertical entre filas
             
             if stage_idx == 3: # OI Tab specific content
                 st.markdown("---")
