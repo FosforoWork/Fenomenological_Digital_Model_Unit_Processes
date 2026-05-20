@@ -31,48 +31,48 @@ BASELINE_REFERENCES = {
     "stage_5_overall_yield_pct": {"label": "Rendimiento global", "value": 76.4, "unit": "%"},
 }
 
-# Especificaciones de KPIs por Etapa (Doc 2.0)
+# Especificaciones de KPIs por Etapa (Doc 2.0 y 3.0)
 KPI_SPECS: dict[str, dict] = {
     # Etapa 0
     "stage_0_soy_moisture_pct": {"label": "Humedad grano", "unit": "%", "range": (10.0, 12.0)},
     "stage_0_soy_density_kg_m3": {"label": "Densidad grano", "unit": "kg/m3", "range": (1120.0, 1150.0)},
-    "stage_0_grinding_size_mesh": {"label": "Tamano molienda", "unit": "mesh", "range": (100.0, 200.0)},
+    "stage_0_grinding_size_mesh": {"label": "Tamano molienda", "unit": "mesh", "range": (150.0, 200.0)},
     "stage_0_flour_bulk_density_kg_m3": {"label": "Densidad aparente harina", "unit": "kg/m3", "range": (700.0, 800.0)},
-    "stage_0_water_viscosity_cp": {"label": "Viscosidad agua", "unit": "cP", "range": (0.9, 1.1)},
+    "stage_0_water_viscosity_cp": {"label": "Viscosidad agua", "unit": "cP", "range": (0.8, 1.2)},
     
     # Etapa 1
-    "stage_1_slurry_viscosity_cp": {"label": "Viscosidad lodo", "unit": "cP", "range": (15.0, 30.0)},
-    "stage_1_slurry_density_kg_m3": {"label": "Densidad lodo", "unit": "kg/m3", "range": (1040.0, 1080.0)},
-    "stage_1_naoh_conc_pct_pv": {"label": "Conc. NaOH", "unit": "% p/v", "range": (0.2, 0.4)},
-    "stage_1_protein_concentration_gl": {"label": "Proteina disuelta", "unit": "g/L", "range": (25.0, 27.0)},
-    "stage_1_conductivity_ms_cm": {"label": "Conductividad", "unit": "mS/cm", "range": (1.5, 2.5)},
+    "stage_1_slurry_viscosity_cp": {"label": "Viscosidad lodo", "unit": "cP", "range": (18.0, 25.0)},
+    "stage_1_slurry_density_kg_m3": {"label": "Densidad lodo", "unit": "kg/m3", "range": (1045.0, 1065.0)},
+    "stage_1_naoh_conc_pct_pv": {"label": "Conc. NaOH", "unit": "% p/v", "range": (0.25, 0.35)},
+    "stage_1_protein_concentration_gl": {"label": "Proteina disuelta", "unit": "g/L", "range": (25.0, 28.0)},
+    "stage_1_conductivity_ms_cm": {"label": "Conductividad", "unit": "mS/cm", "range": (1.8, 2.2)},
     
     # Etapa 2
-    "stage_2_neutralized_viscosity_cp": {"label": "Viscosidad neutralizado", "unit": "cP", "range": (12.0, 20.0)},
-    "stage_2_neutralized_density_kg_m3": {"label": "Densidad neutralizado", "unit": "kg/m3", "range": (1010.0, 1050.0)},
-    "stage_2_residual_na_mg_l": {"label": "Na+ residual", "unit": "mg/L", "range": (100.0, 200.0)},
-    "stage_2_residual_cl_mg_l": {"label": "Cl- residual", "unit": "mg/L", "range": (80.0, 150.0)},
-    "stage_2_reynolds_number": {"label": "Num. Reynolds", "unit": "-", "range": (100.0, 500.0)},
-    "stage_2_prandtl_number": {"label": "Num. Prandtl", "unit": "-", "range": (150.0, 300.0)},
+    "stage_2_neutralized_viscosity_cp": {"label": "Viscosidad neutralizado", "unit": "cP", "range": (14.0, 18.0)},
+    "stage_2_neutralized_density_kg_m3": {"label": "Densidad neutralizado", "unit": "kg/m3", "range": (1020.0, 1040.0)},
+    "stage_2_residual_na_mg_l": {"label": "Na+ residual", "unit": "mg/L", "range": (140.0, 160.0)},
+    "stage_2_residual_cl_mg_l": {"label": "Cl- residual", "unit": "mg/L", "range": (100.0, 130.0)},
+    "stage_2_reynolds_number": {"label": "Num. Reynolds", "unit": "-", "range": (250.0, 350.0)},
+    "stage_2_prandtl_number": {"label": "Num. Prandtl", "unit": "-", "range": (200.0, 250.0)},
     
     # Etapa 3
-    "stage_3_concentrate_viscosity_cp": {"label": "Viscosidad concentrado", "unit": "cP", "range": (50.0, 100.0)},
-    "stage_3_concentrate_density_kg_m3": {"label": "Densidad concentrado", "unit": "kg/m3", "range": (1100.0, 1150.0)},
-    "stage_3_concentrate_protein_kg_m3": {"label": "Proteina concentrada", "unit": "kg/m3", "range": (240.0, 280.0)},
-    "stage_3_u_global_w_m2k": {"label": "Coeficiente U", "unit": "W/m2K", "range": (150.0, 300.0)},
+    "stage_3_concentrate_viscosity_cp": {"label": "Viscosidad concentrado", "unit": "cP", "range": (60.0, 90.0)},
+    "stage_3_concentrate_density_kg_m3": {"label": "Densidad concentrado", "unit": "kg/m3", "range": (1030.0, 1150.0)},
+    "stage_3_concentrate_protein_kg_m3": {"label": "Proteina concentrada", "unit": "kg/m3", "range": (130.0, 280.0)},
+    "stage_3_u_global_w_m2k": {"label": "Coeficiente U", "unit": "W/m2K", "range": (200.0, 250.0)},
     
     # Etapa 4
-    "stage_4_precipitate_viscosity_cp": {"label": "Viscosidad lodo precip.", "unit": "cP", "range": (100.0, 200.0)},
-    "stage_4_paste_density_kg_m3": {"label": "Densidad pasta", "unit": "kg/m3", "range": (1080.0, 1150.0)},
-    "stage_4_residual_protein_whey_kg_m3": {"label": "Proteina en suero", "unit": "kg/m3", "range": (0.3, 0.7)},
-    "stage_4_ionic_strength_mol_l": {"label": "Fuerza ionica", "unit": "mol/L", "range": (0.05, 0.15)},
-    "stage_4_zeta_potential_mv": {"label": "Potencial Zeta", "unit": "mV", "range": (-2.0, 2.0)},
+    "stage_4_precipitate_viscosity_cp": {"label": "Viscosidad lodo precip.", "unit": "cP", "range": (130.0, 170.0)},
+    "stage_4_paste_density_kg_m3": {"label": "Densidad pasta", "unit": "kg/m3", "range": (1100.0, 1130.0)},
+    "stage_4_residual_protein_whey_kg_m3": {"label": "Proteina en suero", "unit": "kg/m3", "range": (0.4, 0.6)},
+    "stage_4_ionic_strength_mol_l": {"label": "Fuerza ionica", "unit": "mol/L", "range": (0.08, 0.12)},
+    "stage_4_zeta_potential_mv": {"label": "Potencial Zeta", "unit": "mV", "range": (-1.0, 1.0)},
     
     # Etapa 5
-    "stage_5_atomization_speed_m_s": {"label": "Vel. atomizacion", "unit": "m/s", "range": (250.0, 500.0)},
-    "stage_5_powder_bulk_density_kg_m3": {"label": "Densidad polvo", "unit": "kg/m3", "range": (500.0, 650.0)},
-    "stage_5_protein_in_powder_pct": {"label": "Proteina en polvo", "unit": "% p/p", "range": (88.0, 92.0)},
-    "stage_5_water_activity_aw": {"label": "Actividad agua", "unit": "aw", "range": (0.3, 0.65)},
+    "stage_5_atomization_speed_m_s": {"label": "Vel. atomizacion", "unit": "m/s", "range": (350.0, 400.0)},
+    "stage_5_powder_bulk_density_kg_m3": {"label": "Densidad polvo", "unit": "kg/m3", "range": (550.0, 600.0)},
+    "stage_5_protein_in_powder_pct": {"label": "Proteina en polvo", "unit": "% p/p", "range": (90.0, 96.0)},
+    "stage_5_water_activity_aw": {"label": "Actividad agua", "unit": "aw", "range": (0.35, 0.55)},
 }
 
 

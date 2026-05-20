@@ -29,55 +29,25 @@ from core.stage_equations import run_process_model
 
 
 VISUAL_THEMES = {
-    "Exploratorio": {
-        "plot_template": "plotly_dark",
-        "bg_start": "#121212",
-        "bg_end": "#1e1e1e",
-        "bg_glow": "#2d2d2d",
-        "text": "#e0e0e0",
-        "muted_text": "#a0a0a0",
-        "accent": "#4a90e2",
-        "card_bg": "rgba(30, 30, 30, 0.85)",
-        "border": "#424242",
-        "note_bg": "#2d2d2d",
-        "note_border": "#4a90e2",
-        "note_text": "#e0e0e0",
-        "grid": "rgba(255, 255, 255, 0.1)",
-        "stage_colors": {
-            "s0": "#888888",
-            "s1": "#888888",
-            "s2": "#888888",
-            "s3": "#888888",
-            "s4": "#888888",
-            "s5": "#888888",
-        },
-        "status": {"verde": "#4caf50", "amarillo": "#ffb300", "rojo": "#f44336"},
-        "aux": ["#4a90e2", "#888888", "#4caf50"],
-    },
     "Baluarte (CAT)": {
         "plot_template": "plotly_dark",
-        "bg_start": "#121212",
-        "bg_end": "#1e1e1e",
-        "bg_glow": "#2d2d2d",
-        "text": "#e0e0e0",
-        "muted_text": "#a0a0a0",
-        "accent": "#4a90e2",
-        "card_bg": "rgba(30, 30, 30, 0.85)",
-        "border": "#424242",
-        "note_bg": "#2d2d2d",
-        "note_border": "#4a90e2",
-        "note_text": "#e0e0e0",
-        "grid": "rgba(255, 255, 255, 0.1)",
+        "bg_start": "#0a0a0c",
+        "bg_end": "#111216",
+        "accent": "#00f0ff",
+        "text": "#d4d4d8",
+        "muted_text": "#71717a",
+        "border": "#27272a",
+        "glow": "rgba(0, 240, 255, 0.2)",
+        "grid": "rgba(255, 255, 255, 0.05)",
         "stage_colors": {
-            "s0": "#888888",
-            "s1": "#888888",
-            "s2": "#888888",
-            "s3": "#888888",
-            "s4": "#888888",
-            "s5": "#888888",
+            "s0": "#00f0ff",
+            "s1": "#39ff14",
+            "s2": "#ffb300",
+            "s3": "#4a90e2",
+            "s4": "#f44336",
+            "s5": "#9c27b0",
         },
-        "status": {"verde": "#4caf50", "amarillo": "#ffb300", "rojo": "#f44336"},
-        "aux": ["#4a90e2", "#888888", "#4caf50"],
+        "status": {"verde": "#39ff14", "amarillo": "#ffb300", "rojo": "#ff003c"},
     }
 }
 
@@ -364,13 +334,14 @@ def get_active_theme() -> dict:
 
 @st.cache_data
 def get_visual_theme_css(mode: str) -> str:
-    bg_deep = "#0a0a0c"
-    bg_surface = "#111216"
-    text_main = "#d4d4d8"
-    text_muted = "#71717a"
-    accent = "#00f0ff"
-    border = "#27272a"
-    glow = "rgba(0, 240, 255, 0.2)"
+    theme = VISUAL_THEMES.get(mode, VISUAL_THEMES["Baluarte (CAT)"])
+    bg_deep = theme["bg_start"]
+    bg_surface = theme["bg_end"]
+    text_main = theme["text"]
+    text_muted = theme["muted_text"]
+    accent = theme["accent"]
+    border = theme["border"]
+    glow = theme["glow"]
 
     return f"""
         <style>
@@ -770,15 +741,19 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     if default is None:
         default = (vmin + vmax) / 2
 
-    # Overrides based on process knowledge from Gemelo Digital.md
-    if key == "extraction_ph": return (8.65, 8.80), (8.00, 9.50)
-    if key == "pasteur_temp_c": return (80.0, 85.0), (75.0, 95.0)
-    if key == "precip_ph": return (4.45, 4.55), (4.10, 4.90)
-    if key == "evap_pressure_bar": return (0.38, 0.42), (0.35, 0.60)
-    if key == "solid_liquid_ratio": return (11.5, 12.5), (9.0, 14.0)
-    if key == "water_flow_m3_h": return (11.0, 13.0), (10.0, 14.0)
-    if key == "soy_feed_kg_h": return (800.0, 1200.0), (500.0, 5000.0)
-    if key == "dryer_temp_c": return (185.0, 195.0), (150.0, 220.0)
+    # Overrides based on process knowledge from Gemelo Digital.md (Expert Mode)
+    if key == "extraction_ph": return (8.70, 8.80), (8.00, 9.50)
+    if key == "pasteur_temp_c": return (80.0, 82.0), (75.0, 95.0)
+    if key == "precip_ph": return (4.48, 4.52), (4.10, 4.90)
+    if key == "evap_pressure_bar": return (0.39, 0.41), (0.35, 0.60)
+    if key == "solid_liquid_ratio": return (11.8, 12.2), (9.0, 14.0)
+    if key == "water_flow_m3_h": return (11.5, 12.5), (10.0, 14.0)
+    if key == "soy_feed_kg_h": return (950.0, 1050.0), (500.0, 5000.0)
+    if key == "dryer_temp_c": return (188.0, 192.0), (150.0, 220.0)
+    if key == "agitator_rpm": return (75.0, 85.0), (50.0, 150.0)
+    if key == "centrifuge_g": return (1750.0, 1850.0), (1000.0, 3000.0)
+    if key == "extraction_residence_min": return (55.0, 65.0), (30.0, 120.0)
+    if key == "pasteur_retention_s": return (20.0, 25.0), (15.0, 60.0)
     if key == "use_ro": return (0.0, 1.0), (0.0, 1.0)
 
     # Generic heuristic
@@ -1244,7 +1219,7 @@ def render_kpis() -> None:
     with c3:
         _render_kpi_card("stage_3_evaporated_water_m3_h", "Agua evaporada", "m3/h", 2, card_id="top_evap")
 
-    st.caption("Baselines documentales: extraccion 88%, pasteurizacion 80 C/22 s, evaporacion 0.40 bar.")
+    st.caption("Baselines documentales: extraccion 88% (pH 8.75), pasteurizacion 80 C / 22 s, evaporacion 0.40 bar / 75 C, precipitacion pH 4.5.")
 
     if capacity:
         u1, u2, u3 = st.columns(3)
@@ -1403,9 +1378,22 @@ def render_stage_tab(stage_idx: int) -> None:
                                 )
                     st.write("") # Espaciado vertical entre filas
             
-            if stage_idx == 3: # OI Tab specific content
-                st.markdown("---")
-                st.image("assets/osmosis_inversa.png", caption="Esquema de Membranas de Poliamida TFC", use_container_width=True)
+            # Visuales Técnicos por Etapa
+            st.markdown("---")
+            if stage_idx == 0:
+                st.image("assets/image/tamizado_y_molienda.png", caption="Sistema de Limpieza y Molienda de Grano", use_container_width=True)
+            elif stage_idx == 1:
+                st.image("assets/image/tanque_agitado.png", caption="Tanque Agitado TK-101 (Lixiviación)", use_container_width=True)
+            elif stage_idx == 2:
+                st.image("assets/image/intercambiador_de_calor.png", caption="Intercambiador HX-201 (Pasteurización HTST)", use_container_width=True)
+            elif stage_idx == 3:
+                st.image("assets/image/osmosis_inversa.png", caption="Esquema de Membranas de Poliamida TFC", use_container_width=True)
+            elif stage_idx == 4:
+                st.image("assets/image/evaporador_de_doble_efecto.png", caption="Evaporador de Película Descendente EV-301", use_container_width=True)
+            elif stage_idx == 5:
+                st.image("assets/image/precipitador_isoelectrico.png", caption="Tanque de Precipitación TK-401", use_container_width=True)
+            elif stage_idx == 6:
+                st.image("assets/image/spray_dryer.png", caption="Secador Spray SD-501 (Atomización)", use_container_width=True)
 
 init_state()
 apply_visual_theme_css()
@@ -1475,7 +1463,7 @@ for i, tab in enumerate(main_tabs):
                 render_sales_modification_panel()
             
             st.divider()
-            st.image("assets/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
+            st.image("assets/image/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
 
 if st.session_state.running:
     run_step()
