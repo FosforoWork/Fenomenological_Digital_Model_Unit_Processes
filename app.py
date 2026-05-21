@@ -6,7 +6,7 @@ import math
 import random
 import time
 
-import pandas as pd
+
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -23,6 +23,7 @@ from core.process_model import ControlLog, build_snapshot
 from core.sales_economics import (
     DEFAULT_SALES_PRICE_BS_PER_KG,
     DOC_OPEX_TOTAL_ANNUAL_BS,
+    FinancialModeler,
     compute_sales_stage,
 )
 from core.stage_equations import run_process_model
@@ -594,7 +595,8 @@ def apply_visual_theme_css() -> None:
 
 
 def _append_sales_stage(result: dict) -> dict:
-    powder_mass_kg_h = float(result["stage_5"]["powder_mass_kg_h"])
+    stage_5 = result.get("stage_5", {})
+    powder_mass_kg_h = float(stage_5.get("powder_mass_kg_h", 0.0))
     result["stage_ventas"] = compute_sales_stage(
         powder_mass_kg_h=powder_mass_kg_h,
         selling_price_bs_kg=float(st.session_state.sales_price_bs_kg),
@@ -741,20 +743,27 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
     if default is None:
         default = (vmin + vmax) / 2
 
-    # Overrides based on process knowledge from Gemelo Digital.md (Expert Mode)
-    if key == "extraction_ph": return (8.70, 8.80), (8.00, 9.50)
-    if key == "pasteur_temp_c": return (80.0, 82.0), (75.0, 95.0)
-    if key == "precip_ph": return (4.48, 4.52), (4.10, 4.90)
-    if key == "evap_pressure_bar": return (0.39, 0.41), (0.35, 0.60)
-    if key == "solid_liquid_ratio": return (11.8, 12.2), (9.0, 14.0)
-    if key == "water_flow_m3_h": return (11.5, 12.5), (10.0, 14.0)
-    if key == "soy_feed_kg_h": return (950.0, 1050.0), (500.0, 5000.0)
+    # Overrides alineados con Doc 10.2 — Rangos de Operabilidad (Gemelo Digital.md)
+    # Formato: return (rango_estable), (frontera_de_fallo)
+    if key == "extraction_ph": return (8.65, 8.80), (8.00, 9.50)
+    if key == "pasteur_temp_c": return (80.0, 85.0), (75.0, 95.0)
+    if key == "precip_ph": return (4.45, 4.55), (4.10, 4.90)
+    if key == "evap_pressure_bar": return (0.38, 0.42), (0.30, 0.60)
+    if key == "solid_liquid_ratio": return (11.5, 12.5), (9.0, 14.0)
+    if key == "water_flow_m3_h": return (11.5, 12.5), (9.0, 14.0)
+    if key == "soy_feed_kg_h": return (950.0, 1050.0), (680.0, 5000.0)
     if key == "dryer_temp_c": return (188.0, 192.0), (150.0, 220.0)
     if key == "agitator_rpm": return (75.0, 85.0), (50.0, 150.0)
     if key == "centrifuge_g": return (1750.0, 1850.0), (1000.0, 3000.0)
     if key == "extraction_residence_min": return (55.0, 65.0), (30.0, 120.0)
     if key == "pasteur_retention_s": return (20.0, 25.0), (15.0, 60.0)
-    if key == "use_ro": return (0.0, 1.0), (0.0, 1.0)
+    if key == "extraction_temp_c": return (50.0, 60.0), (40.0, 75.0)
+    if key == "ro_tmp_bar": return (22.0, 26.0), (15.0, 40.0)
+    if key == "evap_temp_c": return (73.0, 77.0), (60.0, 85.0)
+    if key == "precip_time_min": return (20.0, 30.0), (10.0, 60.0)
+    if key == "centrifuge_time_min": return (18.0, 22.0), (10.0, 40.0)
+    if key == "dryer_residence_min": return (38.0, 46.0), (20.0, 90.0)
+    if key == "water_temp_c": return (50.0, 60.0), (40.0, 75.0)
 
     # Generic heuristic
     return (default * 0.9, default * 1.1), (default * 0.7, default * 1.3)
@@ -809,7 +818,7 @@ def render_sales_modification_panel() -> None:
         )
         sync_sales_price_from_widgets()
         st.caption(
-            "Fuente documental: escenario base 18.10 Bs/kg | "
+            f"Fuente documental: escenario base {DEFAULT_SALES_PRICE_BS_PER_KG:.2f} Bs/kg (~3.50 USD/kg) | "
             f"OPEX anual fijo: {_format_number_es(DOC_OPEX_TOTAL_ANNUAL_BS, 0)} Bs"
         )
 
@@ -837,38 +846,8 @@ def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step
 
     return val
 
-def render_controls() -> None:
-    with st.expander("Etapa 0 · Preparacion", expanded=True):
-        _render_control_with_pv("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 100.0, 8000.0, 100.0)
-        _render_control_with_pv("Caudal de agua (m3/h)", "water_flow_m3_h", 2.0, 30.0, 0.1)
-        _render_control_with_pv("Temperatura de agua (C)", "water_temp_c", 5.0, 90.0, 0.5)
 
-    with st.expander("Etapa 1 · Extraccion", expanded=False):
-        _render_control_with_pv("pH extraccion", "extraction_ph", 6.0, 12.0, 0.01)
-        _render_control_with_pv("Temperatura extraccion (C)", "extraction_temp_c", 20.0, 95.0, 0.5)
-        _render_control_with_pv("Tiempo residencia (min)", "extraction_residence_min", 5.0, 180.0, 1.0)
-        _render_control_with_pv("Velocidad agitacion (RPM)", "agitator_rpm", 10.0, 500.0, 1.0)
-        _render_control_with_pv("Ratio solido/liquido (1:x)", "solid_liquid_ratio", 4.0, 30.0, 0.1)
 
-    with st.expander("Etapa 2 · Pasteurizacion", expanded=False):
-        _render_control_with_pv("Temperatura de pasteurizacion (C)", "pasteur_temp_c", 50.0, 130.0, 0.5)
-        _render_control_with_pv("Retencion termica (s)", "pasteur_retention_s", 2.0, 180.0, 1.0)
-
-    with st.expander("Etapa 3 · Evaporacion", expanded=False):
-        _render_control_with_pv("Presion evaporador (bar abs)", "evap_pressure_bar", 0.05, 1.20, 0.01)
-        _render_control_with_pv("Temperatura evaporacion (C)", "evap_temp_c", 20.0, 95.0, 0.5)
-
-    with st.expander("Etapa 4 · Precipitacion y centrifugacion", expanded=False):
-        _render_control_with_pv("pH de precipitacion", "precip_ph", 2.5, 7.0, 0.01)
-        _render_control_with_pv("Tiempo de precipitacion (min)", "precip_time_min", 2.0, 120.0, 1.0)
-        _render_control_with_pv("Factor G centrifuga", "centrifuge_g", 200.0, 5000.0, 10.0)
-        _render_control_with_pv("Tiempo centrifugacion (min)", "centrifuge_time_min", 1.0, 120.0, 1.0)
-
-    with st.expander("Etapa 5 · Secado", expanded=False):
-        _render_control_with_pv("Temperatura de secado (C)", "dryer_temp_c", 40.0, 220.0, 1.0)
-        _render_control_with_pv("Residencia en secador (min)", "dryer_residence_min", 1.0, 180.0, 1.0)
-
-    sync_controls_from_widgets()
 
 
 def apply_process_inertia(dt: float) -> None:
@@ -898,13 +877,14 @@ def apply_process_inertia(dt: float) -> None:
         "pasteur_temp_c": 35.0,
         "pasteur_retention_s": 3.0,
         "evap_pressure_bar": 25.0,
-        "evap_temp_c": 75.0,
+        "evap_temp_c": 45.0,  # Inercia termica del evaporador en segundos (no confundir con temperatura)
         "precip_ph": 22.0,
         "precip_time_min": 8.0,
         "centrifuge_g": 12.0,
         "centrifuge_time_min": 4.0,
-        "dryer_temp_c": 190.0,
+        "dryer_temp_c": 60.0,  # Inercia termica del secador en segundos (no confundir con temperatura)
         "dryer_residence_min": 8.0,
+        "ro_tmp_bar": 15.0,  # Respuesta de presion de membrana RO
     }
 
     for key, sp in st.session_state.controls.items():
@@ -1037,7 +1017,7 @@ def _inject_independent_error(snapshot: dict) -> dict:
 
 
 def _compute_kpi_window_stats(key: str) -> dict | None:
-    rows = st.session_state.log._rows
+    rows = st.session_state.log.rows
     if not rows:
         return None
 
@@ -1231,39 +1211,12 @@ def render_kpis() -> None:
             _render_kpi_card("capacity_stage_5_dryer_load_pct", "Uso secador", "%", 1)
 
 
-def render_stage_panels() -> None:
-    if not st.session_state.log._rows:
-        st.info("Aun no hay historico. Usa 'Paso' o 'Iniciar' para comenzar el registro.")
-        return
 
-    tabs = st.tabs([stage["tab"] for stage in STAGE_KPI_CONFIG])
-    for tab, stage in zip(tabs, STAGE_KPI_CONFIG):
-        with tab:
-            st.caption(stage["title"])
-            cols_per_row = 3
-            for i in range(0, len(stage["metrics"]), cols_per_row):
-                cols = st.columns(cols_per_row, gap="medium")
-                for j in range(cols_per_row):
-                    idx = i + j
-                    if idx < len(stage["metrics"]):
-                        metric = stage["metrics"][idx]
-                        with cols[j]:
-                            _render_kpi_card(
-                                key=metric["key"],
-                                label=metric["label"],
-                                unit=metric["unit"],
-                                decimals=metric["decimals"],
-                                secondary_key=metric.get("secondary_key"),
-                                secondary_label=metric.get("secondary_label", "Referencia"),
-                                secondary_unit=metric.get("secondary_unit", ""),
-                                secondary_decimals=int(metric.get("secondary_decimals", 2)),
-                                compact=bool(metric.get("compact", False)),
-                            )
-                    st.write("") # Espaciado vertical entre filas
+
 
 
 def render_stage_tab(stage_idx: int) -> None:
-    has_data = bool(st.session_state.log._rows)
+    has_data = bool(st.session_state.log)
     
     # Mapeo de controles por etapa
     stage_controls = {
@@ -1356,10 +1309,8 @@ def render_stage_tab(stage_idx: int) -> None:
         else:
             kpi_idx = stage_idx
             
-            # Ajuste manual de indices KPI_CONFIG (0 a 6 para las etapas)
-            kpi_mapping = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
-            if stage_idx in kpi_mapping and kpi_mapping[stage_idx] < len(STAGE_KPI_CONFIG):
-                config = STAGE_KPI_CONFIG[kpi_mapping[stage_idx]]
+            if kpi_idx < len(STAGE_KPI_CONFIG):
+                config = STAGE_KPI_CONFIG[kpi_idx]
                 st.caption(config["title"])
                 cols_per_row = 2
                 for i in range(0, len(config["metrics"]), cols_per_row):
@@ -1378,22 +1329,23 @@ def render_stage_tab(stage_idx: int) -> None:
                                 )
                     st.write("") # Espaciado vertical entre filas
             
-            # Visuales Técnicos por Etapa
+            # Visuales Técnicos por Etapa (Data-Driven)
             st.markdown("---")
-            if stage_idx == 0:
-                st.image("assets/image/tamizado_y_molienda.png", caption="Sistema de Limpieza y Molienda de Grano", use_container_width=True)
-            elif stage_idx == 1:
-                st.image("assets/image/tanque_agitado.png", caption="Tanque Agitado TK-101 (Lixiviación)", use_container_width=True)
-            elif stage_idx == 2:
-                st.image("assets/image/intercambiador_de_calor.png", caption="Intercambiador HX-201 (Pasteurización HTST)", use_container_width=True)
-            elif stage_idx == 3:
-                st.image("assets/image/osmosis_inversa.png", caption="Esquema de Membranas de Poliamida TFC", use_container_width=True)
-            elif stage_idx == 4:
-                st.image("assets/image/evaporador_de_doble_efecto.png", caption="Evaporador de Película Descendente EV-301", use_container_width=True)
-            elif stage_idx == 5:
-                st.image("assets/image/precipitador_isoelectrico.png", caption="Tanque de Precipitación TK-401", use_container_width=True)
-            elif stage_idx == 6:
-                st.image("assets/image/spray_dryer.png", caption="Secador Spray SD-501 (Atomización)", use_container_width=True)
+            STAGE_IMAGES = {
+                0: ("assets/image/tamizado_y_molienda.png", "Sistema de Limpieza y Molienda M-100"),
+                1: ("assets/image/tanque_agitado.png", "Tanque Agitado TK-101 (Lixiviacion Alcalina)"),
+                2: ("assets/image/intercambiador_de_calor.png", "Intercambiador HX-201 (Pasteurizacion HTST)"),
+                3: ("assets/image/osmosis_inversa.png", "Osmosis Inversa RO-205 (Membranas TFC)"),
+                4: ("assets/image/evaporador_de_doble_efecto.png", "Evaporador Doble Efecto EV-301"),
+                5: ("assets/image/precipitador_isoelectrico.png", "Precipitacion Isoelectrica TK-401"),
+                6: ("assets/image/spray_dryer.png", "Secador Spray SD-501 (Atomizacion Rotativa)"),
+            }
+            if stage_idx in STAGE_IMAGES:
+                img_path, img_caption = STAGE_IMAGES[stage_idx]
+                try:
+                    st.image(img_path, caption=img_caption, use_container_width=True)
+                except Exception:
+                    st.caption(f"Imagen no disponible: {img_path}")
 
 init_state()
 apply_visual_theme_css()
@@ -1441,27 +1393,100 @@ for i, tab in enumerate(main_tabs):
         if i < 7:
             render_stage_tab(i)
         elif i == 7:
-            # Vista Global
-            st.subheader("Balance de Masa y Energia")
-            render_kpis()
+            # Vista Global — Dashboard Integrado del Gemelo Digital
+            result = st.session_state.last_result
+
+            # ─── 1) INTEGRIDAD DEL BALANCE DE MASA ───────────────────
+            st.subheader("Integridad del Balance de Masa")
+            integrity = result.get("integrity", {})
+            m1, m2, m3, m4 = st.columns(4)
+            with m1:
+                closure = integrity.get("mass_balance_closure_pct", 0.0)
+                st.metric("Cierre de Balance", f"{closure:.2f}%")
+            with m2:
+                st.metric("Masa Entrada", f"{integrity.get('mass_in_kg_h', 0.0):,.1f} kg/h")
+            with m3:
+                st.metric("Masa Salida", f"{integrity.get('mass_out_kg_h', 0.0):,.1f} kg/h")
+            with m4:
+                st.metric("Mermas Totales", f"{integrity.get('total_mermas_kg_h', 0.0):,.1f} kg/h")
+
             st.divider()
-            
-            col_crit, col_eco = st.columns([1, 1])
-            with col_crit:
-                st.subheader("Matriz de Criticidad (FMEA)")
-                st.markdown("""
-                | Variable | Modo de Falla | Severidad | NPR | Estado |
-                | :--- | :--- | :--- | :--- | :--- |
-                | pH Extraccion | Baja Recuperacion | 8 | 64 | ✅ OK |
-                | T° Pasteurizacion | Peligro HACCP | 9 | 27 | ✅ OK |
-                | Vacío Evap. | Reaccion Maillard | 7 | 70 | ✅ OK |
-                | pH Precip. | Perdida Proteina | 8 | 144 | ⚠️ CRIT |
-                """)
-                st.caption("NPR = Severidad x Ocurrencia x Deteccion. Niveles > 100 requieren accion inmediata.")
-            
+
+            # ─── 2) KPIs PRINCIPALES ──────────────────────────────────
+            st.subheader("KPIs de Produccion")
+            render_kpis()
+
+            st.divider()
+
+            # ─── 3) PRODUCCION ACUMULADA ──────────────────────────────
+            st.subheader("Produccion Acumulada (Sesion)")
+            elapsed_h = st.session_state.production_elapsed_s / 3600.0
+            p1, p2, p3, p4 = st.columns(4)
+            with p1:
+                st.metric("Tiempo Operativo", f"{elapsed_h:.2f} h")
+            with p2:
+                st.metric("Proteina Producida", f"{st.session_state.production_protein_kg:,.1f} kg")
+            with p3:
+                bags = st.session_state.production_bags_1kg
+                st.metric("Polvo ISP Producido", f"{bags:,.1f} kg")
+            with p4:
+                sacks_20kg = bags / 20.0
+                st.metric("Sacos (20 kg)", f"{sacks_20kg:,.0f}")
+
+            st.divider()
+
+            # ─── 4) PANEL FINANCIERO AVANZADO ─────────────────────────
+            col_fin, col_eco = st.columns([1, 1])
+            with col_fin:
+                st.subheader("Simulacion Financiera")
+                powder_kg_h = result.get("stage_5", {}).get("powder_mass_kg_h", 301.6)
+                fm = FinancialModeler(powder_mass_kg_h=powder_kg_h)
+                fin = fm.run_financial_simulation()
+
+                f1, f2 = st.columns(2)
+                with f1:
+                    st.metric("CAPEX Total", f"${fin['capex_total_usd']:,.0f} USD")
+                    st.metric("NPV (10a, 12%)", f"${fin['npv_usd']:,.0f} USD")
+                    st.metric("Offset Circular", f"${fin['circularity_offset_usd']:,.0f} USD/a")
+                with f2:
+                    st.metric("Payback Period", f"{fin['payback_years']:.2f} a")
+                    st.metric("EBITDA", f"${fin['ebitda_usd']:,.0f} USD/a")
+                    st.metric("OPEX Neto", f"${fin['opex_total_net_usd']:,.0f} USD/a")
+
             with col_eco:
                 render_sales_modification_panel()
-            
+
+            st.divider()
+
+            # ─── 5) MATRIZ DE CRITICIDAD FMEA (Doc 10.2) ─────────────
+            st.subheader("Matriz de Criticidad FMEA")
+
+            fmea_data = [
+                {"var": "pH Precipitacion TK-401", "falla": "pH fuera 4.5+-0.2", "s": 8, "o": 6, "d": 3, "npr": 144, "nivel": "CRITICO", "ck": "precip_ph"},
+                {"var": "Humedad Final SD-501", "falla": "Humedad >6%", "s": 9, "o": 4, "d": 3, "npr": 108, "nivel": "ALTA", "ck": "dryer_temp_c"},
+                {"var": "Vacio Evaporador EV-301", "falla": "P >0.6 bar", "s": 7, "o": 5, "d": 2, "npr": 70, "nivel": "ALTA", "ck": "evap_pressure_bar"},
+                {"var": "pH Extraccion TK-101", "falla": "pH <8.0", "s": 8, "o": 4, "d": 2, "npr": 64, "nivel": "ALTA", "ck": "extraction_ph"},
+                {"var": "T Past. HX-201", "falla": "T <75C", "s": 9, "o": 3, "d": 1, "npr": 27, "nivel": "MEDIA", "ck": "pasteur_temp_c"},
+            ]
+
+            pv = st.session_state.pv_controls
+            fmea_md = "| Variable | Modo de Falla | S | O | D | NPR | Nivel | Estado |\n"
+            fmea_md += "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+            for row in fmea_data:
+                current_pv = pv.get(row["ck"], 0.0)
+                ideal, fail = _get_variable_ranges(row["ck"], 0, 100)
+                if ideal[0] <= current_pv <= ideal[1]:
+                    status = "OK"
+                elif fail[0] <= current_pv <= fail[1]:
+                    status = "ALERTA"
+                else:
+                    status = "FALLO"
+                npr_str = f"**{row['npr']}**" if row["npr"] >= 100 else str(row["npr"])
+                fmea_md += f"| {row['var']} | {row['falla']} | {row['s']} | {row['o']} | {row['d']} | {npr_str} | {row['nivel']} | {status} |\n"
+
+            st.markdown(fmea_md)
+            st.caption("NPR = Severidad x Ocurrencia x Deteccion. Niveles >= 100 requieren accion inmediata.")
+
             st.divider()
             st.image("assets/image/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
 

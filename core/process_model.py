@@ -25,6 +25,17 @@ class ControlLog:
         if len(self._rows) > self.max_points:
             self._rows = self._rows[-self.max_points :]
 
+    @property
+    def rows(self) -> list[dict]:
+        """Acceso publico de solo lectura a las filas almacenadas."""
+        return self._rows
+
+    def __len__(self) -> int:
+        return len(self._rows)
+
+    def __bool__(self) -> bool:
+        return bool(self._rows)
+
     def to_dataframe(self):
         # Mantenido por retrocompatibilidad si otros scripts lo llaman,
         # pero importado perezosamente para ahorrar tiempo de carga inicial.

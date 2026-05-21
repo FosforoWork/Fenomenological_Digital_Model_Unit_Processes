@@ -289,6 +289,48 @@
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .cover h1 { font-size: 50px; }
   }
+
+  /* ─── TABLES ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+  }
+
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  th {
+    background: rgba(0, 245, 212, 0.1);
+    color: var(--cyan);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  tr:hover {
+    background: rgba(0, 245, 212, 0.03);
+  }
+
+  td.highlight-val {
+    color: var(--cyan);
+    font-weight: bold;
+  }
+  
+  td.accent-val {
+    color: var(--accent);
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
@@ -302,11 +344,11 @@
   <!-- 1: PORTADA -->
   <div class="slide cover active">
     <div class="stagger">
-      <p>// PROYECTO ACADÉMICO 2026</p>
+      <p>// CONSOLA DEL GEMELO DIGITAL · INDUSTRIA 5.0</p>
       <h1>GEMELO DIGITAL</h1>
-      <p>AJAX · INDUSTRIA 5.0</p>
+      <p>DISEÑO FENOMENOLÓGICO Y CONTROL DE PROCESOS</p>
       <div style="margin-top: 50px; color: var(--cyan); font-family: 'Orbitron'; letter-spacing: 2px;">
-        AISLADO DE PROTEÍNA DE SOYA (ISP)
+        AISLADO DE PROTEÍNA DE SOYA (ISP) NOMINAL 1000 KG/H
       </div>
     </div>
   </div>
@@ -315,479 +357,754 @@
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">02 / 30</div>
-      <h2 class="slide-title">Roadmap Estratégico</h2>
+      <h2 class="slide-title">Roadmap Operativo del Gemelo</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-3 stagger">
       <div class="card">
-        <h3>CONCEPT</h3>
-        <p>Visión, Contexto Global y Desafío Local en Bolivia.</p>
+        <h3>1. ARQUITECTURA DIGITAL</h3>
+        <p>Estructura de software en 3 capas, inercia transitoria y retrasos de primer orden.</p>
       </div>
       <div class="card">
-        <h3>PROCESS</h3>
-        <p>Ingeniería de Detalle, Termodinámica y Cinética.</p>
+        <h3>2. FENOMENOLOGÍA</h3>
+        <p>Lixiviación de globulinas, sedimentación centrífuga y secado por atomización.</p>
       </div>
       <div class="card">
-        <h3>DIGITAL</h3>
-        <p>Arquitectura de Datos, UX/UI y Simulación AJAX.</p>
+        <h3>3. RESTRICCIONES</h3>
+        <p>Hidráulica, verificación de NPSH de bombas y diseño higiénico CIP.</p>
       </div>
       <div class="card">
-        <h3>CIRCULAR</h3>
-        <p>Sostenibilidad, Zero Waste y Valorización de Okara.</p>
+        <h3>4. PRUEBAS DE ESTRÉS</h3>
+        <p>Simulación de fallas dinámicas, sobrecargas y derivas críticas de pH/temperatura.</p>
       </div>
       <div class="card">
-        <h3>ECONOMY</h3>
-        <p>CAPEX, OPEX, Rentabilidad e Impacto Financiero.</p>
+        <h3>5. ÓSMOSIS INVERSA</h3>
+        <p>Modelo de Kedem-Katchalsky y comparación energética de concentración híbrida.</p>
       </div>
       <div class="card">
-        <h3>RISK</h3>
-        <p>FMEA, Inocuidad HACCP y Seguridad Operativa.</p>
+        <h3>6. ANÁLISIS FMEA & RIESGO</h3>
+        <p>Matriz de criticidad interactiva e indicadores de viabilidad económica (CAPEX/OPEX).</p>
       </div>
     </div>
   </div>
 
-  <!-- 3: INTRODUCCIÓN -->
+  <!-- 3: ARQUITECTURA EN TRES CAPAS -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">03 / 30</div>
-      <h2 class="slide-title">El Desafío de la Soja</h2>
-      <div class="line"></div>
-    </div>
-    <div class="grid grid-2 stagger">
-      <div class="card">
-        <div class="card-icon">📉</div>
-        <h3>Problema Actual</h3>
-        <p>Bajo valor agregado en exportación de grano. Pérdidas masivas de proteína en subproductos mal gestionados.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🚀</div>
-        <h3>Oportunidad</h3>
-        <p>Transformación industrial hacia <span class="highlight">Aislados Proteicos (ISP)</span> de alto valor (>90% pureza).</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 4: VISIÓN -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">04 / 30</div>
-      <h2 class="slide-title">Industria 5.0</h2>
-      <div class="line"></div>
-    </div>
-    <div class="grid grid-2 stagger">
-      <div class="card">
-        <h3>Gemelo Digital (Digital Twin)</h3>
-        <p>No es una simple simulación; es una réplica viva que aprende y predice mediante <span class="highlight">sensores IoT</span> y algoritmos avanzados.</p>
-      </div>
-      <div class="card">
-        <h3>Colaboración Humano-IA</h3>
-        <p>Sistemas que empoderan al operador en la toma de decisiones críticas en tiempo real.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5: ALCANCE -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">05 / 30</div>
-      <h2 class="slide-title">Alcance: Planta AJAX</h2>
+      <h2 class="slide-title">Arquitectura del Gemelo</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-3 stagger">
       <div class="card">
-        <div class="card-icon">🏗️</div>
-        <h3>Diseño Green-Field</h3>
-        <p>Planta modular optimizada para 1,000 kg/h de grano.</p>
+        <div class="card-icon">⚙️</div>
+        <h3>Capa Fenomenológica</h3>
+        <p>Resuelve balances no lineales y dinámicas químicas en el core (<code class="highlight">core/stage_equations.py</code>).</p>
       </div>
       <div class="card">
-        <div class="card-icon">🧬</div>
-        <h3>Tecnología</h3>
-        <p>Membranas RO, HTST y Secado Spray de alta eficiencia.</p>
+        <div class="card-icon">🚨</div>
+        <h3>Capa de Restricciones</h3>
+        <p>Evalúa en cada paso de tiempo los límites de equipos en <code class="highlight">core/equipment_constraints.py</code>.</p>
       </div>
       <div class="card">
-        <div class="card-icon">📡</div>
-        <h3>Control</h3>
-        <p>Arquitectura Cloud con monitoreo 24/7 y seguridad SSL.</p>
+        <div class="card-icon">💻</div>
+        <h3>Visualización Interactiva</h3>
+        <p>Sala de control interactiva para operadores desarrollada en Python y Streamlit (<code class="highlight">app.py</code>).</p>
       </div>
     </div>
   </div>
 
-  <!-- 6: FUNDAMENTOS -->
+  <!-- 4: INERCIA Y SIMULACIÓN TRANSITORIA -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">04 / 30</div>
+      <h2 class="slide-title">Simulación Transitoria</h2>
+      <div class="line"></div>
+    </div>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Dinámica de Retardo</h3>
+        <p>El gemelo calcula la respuesta temporal real (PV) ante un valor de consigna (SP) usando un modelo de inercia de primer orden:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 16px; margin-top: 15px; text-align: center;">
+          PV(t + Δt) = PV(t) + [SP - PV(t)] · (1 - e<sup>-Δt/τ</sup>)
+        </p>
+      </div>
+      <div class="card">
+        <h3>Constante de Tiempo</h3>
+        <p>Fijada nominalmente en <span class="highlight">τ = 20.0 segundos</span> para variables térmicas y volumétricas. Permite modelar con precisión los tiempos de mezcla y calentamiento del proceso físico real.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5: INGENIERÍA DE PROCESO Y BALANCE GLOBAL -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">05 / 30</div>
+      <h2 class="slide-title">Ingeniería del Proceso ISP</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card stagger" style="width: 100%; max-width: 900px;">
+      <div class="grid grid-2">
+        <div>
+          <h3 style="color: var(--electric); font-family: 'Orbitron';">Entradas Nominales</h3>
+          <p style="margin-top: 10px;">• Alimentación de Soja: <span class="highlight">1000 kg/h</span> (37.5% proteína)</p>
+          <p>• Agua desmineralizada (12:1): <span class="highlight">12,000 kg/h</span></p>
+          <p>• Reactivos químicos: <span class="highlight">60 kg/h NaOH (20%) / 110 kg/h HCl (10%)</span></p>
+        </div>
+        <div>
+          <h3 style="color: var(--accent); font-family: 'Orbitron';">Salidas del Sistema</h3>
+          <p style="margin-top: 10px;">• Polvo Aislante ISP: <span class="highlight">301.6 kg/h</span> (humedad residual al 5%)</p>
+          <p>• Rendimiento Proteico Global: <span class="highlight">76.4%</span></p>
+          <p>• Subproductos valorizados: <span class="highlight">1,645 kg/h Okara + 1,057 kg/h Suero</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6: ETAPA 0: ACONDICIONAMIENTO Y MOLIENDA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">06 / 30</div>
-      <h2 class="slide-title">Balance de Materia</h2>
+      <h2 class="slide-title">Etapa 0: Acondicionamiento</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger" style="width: 100%; max-width: 800px;">
-      <p style="font-family: 'Orbitron'; color: var(--electric);">Entrada: 1,000 kg/h Grano (40% Proteína)</p>
-      <div style="height: 2px; background: var(--glass-border); margin: 20px 0;"></div>
-      <p>Salida ISP: <span class="highlight" style="font-size: 24px;">301.6 kg/h</span></p>
-      <p>Rendimiento Global: <span class="highlight">76.4%</span></p>
-      <p>Subproductos (Circularidad): 1,645 kg/h Okara + 1,057 kg/h Suero.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Molienda de Impacto</h3>
+        <p>Reducción física de la soya desgrasada a <span class="highlight">200 mesh (&lt;75 µm)</span> para maximizar el área de lixiviación. Carga inicial de proteína útil: <span class="highlight">375.0 kg/h</span>.</p>
+      </div>
+      <div class="card">
+        <h3>Bombeo P-101</h3>
+        <p>Conduce agua de molienda a <span class="highlight">12.0 m³/h</span>. Potencia teórica:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px; text-align: center;">
+          P = (ρ · g · Q · H) / (3.6×10<sup>6</sup> · η<sub>tot</sub>)
+        </p>
+        <p style="margin-top: 5px; font-size: 13px;">Con η<sub>tot</sub> = 0.765 (eficiencia combinada hidráulica y motor).</p>
+      </div>
     </div>
   </div>
 
-  <!-- 7: ETAPA 0 -->
+  <!-- 7: ETAPA 1: EXTRACCIÓN Y LIXIVIACIÓN ALCALINA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">07 / 30</div>
-      <h2 class="slide-title">Etapa 0: Preparación</h2>
+      <h2 class="slide-title">Etapa 1: Lixiviación Alcalina</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Molienda y Tamizado</h3>
-        <p>Reducción a <span class="highlight">150-200 mesh</span>. Maximización del área superficial para la extracción.</p>
+        <h3>Reactor TK-101</h3>
+        <p>Operación a <span class="highlight">pH 8.75 y 55°C</span>. Las globulinas se solubilizan en la fase acuosa. Flujo de lodo neto (pérdidas del 2%): <span class="highlight">12,740 kg/h</span>.</p>
       </div>
       <div class="card">
-        <h3>Limpieza Neumática</h3>
-        <p>Eliminación de impurezas y polvos finos antes del ingreso al extractor.</p>
+        <h3>Ecuación de Rendimiento</h3>
+        <p>La eficiencia se calcula dinámicamente mediante factores no lineales:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 14px; margin-top: 10px; text-align: center;">
+          η<sub>ext</sub> = 0.88 · f<sub>pH</sub> · f<sub>T</sub> · f<sub>τ</sub> · f<sub>R</sub>
+        </p>
+        <p style="font-size: 13px; margin-top: 5px;">Donde f<sub>pH</sub> = 1 - 0.05|pH-8.75| y f<sub>T</sub> = 1 - 0.005|T-55|.</p>
       </div>
     </div>
   </div>
 
-  <!-- 8: CIENCIA MOLIENDA -->
+  <!-- 8: FLUIDODINÁMICA Y AGITACIÓN -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">08 / 30</div>
-      <h2 class="slide-title">Cinética de Partículas</h2>
+      <h2 class="slide-title">Dinámica de Mezclado</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>La solubilidad es inversamente proporcional al tamaño de partícula. Un control preciso en la molienda reduce el consumo de NaOH en la etapa posterior en un <span class="highlight">12%</span>.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Reynolds del Agitador</h3>
+        <p>Para el impulsor PBT a 80 RPM (1.33 rps), D<sub>a</sub> = 1.08 m, ρ = 1050 kg/m³ y μ = 20 cP:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 18px; margin-top: 15px; text-align: center;">
+          Re<sub>a</sub> = (ρ · N · D<sub>a</sub><sup>2</sup>) / μ = 81,424
+        </p>
+        <p style="margin-top: 10px;">Régimen completamente turbulento para asegurar lixiviación homogénea.</p>
+      </div>
+      <div class="card">
+        <h3>Potencia del Agitador</h3>
+        <p>Carga mecánica requerida por el agitador:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 18px; margin-top: 15px; text-align: center;">
+          P = N<sub>p</sub> · ρ · N<sup>3</sup> · D<sub>a</sub><sup>5</sup> = 4.71 kW
+        </p>
+        <p style="margin-top: 10px;">Calculado usando el número de potencia del impulsor N<sub>p</sub> = 1.3.</p>
+      </div>
     </div>
   </div>
 
-  <!-- 9: ETAPA 1 -->
+  <!-- 9: ETAPA 1.2: CLARIFICACIÓN CENTRÍFUGA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">09 / 30</div>
-      <h2 class="slide-title">Etapa 1: Extracción</h2>
+      <h2 class="slide-title">Etapa 1.2: Clarificación</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Lixiviación Alcalina</h3>
-        <p>pH objetivo: <span class="highlight">8.75</span>. Solubilización de globulinas 7S y 11S.</p>
+        <h3>Modelo de Decantación</h3>
+        <p>Sedimentación bajo un campo de fuerza de <span class="highlight">1800 g</span> (Ley de Stokes generalizada):</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px; text-align: center;">
+          v<sub>s</sub> = d<sup>2</sup>(ρ<sub>p</sub> - ρ<sub>f</sub>)rω<sup>2</sup> / (18μ)
+        </p>
       </div>
       <div class="card">
-        <h3>Agitación PBT</h3>
-        <p>Velocidad: 80 RPM. Minimización de cizalla para proteger las cadenas proteicas.</p>
+        <h3>Separación de Fases</h3>
+        <p>• Extracto clarificado: <span class="highlight">11,095 kg/h</span>.</p>
+        <p>• Okara húmedo (65% humedad): <span class="highlight">1,645 kg/h</span>.</p>
+        <p>• Extracto neto al pasteurizador (2% pérdidas): <span class="highlight">10,873.1 kg/h</span>.</p>
+        <p>• Proteína útil en extracto: <span class="highlight">316.9 kg/h</span>.</p>
       </div>
     </div>
   </div>
 
-  <!-- 10: DINÁMICA PROTEÍNAS -->
+  <!-- 10: ETAPA 2: PASTEURIZACIÓN HTST -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">10 / 30</div>
-      <h2 class="slide-title">Dinámica Molecular</h2>
+      <h2 class="slide-title">Etapa 2: Pasteurización HTST</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>La temperatura de 55°C es el "Sweet Spot": suficiente para reducir viscosidad, pero por debajo de la desnaturalización térmica indeseada.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Objetivo del Intercambiador</h3>
+        <p>El intercambiador de placas HX-201 calienta el extracto a <span class="highlight">80°C por 22 segundos</span> para la desnaturalización controlada de TIA (Trypsin Inhibitor Activity).</p>
+      </div>
+      <div class="card">
+        <h3>Carga Térmica de Vapor</h3>
+        <p>Con regeneración de calor del 55% (HR = 0.55):</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px;">
+          Q<sub>utilidad</sub> = m · C<sub>p</sub> · ΔT · (1 - HR) = 291.5 kW
+        </p>
+        <p style="margin-top: 5px; font-size: 13px;">Con C<sub>p</sub> = 3.9 kJ/(kg·K). Área comercial de placas: 39.6 m².</p>
+      </div>
     </div>
   </div>
 
-  <!-- 11: ETAPA 2 -->
+  <!-- 11: INOCUIDAD ALIMENTARIA Y LÍMITE HACCP -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">11 / 30</div>
-      <h2 class="slide-title">Etapa 2: HTST</h2>
+      <h2 class="slide-title">Control de Inocuidad HTST</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
-      <div class="card">
-        <h3>Pasteurización HTST</h3>
-        <p>80°C por 22 segundos. Destrucción de factores antinutricionales (TIA).</p>
+      <div class="card" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">Punto Crítico de Control (PCC-1)</h3>
+        <p>La pasteurización es la barrera microbiológica contra la Salmonella. Si la temperatura del extracto en HX-201 desciende por debajo de <span class="highlight">75°C</span>, la inocuidad se ve comprometida.</p>
       </div>
       <div class="card">
-        <h3>Intercambiador HX-201</h3>
-        <p>Área: 39.6 m². Eficiencia térmica del 94% mediante recuperación de calor.</p>
+        <h3>Bucle de Redirección</h3>
+        <p>El gemelo digital acciona instantáneamente la válvula de desviación de flujo redireccionando el producto al <span class="highlight">Tanque de Reproceso</span>, evitando la contaminación del evaporador.</p>
       </div>
     </div>
   </div>
 
-  <!-- 12: PCC HACCP -->
+  <!-- 12: ETAPA RO: ÓSMOSIS INVERSA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">12 / 30</div>
-      <h2 class="slide-title">PCC: Barrera Biológica</h2>
+      <h2 class="slide-title">Ósmosis Inversa de Pre-concentración</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger" style="border-color: var(--accent);">
-      <h3 style="color: var(--accent);">Punto Crítico de Control</h3>
-      <p>Monitoreo redundante de T° y tiempo. Si T < 78.5°C, el sistema activa la recirculación automática de seguridad.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Membrana de Alta Presión</h3>
+        <p>Operación a una Presión Transmembrana (TMP) de <span class="highlight">24 bar</span>. Retira <span class="highlight">2718.3 kg/h</span> de permeado de agua pura en estado frío.</p>
+      </div>
+      <div class="card">
+        <h3>Modelo Kedem-Katchalsky</h3>
+        <p>El flujo del permeado se modela mediante la correlación de membranas semipermeables:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 18px; margin-top: 15px; text-align: center;">
+          J<sub>w</sub> = A<sub>w</sub> · (TMP - Δπ)
+        </p>
+        <p style="margin-top: 10px;">Donde A<sub>w</sub> es la constante de permeabilidad y Δπ la presión osmótica.</p>
+      </div>
     </div>
   </div>
 
-  <!-- 13: INNOVACIÓN RO -->
+  <!-- 13: AHORRO ENERGÉTICO HÍBRIDO (OI) -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">13 / 30</div>
-      <h2 class="slide-title">Ósmosis Inversa (RO)</h2>
+      <h2 class="slide-title">Balance Energético por OI</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Pre-concentración</h3>
-        <p>Aumento de sólidos del 5% al 12% sin uso de calor. Ahorro energético masivo.</p>
+        <h3>Ahorro de Vapor de Caldera</h3>
+        <p>El retiro de agua pura reduce la evaporación térmica, con un ahorro energético de:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px;">
+          Q<sub>saved</sub> = m<sub>permeado</sub> · λ<sub>vap</sub> / 3600 = 945.5 kW
+        </p>
+        <p style="margin-top: 5px;">Esto representa una reducción del <span class="highlight">25.4%</span> en OPEX térmico.</p>
       </div>
       <div class="card">
-        <h3>Membranas TFC</h3>
-        <p>Poliamida de alta resistencia. Rechazo de sales >99%.</p>
+        <h3>Consumo Eléctrico de Bomba</h3>
+        <p>La bomba eléctrica de alta presión requiere:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px;">
+          P<sub>bomba</sub> = (Q<sub>feed</sub> · TMP) / η<sub>pump</sub> = 9.0 kW
+        </p>
+        <p style="margin-top: 5px;">Ahorro neto equivalente en planta: <span class="highlight">936.5 kW</span>.</p>
       </div>
     </div>
   </div>
 
-  <!-- 14: FLUX HIDRÁULICO -->
+  <!-- 14: ETAPA 3: EVAPORACIÓN TÉRMICA AL VACÍO -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">14 / 30</div>
-      <h2 class="slide-title">Dinámica de Membranas</h2>
+      <h2 class="slide-title">Etapa 3: Evaporador EV-301</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>Presión de trabajo: <span class="highlight">24 bar</span>. El Gemelo Digital predice el ensuciamiento (fouling) para programar limpiezas CIP proactivas.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Operación al Vacío</h3>
+        <p>Evaporador de película descendente de doble efecto operando a <span class="highlight">0.40 bar abs</span>. Reduce la temperatura de ebullición a <span class="highlight">75°C</span> para mitigar el pardeamiento térmico indeseado.</p>
+      </div>
+      <div class="card">
+        <h3>Concentrado Proteico</h3>
+        <p>El flujo se reduce a <span class="highlight">1323.5 kg/h</span> de concentrado con una fracción de sólidos de <span class="highlight">x<sub>p</sub> = 23%</span>. Consumo de vapor de caldera con economía E = 1.85.</p>
+      </div>
     </div>
   </div>
 
-  <!-- 15: ETAPA 3 -->
+  <!-- 15: EVAPORADOR: PREVENCIÓN DEL DAÑO TÉRMICO -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">15 / 30</div>
-      <h2 class="slide-title">Etapa 3: Evaporación</h2>
+      <h2 class="slide-title">Reacción de Maillard</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
-      <div class="card">
-        <h3>Película Descendente</h3>
-        <p>Concentración final hasta el 23% de sólidos totales.</p>
+      <div class="card" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">Pérdida de Vacío Operativo</h3>
+        <p>Si la presión del evaporador sube a 0.70 bar, la temperatura de ebullición asciende a <span class="highlight">89°C</span>. Esto provoca la condensación de grupos carbonilo y amino de las globulinas.</p>
       </div>
       <div class="card">
-        <h3>Operación al Vacío</h3>
-        <p>0.40 bar abs. Ebullición a 75°C para preservar el color y sabor neutro.</p>
+        <h3>Penalización de Calidad</h3>
+        <p>El gemelo digital aplica una penalización cinética que disminuye el factor de calidad a <span class="highlight">0.85</span>, afectando la solubilidad y el color (oscurecimiento comercial inaceptable).</p>
       </div>
     </div>
   </div>
 
-  <!-- 16: PREVENCIÓN MAILLARD -->
+  <!-- 16: ETAPA 4: PRECIPITACIÓN ISOELÉCTRICA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">16 / 30</div>
-      <h2 class="slide-title">Calidad Termosensible</h2>
-      <div class="line"></div>
-    </div>
-    <div class="card stagger">
-      <p>El control del vacío es crítico. Un aumento de presión a 0.6 bar oscurece el producto final (Maillard), reduciendo su valor comercial en un <span class="highlight">20%</span>.</p>
-    </div>
-  </div>
-
-  <!-- 17: ETAPA 4 -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">17 / 30</div>
-      <h2 class="slide-title">Etapa 4: Precipitación</h2>
+      <h2 class="slide-title">Etapa 4: Precipitación en pI</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Punto Isoeléctrico</h3>
-        <p>pH objetivo: <span class="highlight">4.50</span>. Formación de cuajada proteica de alta densidad.</p>
+        <h3>Colapso de Carga</h3>
+        <p>Dosificación estequiométrica de HCl al 10% (110.0 kg/h) en el TK-401 para regular a <span class="highlight">pH 4.5</span>. El potencial Zeta colapsa a <span class="highlight">ζ ≈ 0 mV</span>.</p>
       </div>
       <div class="card">
-        <h3>Neutralización</h3>
-        <p>Re-ajuste a pH 7.0 antes del secado para asegurar solubilidad en el usuario final.</p>
+        <h3>Neutralización y Reajuste</h3>
+        <p>El precipitado insoluble se lava y re-suspende con NaOH a pH 7.0 antes del secado, asegurando la dispersabilidad del producto comercial.</p>
       </div>
     </div>
   </div>
 
-  <!-- 18: CENTRÍFUGA -->
+  <!-- 17: FLOCULACIÓN E HIDRÁULICA DE PRECIPITADO -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">17 / 30</div>
+      <h2 class="slide-title">Cinética de Floculación</h2>
+      <div class="line"></div>
+    </div>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Diámetro de Flóculos</h3>
+        <p>El tamaño de flóculo molecular se rige por la ecuación:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 14px; margin-top: 10px; text-align: center;">
+          d = 320.0 - 250.0 · |pH - 4.5| + 1.8 · (τ<sub>precip</sub> - 25.0) µm
+        </p>
+        <p style="margin-top: 10px;">Si el pH se desvía de 4.5, el tamaño del floc disminuye bruscamente y la separación en la centrífuga CF-401 pierde rendimiento.</p>
+      </div>
+      <div class="card">
+        <h3>Separador Centrífugo CF-401</h3>
+        <p>Genera una torta proteica concentrada (50% de humedad) con una eficiencia de captura del <span class="highlight">98%</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18: ETAPA 5: SECADO POR ATOMIZACIÓN -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">18 / 30</div>
-      <h2 class="slide-title">Separación Mecánica</h2>
-      <div class="line"></div>
-    </div>
-    <div class="card stagger">
-      <p>Centrífuga CF-401 operando a 1800g. El Digital Twin optimiza el torque según la viscosidad del lodo entrante.</p>
-    </div>
-  </div>
-
-  <!-- 19: ETAPA 5 -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">19 / 30</div>
       <h2 class="slide-title">Etapa 5: Secado Spray</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Atomización</h3>
-        <p>Velocidad de aire: 375 m/s. Formación de micro-esferas uniformes.</p>
+        <h3>Secador Spray SD-501</h3>
+        <p>La suspensión se atomiza con aire caliente a <span class="highlight">190°C</span>. El gemelo digital calcula las curvas psicrométricas y limita la gota a la de bulbo húmedo (&lt;70°C) para resguardar la proteína.</p>
       </div>
       <div class="card">
-        <h3>Control de T°</h3>
-        <p>Entrada: 190°C. Salida: 85°C. Humedad final controlada al <span class="highlight">5%</span>.</p>
+        <h3>Polvo Seco Comercial</h3>
+        <p>Humedad reducida al <span class="highlight">5.0%</span>.</p>
+        <p>Producción final de polvo ISP: <span class="highlight">301.6 kg/h</span>.</p>
+        <p>Rendimiento proteico global del sistema: <span class="highlight">76.4%</span>.</p>
       </div>
     </div>
   </div>
 
-  <!-- 20: CALIDAD POLVO -->
+  <!-- 19: LÍMITES DE CAPACIDAD DE EQUIPOS -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">19 / 30</div>
+      <h2 class="slide-title">Límites de Capacidad de Planta</h2>
+      <div class="line"></div>
+    </div>
+    <div style="width: 100%; max-width: 1000px;" class="stagger">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipo de Proceso</th>
+            <th>Variable Crítica Monitoreada</th>
+            <th>Límite Físico Admitido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tanque de Agua TK-100</td>
+            <td>Nivel Volumétrico</td>
+            <td class="highlight-val">90% Capacidad</td>
+          </tr>
+          <tr>
+            <td>Decanter Centrífugo CF-102</td>
+            <td>Caudal Hidráulico Alimentado</td>
+            <td class="highlight-val">16.0 m³/h</td>
+          </tr>
+          <tr>
+            <td>Pasteurizador HX-201</td>
+            <td>Carga Térmica Máxima</td>
+            <td class="highlight-val">100% Carga</td>
+          </tr>
+          <tr>
+            <td>Evaporador al Vacío EV-301</td>
+            <td>Capacidad de Evaporación</td>
+            <td class="highlight-val">10.0 m³/h</td>
+          </tr>
+          <tr>
+            <td>Secador Spray SD-501</td>
+            <td>Remoción de Humedad por Aire</td>
+            <td class="highlight-val">450 kg/h</td>
+          </tr>
+          <tr>
+            <td>Secador Spray SD-501</td>
+            <td>Carga Volumétrica Específica</td>
+            <td class="highlight-val">1.5 kg/(h·m³)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 20: NPSH Y PREVENCIÓN DE CAVITACIÓN -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">20 / 30</div>
-      <h2 class="slide-title">Propiedades del ISP</h2>
+      <h2 class="slide-title">Cavitación y NPSH en Bomba P-102</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>Densidad aparente: 575 kg/m³. Pureza proteica: <span class="highlight">95% p/p</span>. Cumplimiento con estándares internacionales para exportación.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Ecuación del NPSH Disponible</h3>
+        <p>Para la alimentación de extracto a 55°C, el gemelo calcula en tiempo real:</p>
+        <p class="highlight" style="font-family: 'Orbitron'; font-size: 15px; margin-top: 10px;">
+          NPSH<sub>a</sub> = (P<sub>atm</sub> - P<sub>v</sub>(55°C)) / (ρ · g) + H<sub>s</sub> - h<sub>f</sub>
+        </p>
+        <p style="font-size: 13px; margin-top: 5px;">Con P<sub>atm</sub> = 101,325 Pa, P<sub>v</sub> = 15,700 Pa y ρ = 1050 kg/m³.</p>
+      </div>
+      <div class="card">
+        <h3>Análisis Cuantitativo</h3>
+        <p>• Altura estática succión H<sub>s</sub> = 2.0 m, pérdidas h<sub>f</sub> = 0.7 m.</p>
+        <p>• NPSH<sub>a</sub> calculado: <span class="highlight">9.6 m</span>.</p>
+        <p>• NPSH<sub>r</sub> requerido por bomba: <span class="highlight">2.5 m</span>.</p>
+        <p>• Margen neto de seguridad: <span class="highlight">7.1 m</span> (sin riesgo de cavitación).</p>
+      </div>
     </div>
   </div>
 
-  <!-- 21: ARQUITECTURA DIGITAL -->
+  <!-- 21: DISEÑO SANITARIO CIP SMED -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">21 / 30</div>
-      <h2 class="slide-title">Arquitectura de Datos</h2>
+      <h2 class="slide-title">Diseño Higiénico y Filosofía SMED</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-3 stagger">
       <div class="card">
-        <h3>Edge Computing</h3>
-        <p>Procesamiento local de señales críticas (PLC/DCS).</p>
+        <h3>Acero Sanitario</h3>
+        <p>Tuberías de acero inoxidable AISI 316L con acabado interior pulido de rugosidad <span class="highlight">Ra &lt; 0.4 µm</span> (ASME BPE / EHEDG).</p>
       </div>
       <div class="card">
-        <h3>Cloud Sync</h3>
-        <p>Historial y dashboards en tiempo real mediante MQTT.</p>
+        <h3>Velocidad CIP</h3>
+        <p>El sistema CIP opera a velocidad <span class="highlight">v ≥ 1.5 m/s (Re &gt; 100,000)</span> para remover biopelículas mecánicamente.</p>
       </div>
       <div class="card">
-        <h3>Seguridad</h3>
-        <p>Encriptación end-to-end y control de acceso RBAC.</p>
+        <h3>Filosofía SMED</h3>
+        <p>Conexiones higiénicas Tri-Clamp que reducen los tiempos de cambio de filtros y desmontaje a menos de <span class="highlight">3 minutos</span> sin herramientas.</p>
       </div>
     </div>
   </div>
 
-  <!-- 22: UX/UI -->
+  <!-- 22: PRUEBA DE ESTRÉS: SOBRECARGA HIDRÁULICA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">22 / 30</div>
-      <h2 class="slide-title">Diseño de Interfaz</h2>
+      <h2 class="slide-title">Prueba de Estrés: Sobrecarga</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>Interfaz Streamlit con <span class="highlight">Glassmorphism</span>. Visualización de KPIs dinámicos y alertas predictivas para una operación intuitiva.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">Escenario de Falla</h3>
+        <p>Un aumento abrupto en la alimentación de soya por encima de <span class="highlight">1200 kg/h</span> eleva el caudal de lodo a la centrífuga CF-102 por encima del límite permitido de 15 m³/h.</p>
+      </div>
+      <div class="card">
+        <h3>Acción Correctiva del Gemelo</h3>
+        <p>El motor de restricciones detecta que la capacidad volumétrica excede la cota de seguridad (&gt;90%) y gatilla la alarma roja y parada de emergencia (<code class="highlight">EquipmentCapacityError</code>) para evitar rebalse.</p>
+      </div>
     </div>
   </div>
 
-  <!-- 23: IA PREDICTIVA -->
+  <!-- 23: PRUEBA DE ESTRÉS: DESVIACIONES DE pH -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">23 / 30</div>
-      <h2 class="slide-title">Mantenimiento IA</h2>
+      <h2 class="slide-title">Prueba de Estrés: Desviación de pH</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>Análisis de vibración y carga térmica para predecir fallos en motores y ensuciamiento en evaporadores con una antelación de <span class="highlight">72 horas</span>.</p>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Falla de NaOH en Extracción</h3>
+        <p>La caída del pH de lixiviación de 8.75 a 8.0 reduce la eficiencia de extracción a <span class="highlight">75.9%</span>, recortando la salida final de ISP a <span class="highlight">265.1 kg/h</span> (una caída del 12.1% en producción).</p>
+      </div>
+      <div class="card" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">Desviación en TK-401</h3>
+        <p>Una falla en dosificación de HCl que deje el pH en 5.2 (desviado del pI 4.5) disminuye la captura proteica a <span class="highlight">83.6%</span>, perdiendo proteína valiosa en el suero residual.</p>
+      </div>
     </div>
   </div>
 
-  <!-- 24: ECONOMÍA CIRCULAR -->
+  <!-- 24: PRUEBA DE ESTRÉS: INOCUIDAD Y VACÍO -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">24 / 30</div>
-      <h2 class="slide-title">Zero Waste</h2>
+      <h2 class="slide-title">Pruebas de Estrés: Temp y Vacío</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
-      <div class="card" style="border-color: var(--green);">
-        <h3 style="color: var(--green);">Valorización</h3>
-        <p>Nada se desecha. El 100% de la masa entrante tiene un destino comercial o de re-proceso.</p>
-      </div>
       <div class="card">
-        <h3>Agua Recuperada</h3>
-        <p>El condensado del evaporador se utiliza para el CIP de limpieza.</p>
+        <h3>Pérdida de Temperatura HTST</h3>
+        <p>Al caer T &lt; 75°C en HX-201, se compromete la inocuidad. El gemelo activa el lazo desviador para recircular el lodo al tanque de reproceso para evitar contaminación microbiológica.</p>
+      </div>
+      <div class="card" style="border-color: var(--accent);">
+        <h3 style="color: var(--accent);">Falla de Presión en Evaporador</h3>
+        <p>La pérdida de vacío sube la presión interna a 0.70 bar. La temperatura de ebullición sube a 89°C, gatillando el pardeamiento de Maillard que castiga el factor de calidad a <span class="highlight">0.85</span>.</p>
       </div>
     </div>
   </div>
 
-  <!-- 25: OKARA -->
+  <!-- 25: COMPARACIÓN ENERGÉTICA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">25 / 30</div>
-      <h2 class="slide-title">Subproducto: Okara</h2>
+      <h2 class="slide-title">Comparación Térmico vs Híbrido (OI)</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>1,645 kg/h de fibra húmeda. Destino: Alimentación animal de alto rendimiento. Ingreso adicional: <span class="highlight">~140k USD/año</span>.</p>
+    <div style="width: 100%; max-width: 1000px;" class="stagger">
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro Energético</th>
+            <th>Proceso Térmico Tradicional</th>
+            <th>Proceso Híbrido con Ósmosis Inversa</th>
+            <th>Ahorro / Impacto del Gemelo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Agua evaporada térmicamente</td>
+            <td>8967.6 kg/h</td>
+            <td>6249.3 kg/h</td>
+            <td class="highlight-val">Reducción del 30.3%</td>
+          </tr>
+          <tr>
+            <td>Agua filtrada por OI en frío</td>
+            <td>0.0 kg/h</td>
+            <td>2718.3 kg/h</td>
+            <td class="highlight-val">Retiro mecánico de agua</td>
+          </tr>
+          <tr>
+            <td>Consumo térmico del Evaporador</td>
+            <td>3530.0 kW</td>
+            <td>2584.5 kW</td>
+            <td class="highlight-val">Ahorro: 945.5 kW (25.4%)</td>
+          </tr>
+          <tr>
+            <td>Consumo eléctrico de OI (Bomba)</td>
+            <td>0.0 kW</td>
+            <td>9.0 kW</td>
+            <td class="accent-val">Bajo consumo adicional</td>
+          </tr>
+          <tr>
+            <td>Ahorro Energético Neto Planta</td>
+            <td>0.0 kW</td>
+            <td class="highlight-val">936.5 kW</td>
+            <td class="highlight-val">Payback OI &lt; 1.5 años</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- 26: SUERO -->
+  <!-- 26: MATRIZ FMEA DINÁMICA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">26 / 30</div>
-      <h2 class="slide-title">Subproducto: Suero</h2>
+      <h2 class="slide-title">Matriz FMEA del Gemelo Digital</h2>
       <div class="line"></div>
     </div>
-    <div class="card stagger">
-      <p>Rico en péptidos y azúcares. Potencial para biogás o probióticos líquidos para porcicultura local.</p>
+    <div style="width: 100%; max-width: 1000px;" class="stagger">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable Operativa Evaluada</th>
+            <th>Severidad (S)</th>
+            <th>Ocurrencia (O)</th>
+            <th>Detección (D)</th>
+            <th>NPR (S×O×D)</th>
+            <th>Clasificación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>pH de Precipitación (TK-401)</td>
+            <td>8</td>
+            <td>6</td>
+            <td>3</td>
+            <td class="accent-val">144</td>
+            <td class="accent-val">Crítico</td>
+          </tr>
+          <tr>
+            <td>Humedad de Polvo Final (SD-501)</td>
+            <td>9</td>
+            <td>4</td>
+            <td>3</td>
+            <td class="accent-val">108</td>
+            <td class="accent-val">Alto</td>
+          </tr>
+          <tr>
+            <td>Presión de Vacío (EV-301)</td>
+            <td>7</td>
+            <td>5</td>
+            <td>2</td>
+            <td>70</td>
+            <td>Alto</td>
+          </tr>
+          <tr>
+            <td>pH de Extracción (TK-101)</td>
+            <td>8</td>
+            <td>4</td>
+            <td>2</td>
+            <td>64</td>
+            <td>Alto</td>
+          </tr>
+          <tr>
+            <td>Temp. Pasteurización (HX-201)</td>
+            <td>9</td>
+            <td>3</td>
+            <td>1</td>
+            <td>27</td>
+            <td class="highlight-val">Medio</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- 27: CAPEX -->
+  <!-- 27: CIRCULARIDAD: VALORIZACIÓN DEL OKARA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-num">27 / 30</div>
-      <h2 class="slide-title">Inversión (CAPEX)</h2>
-      <div class="line"></div>
-    </div>
-    <div class="card stagger">
-      <p>Inversión Total Estimada: <span class="highlight" style="font-size: 28px;">4.64 MM USD</span></p>
-      <p>Maquinaria: 1.96 MM | Obra Civil: 0.58 MM | Automatización: 0.32 MM</p>
-    </div>
-  </div>
-
-  <!-- 28: OPEX -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">28 / 30</div>
-      <h2 class="slide-title">Costos (OPEX)</h2>
-      <div class="line"></div>
-    </div>
-    <div class="card stagger">
-      <p>Costo unitario ISP: <span class="highlight">2.37 USD/kg</span></p>
-      <p>Margen EBITDA: <span class="highlight">32.1%</span></p>
-    </div>
-  </div>
-
-  <!-- 29: RENTABILIDAD -->
-  <div class="slide">
-    <div class="slide-header">
-      <div class="slide-num">29 / 30</div>
-      <h2 class="slide-title">ROI y Payback</h2>
+      <h2 class="slide-title">Valorización del Okara Húmedo</h2>
       <div class="line"></div>
     </div>
     <div class="grid grid-2 stagger">
       <div class="card">
-        <h3>Payback</h3>
-        <p><span class="highlight">2.15 años</span>. Recuperación acelerada gracias a la eficiencia energética del Gemelo Digital.</p>
+        <h3>Subproducto Fibroso</h3>
+        <p>La centrífuga decantadora CF-102 produce <span class="highlight">1,645 kg/h</span> de Okara húmedo con un 65% de humedad.</p>
+        <p>Contiene alto valor en fibra dietética insoluble y remanentes proteicos.</p>
       </div>
-      <div class="card">
-        <h3>NPV (10 años)</h3>
-        <p>Proyectado en <span class="highlight">~12.4 MM USD</span> con tasa de descuento del 12%.</p>
+      <div class="card" style="border-color: var(--green);">
+        <h3 style="color: var(--green);">Nutrición Animal de Alta Performance</h3>
+        <p>Acondicionado para alimento peletizado de ganado local. Aporta un ingreso financiero complementario de <span class="highlight">~140k USD/año</span> a la planta, logrando el objetivo Zero Waste.</p>
       </div>
     </div>
   </div>
 
-  <!-- 30: CONCLUSIÓN -->
+  <!-- 28: CIRCULARIDAD: TRATAMIENTO DE SUERO ÁCIDO -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">28 / 30</div>
+      <h2 class="slide-title">Gestión del Suero Ácido</h2>
+      <div class="line"></div>
+    </div>
+    <div class="grid grid-2 stagger">
+      <div class="card">
+        <h3>Efluente Residual</h3>
+        <p>La centrífuga CF-401 drena un efluente de suero que contiene oligosacáridos solubles (estaquiosa, rafinosa) y proteínas solubles.</p>
+        <p>Masa seca nominal recuperada: <span class="highlight">1,057 kg/h</span>.</p>
+      </div>
+      <div class="card">
+        <h3>Biogás y Biorefinería</h3>
+        <p>Canalizado a un digestor anaeróbico para la generación de biogás para co-generación o fermentación controlada para aditivos prebióticos líquidos de porcicultura.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 29: VIABILIDAD ECONÓMICA -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-num">29 / 30</div>
+      <h2 class="slide-title">Viabilidad Económica de Planta</h2>
+      <div class="line"></div>
+    </div>
+    <div class="grid grid-3 stagger">
+      <div class="card">
+        <h3>Inversión CAPEX</h3>
+        <p>Total estimado: <span class="highlight">4.64 MM USD</span>.</p>
+        <p style="font-size: 13px; margin-top: 5px;">• Maquinaria: 1.96 MM</p>
+        <p style="font-size: 13px;">• Obra Civil: 0.58 MM</p>
+        <p style="font-size: 13px;">• Automatización: 0.32 MM</p>
+      </div>
+      <div class="card">
+        <h3>Costo Operativo OPEX</h3>
+        <p>Costo unitario: <span class="highlight">2.37 USD/kg ISP</span>.</p>
+        <p>Margen EBITDA del <span class="highlight">32.1%</span>.</p>
+        <p style="font-size: 13px; margin-top: 5px;">Optimizado dinámicamente por la etapa de ósmosis inversa.</p>
+      </div>
+      <div class="card">
+        <h3>Indicadores Financieros</h3>
+        <p>• Payback: <span class="highlight">2.15 años</span>.</p>
+        <p>• VAN (10 años, 12%): <span class="highlight">12.4 MM USD</span>.</p>
+        <p>• TIR del proyecto: <span class="highlight">42.6%</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30: CONCLUSIÓN GENERAL -->
   <div class="slide cover">
     <div class="stagger">
       <h1>¡GRACIAS!</h1>
-      <p>GEMELO DIGITAL AJAX · 2026</p>
+      <p>CONSOLA DE CONTROL DIGITAL · PLANTA ISP</p>
       <div class="line" style="margin: 30px auto;"></div>
-      <p style="font-size: 18px; color: var(--cyan); letter-spacing: 2px;">EL FUTURO DE LA AGROINDUSTRIA INTELIGENTE</p>
+      <p style="font-size: 18px; color: var(--cyan); letter-spacing: 2px;">IMPLEMENTACIÓN COMPLETA Y VERIFICADA EN APP.PY</p>
     </div>
   </div>
 
