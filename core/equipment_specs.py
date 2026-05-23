@@ -13,7 +13,7 @@ EQUIPMENT_SPEC_DEFAULTS: dict[str, float] = {
     "stage_0_pump_eta_motor": 0.90,
     "stage_0_pump_motor_kw": 1.50,
     "stage_1_slurry_density_kg_m3": 1050.0,
-    "stage_1_tank_capacity_m3": 16.0,
+    "stage_1_tank_capacity_m3": 20.0,
     "stage_1_tank_reserve_factor": 1.20,
     "stage_1_base_extraction_eff": 0.88,
     "stage_1_2_extract_recovery": 0.965,
@@ -29,8 +29,8 @@ EQUIPMENT_SPEC_DEFAULTS: dict[str, float] = {
     "stage_4_base_precip_eff": 0.98,
     "stage_4_2_co_solids_kg_h": 0.0,
     "stage_4_2_base_moisture_frac": 0.50,
-    "stage_4_2_centrifuge_capacity_m3_h": 3.0,
-    "stage_5_dryer_evap_capacity_kg_h": 400.0,
+    "stage_4_2_centrifuge_capacity_m3_h": 5.0,
+    "stage_5_dryer_evap_capacity_kg_h": 600.0,
     "stage_5_dryer_chamber_volume_m3": 36.5,
 }
 

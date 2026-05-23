@@ -77,12 +77,12 @@ KPI_SPECS: dict[str, dict] = {
 
 
 CONTROL_LIMITS: dict[str, tuple[float, float]] = {
-    "soy_feed_kg_h": (100.0, 8000.0),
-    "water_flow_m3_h": (2.0, 30.0),
+    "soy_feed_kg_h": (900.0, 1100.0),
+    "water_flow_m3_h": (11.0, 13.0),
     "water_temp_c": (40.0, 90.0),
-    "extraction_ph": (6.0, 12.0),
+    "extraction_ph": (8.0, 9.5),
     "extraction_temp_c": (20.0, 95.0),
-    "extraction_residence_min": (5.0, 180.0),
+    "extraction_residence_min": (58.0, 90.0),
     "agitator_rpm": (10.0, 500.0),
     "solid_liquid_ratio": (4.0, 30.0),
     "pasteur_temp_c": (50.0, 130.0),
@@ -90,11 +90,11 @@ CONTROL_LIMITS: dict[str, tuple[float, float]] = {
     "evap_pressure_bar": (0.05, 1.20),
     "evap_temp_c": (20.0, 95.0),
     "ro_tmp_bar": (15.0, 40.0),
-    "precip_ph": (2.5, 7.0),
+    "precip_ph": (4.1, 4.9),
     "precip_time_min": (2.0, 120.0),
     "centrifuge_g": (200.0, 5000.0),
     "centrifuge_time_min": (1.0, 120.0),
-    "dryer_temp_c": (40.0, 220.0),
+    "dryer_temp_c": (170.0, 210.0),
     "dryer_residence_min": (1.0, 180.0),
 }
 

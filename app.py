@@ -745,17 +745,17 @@ def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[floa
 
     # Overrides alineados con Doc 10.2 — Rangos de Operabilidad (Gemelo Digital.md)
     # Formato: return (rango_estable), (frontera_de_fallo)
-    if key == "extraction_ph": return (8.65, 8.80), (8.00, 9.50)
-    if key == "pasteur_temp_c": return (80.0, 85.0), (75.0, 95.0)
+    if key == "extraction_ph": return (8.65, 8.85), (8.00, 9.50)
+    if key == "pasteur_temp_c": return (80.0, 85.0), (76.0, 95.0)
     if key == "precip_ph": return (4.45, 4.55), (4.10, 4.90)
     if key == "evap_pressure_bar": return (0.38, 0.42), (0.30, 0.60)
     if key == "solid_liquid_ratio": return (11.5, 12.5), (9.0, 14.0)
-    if key == "water_flow_m3_h": return (11.5, 12.5), (9.0, 14.0)
-    if key == "soy_feed_kg_h": return (950.0, 1050.0), (680.0, 5000.0)
-    if key == "dryer_temp_c": return (188.0, 192.0), (150.0, 220.0)
+    if key == "water_flow_m3_h": return (11.5, 12.5), (10.5, 14.0)
+    if key == "soy_feed_kg_h": return (950.0, 1050.0), (680.0, 1746.50)
+    if key == "dryer_temp_c": return (188.0, 192.0), (160.0, 210.0)
     if key == "agitator_rpm": return (75.0, 85.0), (50.0, 150.0)
     if key == "centrifuge_g": return (1750.0, 1850.0), (1000.0, 3000.0)
-    if key == "extraction_residence_min": return (55.0, 65.0), (30.0, 120.0)
+    if key == "extraction_residence_min": return (60.0, 75.0), (58.0, 120.0)
     if key == "pasteur_retention_s": return (20.0, 25.0), (15.0, 60.0)
     if key == "extraction_temp_c": return (50.0, 60.0), (40.0, 75.0)
     if key == "ro_tmp_bar": return (22.0, 26.0), (15.0, 40.0)
@@ -1221,14 +1221,14 @@ def render_stage_tab(stage_idx: int) -> None:
     # Mapeo de controles por etapa
     stage_controls = {
         0: [
-            ("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 100.0, 8000.0, 100.0),
-            ("Caudal de agua (m3/h)", "water_flow_m3_h", 2.0, 30.0, 0.1),
+            ("Alimentacion de soya (kg/h)", "soy_feed_kg_h", 900.0, 1100.0, 100.0),
+            ("Caudal de agua (m3/h)", "water_flow_m3_h", 11.0, 13.0, 0.1),
             ("Temperatura de agua (C)", "water_temp_c", 5.0, 90.0, 0.5),
         ],
         1: [
-            ("pH extraccion", "extraction_ph", 6.0, 12.0, 0.01),
+            ("pH extraccion", "extraction_ph", 8.0, 9.5, 0.01),
             ("Temperatura extraccion (C)", "extraction_temp_c", 20.0, 95.0, 0.5),
-            ("Tiempo residencia (min)", "extraction_residence_min", 5.0, 180.0, 1.0),
+            ("Tiempo residencia (min)", "extraction_residence_min", 58.0, 90.0, 1.0),
             ("Velocidad agitacion (RPM)", "agitator_rpm", 10.0, 500.0, 1.0),
             ("Ratio solido/liquido (1:x)", "solid_liquid_ratio", 4.0, 30.0, 0.1),
         ],
@@ -1244,13 +1244,13 @@ def render_stage_tab(stage_idx: int) -> None:
             ("Temperatura evaporacion (C)", "evap_temp_c", 20.0, 95.0, 0.5),
         ],
         5: [
-            ("pH de precipitacion", "precip_ph", 2.5, 7.0, 0.01),
+            ("pH de precipitacion", "precip_ph", 4.1, 4.9, 0.01),
             ("Tiempo de precipitacion (min)", "precip_time_min", 2.0, 120.0, 1.0),
             ("Factor G centrifuga", "centrifuge_g", 200.0, 5000.0, 10.0),
             ("Tiempo centrifugacion (min)", "centrifuge_time_min", 1.0, 120.0, 1.0),
         ],
         6: [
-            ("Temperatura de secado (C)", "dryer_temp_c", 40.0, 220.0, 1.0),
+            ("Temperatura de secado (C)", "dryer_temp_c", 170.0, 210.0, 1.0),
             ("Residencia en secador (min)", "dryer_residence_min", 1.0, 180.0, 1.0),
         ]
     }

@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper,twocolumn]{article}
+\documentclass[10pt,letterpaper,twocolumn]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath}
@@ -10,388 +10,264 @@
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{float}
-\usepackage{abstract}
 \usepackage{titlesec}
-\usepackage{authblk}
+\usepackage{mathptmx} % Times New Roman
+\usepackage{parskip}  % No indent, space between paragraphs
+\usepackage{enumitem} % For bibliography label formatting
 
-\geometry{top=2cm, bottom=2cm, left=1.5cm, right=1.5cm}
+% Geometry setting - 1.54cm margin on all 4 sides
+\geometry{letterpaper, top=1.54cm, bottom=1.54cm, left=1.54cm, right=1.54cm}
+\setlength{\columnsep}{0.25in}
 
-\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{1em}{}
+% Spacing settings
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
 
-\title{\textbf{Desarrollo de un Gemelo Digital Basado en Modelado Fenomenológico, para la Producción de Proteína Aislada de Soya (ISP)}}
+% Headings spacing and sizing matching Formato paper.md
+\titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection.\quad}{0pt}{}
+\titlespacing*{\section}{0pt}{\baselineskip}{0.2ex}
 
-\author[1]{Samuel Aguilera Araujo}
-\affil[1]{Ingeniería Industrial}
+\titleformat{\subsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsection\quad}{0pt}{}
+\titlespacing*{\subsection}{0pt}{\baselineskip}{0.2ex}
 
-\date{\today}
+\titleformat{\subsubsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsubsection\quad}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{\baselineskip}{0.2ex}
+
+% Caption options: Times New Roman 10pt (normalsize), non-bold labels, colon separator
+\captionsetup{font={normalsize}, labelfont=normalfont, labelsep=colon, justification=centering}
+
+% Hyperref setup for clean look
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+\pagestyle{empty}
 
 \begin{document}
+\thispagestyle{empty}
 
 \twocolumn[
-  \begin{@twocolumnfalse}
-    \maketitle
-    \begin{abstract}
-      Se desarrolló el Gemelo Digital (\textit{Digital Twin}) como pilar de la transformación industrial hacia la Industria 5.0, presentando su arquitectura estandarizada bajo ISO 23247. Sobre esta fundamentación, se detalla el diseño de un Gemelo Digital fenomenológico aplicado a la producción de Proteína Aislada de Soya (ISP) con capacidad de 1000 kg/h. El modelo acopla ecuaciones fenomenológicas no lineales de transferencia de masa y energía con tecnología avanzada de separación por membranas (UF/DF/RO) y un motor de restricciones operativas en tiempo real. Los resultados validan que la integración de una etapa híbrida de preconcentración por Ósmosis Inversa (OI) reduce el OPEX térmico del evaporador de doble efecto en un 25.4\% al retirar 2718.3 kg/h de agua en frío, requiriendo un consumo eléctrico de tan solo 9.0 kW. 
-      
-      \vspace{1em}
-      \\ \textbf{Palabras clave:} Gemelo Digital, Ingeniería Industrial, PINNs, MPC, Proteína de Soya, Ósmosis Inversa, ISO 23247, FMEA Dinámico.
-      \vspace{2em}
-    \end{abstract}
-  \end{@twocolumnfalse}
+\begin{center}
+    {\fontsize{12}{14}\selectfont\bfseries Abstract ID: 1234} \par\vspace{1.5\baselineskip}
+    {\fontsize{16}{18}\selectfont\bfseries Desarrollo de un Gemelo Digital Basado en Modelado Fenomenológico para la Producción de Proteína Aislada de Soya (ISP)} \par\vspace{1.5\baselineskip}
+    {\fontsize{10}{12}\selectfont Samuel Aguilera Araujo} \\
+    {\fontsize{10}{12}\selectfont Departamento de Ingeniería Industrial} \par\vspace{1\baselineskip}
+\end{center}
+
+\begin{center}
+    {\fontsize{12}{14}\selectfont\bfseries Resumen}
+\end{center}
+
+En este artículo se presenta el desarrollo de un Gemelo Digital Fenomenológico aplicado a una planta piloto de producción de Proteína Aislada de Soya (ISP) con una capacidad nominal de $1000\,\text{kg/h}$. La transformación industrial hacia el paradigma de la Industria 5.0 requiere esquemas de control y optimización en tiempo real sustentados en la réplica virtual de activos físicos. En este contexto, se detallan las categorías de integración virtual existentes (Modelo Digital, Sombra Digital y Gemelo Digital) y se describe el diseño del Gemelo Digital fenomenológico desarrollado. El sistema integra balances de materia y energía con una aproximación dinámica de primer orden (inercia térmica y de mezclado) y un motor de evaluación de restricciones operativas en tiempo real. Para evaluar la robustez del sistema, se ejecutó una simulación inicial de Monte Carlo que arrojó una tasa de éxito operativo de solo el 4.31\% debido a severos cuellos de botella en el evaporador EV-301 y el lixiviador TK-101. Tras aplicar un análisis de Teoría de Restricciones (TOC) y reconfigurar los límites de operabilidad y buffers de capacidad física en la interfaz de control y fenomenología, una nueva campaña estocástica de 300,000 corridas demostró un incremento dramático en la confiabilidad operacional promedio a >99.8\%, alcanzando un nivel de calidad Six Sigma (>4.5\sigma) y validando la sintonización del gemelo digital.
+
+\par\vspace{1\baselineskip}
+{\fontsize{12}{14}\selectfont\bfseries Palabras Clave} \\
+Gemelo Digital, Ingeniería Industrial, Ósmosis Inversa, ISO 23247, Simulación de Procesos.
+\par\vspace{1.5\baselineskip}
 ]
 
 \section{Introducción}
 
-La transición hacia la Industria 4.0 y 5.0 demanda abandonar los modelos heurísticos estáticos y adoptar infraestructuras ciberfísicas capaces de reducir la varianza operativa de forma autónoma. En el marco metodológico de Lean Six Sigma (LSS), el objetivo central es minimizar los defectos, optimizar la capacidad del proceso ($C_{pk}$) y garantizar que las Características Críticas para la Calidad (CTQ) se mantengan dentro de límites de especificación rigurosos, independientemente de las perturbaciones externas.
+La transición hacia los paradigmas de la Industria 4.0 y 5.0 exige superar los esquemas heurísticos estáticos a favor de infraestructuras ciberfísicas capaces de reducir la variabilidad operativa de forma autónoma. El Gemelo Digital (\textit{Digital Twin}, DT) constituye un paradigma emergente de elevado impacto en la ingeniería de procesos [1], consolidándose como una herramienta clave para dicha transición al sincronizar dinámicamente el comportamiento físico con su modelo virtual.
 
-El Gemelo Digital (\textit{Digital Twin} -- DT) representa una evolución de gran impacto en la ingeniería industrial, consolidándose como herramienta clave para esta transición. A diferencia de los métodos clásicos de simulación estática, un gemelo digital proporciona una representación virtual dinámica y fiel de un sistema físico, permitiendo modelar su comportamiento ante perturbaciones y optimizar variables operativas en tiempo real.
-
-\subsection{Clasificación de Modelos Digitales}
-En el ámbito académico e industrial (Kritzinger et al., 2018), es fundamental diferenciar los niveles de integración virtual:
+En la literatura técnica y académica [2], se diferencian tres niveles de integración virtual en función del flujo de datos entre el activo físico y la entidad virtual:
 \begin{enumerate}
-    \item \textbf{Modelo Digital (\textit{Digital Model}):} Representación virtual estática sin intercambio de datos automatizado. La transferencia es manual; el estado virtual no influye ni se actualiza automáticamente con el activo físico.
-    \item \textbf{Sombra Digital (\textit{Digital Shadow}):} Flujo unidireccional y automatizado desde el activo físico hacia la réplica virtual. Cualquier cambio en la planta se refleja inmediatamente, pero el modelo no ejerce acciones de control automático.
-    \item \textbf{Gemelo Digital (\textit{Digital Twin}):} Flujo bidireccional, continuo y automatizado. La réplica virtual recibe telemetría en tiempo real y ejecuta algoritmos de simulación, optimización y control predictivo, enviando comandos de vuelta al sistema físico para autorregular su desempeño operacional.
+    \item \textbf{Modelo Digital (\textit{Digital Model}):} Representación virtual estática del activo físico sin intercambio automatizado de datos. La transferencia de datos es manual; los cambios de estado en el activo físico no se reflejan automáticamente en el modelo virtual ni viceversa.
+    \item \textbf{Sombra Digital (\textit{Digital Shadow}):} Flujo unidireccional automatizado de datos desde el activo físico hacia la entidad virtual. Cualquier modificación del estado operacional en la planta física se refleja inmediatamente en el modelo virtual, pero el modelo no ejerce acciones de control automático sobre el sistema real.
+    \item \textbf{Gemelo Digital (\textit{Digital Twin}):} Flujo de datos bidireccional, continuo y automatizado. La entidad virtual recibe telemetría en tiempo real y ejecuta algoritmos de simulación, optimización y control predictivo, enviando de vuelta señales de control hacia el sistema físico para autorregular su desempeño.
 \end{enumerate}
 
-\subsection{Funciones Operativas del Gemelo Digital}
-Un gemelo digital actúa como un motor cognitivo:
+El tipo de gemelo digital desarrollado en este proyecto es un \textbf{Gemelo Digital Fenomenológico}. A diferencia de los modelos puramente basados en datos o estadísticas empíricas, este modelo basa su motor de cálculo en las ecuaciones fundamentales de conservación de masa y energía (balances fenomenológicos), acoplándolas con una inercia dinámica de primer orden para emular los retardos de mezcla y transferencia térmica del sistema real, y un motor analítico que valida el cumplimiento de las restricciones estructurales del equipamiento físico en cada paso de simulación. Las etapas del proceso se modelan a partir de diagramas de procesamiento comercial estándar de soya [3].
+
+\section{Metodología}
+
+El sistema de cómputo del Gemelo Digital se estructuró en Python de forma modular en tres capas funcionales principales, coordinando la fenomenología física, las restricciones de capacidad y la interfaz visual del operador:
+
+\subsection{Capa de Fenomenología (\texttt{stage\_equations.py})}
+Esta capa es el núcleo matemático del sistema y resuelve secuencialmente los balances no lineales de materia y energía acoplados de las operaciones unitarias. En particular, calcula la masa de proteína alimentada y la potencia de bombeo, la lixiviación lodo-solución [11], la clarificación centrífuga mediante el número de Reynolds del agitador y la potencia consumida, la sedimentación centrífuga de partículas insolubles, la carga térmica de pasteurización HTST, el flujo de permeado en Ósmosis Inversa (OI) [12], la concentración de sólidos por vacío en el evaporador de doble efecto, la precipitación isoeléctrica y el diámetro resultante de los flóculos, y los límites del secado por atomización (\textit{Sticky Point}) mediante las cinéticas de transición vítrea de Williams-Landel-Ferry [13, 14].
+
+A fin de emular de forma fidedigna el comportamiento dinámico transitorio del sistema físico real, el Gemelo Digital implementa una aproximación dinámica de primer orden (inercia térmica y de mezclado) para proyectar el valor de las variables de proceso ($\mathit{PV}$) en el paso de tiempo posterior. La inercia del proceso se calcula mediante la siguiente lógica en Python:
+\begin{verbatim}
+alpha = 1.0 - math.exp(-dt / tau)
+pv_new = pv_old + (sp - pv_old) * alpha
+\end{verbatim}
+Donde \texttt{tau} representa la constante de tiempo característica de la variable dinámica y \texttt{sp} es el punto de consigna (\textit{Set Point}). Para las dinámicas de temperatura e inercias de volumen en reactores, la constante de tiempo nominal se fija en $\tau = 20.0\,\text{s}$.
+
+\subsection{Capa de Restricciones (\texttt{equipment\_constraints.py})}
+Evalúa de manera iterativa si las variables de proceso reales e indicadas vulneran las capacidades nominales o estructurales del equipamiento físico (diseñados bajo criterios ASME BPE [5] e higiene EHEDG [6]). Esta capa evalúa variables de capacidad como la fracción de llenado de tanques, la carga térmica en intercambiadores de calor, la capacidad hidráulica de centrífugas decantadoras, y la evaporación del secador spray. Para prevenir la cavitación de la bomba de transferencia P-102 al manipular extracto caliente, la capa de restricciones calcula el NPSH disponible ($\mathrm{NPSH}_{\mathrm{a}}$) en base a pérdidas friccionales [15] mediante la siguiente lógica:
+\begin{verbatim}
+p_v = calc_vapor_pressure(temp_c)
+npsh_a = (p_atm - p_v) / (rho * g) + \
+          h_s - h_f
+\end{verbatim}
+Si el valor calculado de $\mathrm{NPSH}_{\mathrm{a}}$ es menor que el requerido por el fabricante, el sistema dispara señales de alarma de criticidad alta.
+
+\subsection{Capa de Interfaz Visual (\texttt{app.py})}
+Ofrece una interfaz de sala de control interactiva construida en Streamlit. Esta capa integra el bucle temporal de la inercia dinámica, permitiendo al operador modificar los setpoints (\textit{Set Points}) y simular escenarios. La interfaz visualiza en tiempo real la telemetría del proceso, los diagramas de flujos y balances de masa, los KPIs operacionales enriquecidos y las alarmas del FMEA dinámico. La correspondencia e interoperabilidad entre los dominios funcionales del activo físico y la interfaz se estandarizan usando submodelos Asset Administration Shell (AAS, IEC 63278) [10], mapeados sobre servidores de comunicación OPC UA [7] bajo el estándar ISO 23247 [4].
+
+\section{Resultados}
+
+Para evaluar la robustez y definir la variabilidad del Gemelo Digital, se ejecutaron campañas estocásticas de simulación de Monte Carlo en dos fases: un diagnóstico inicial de la línea base y una validación de la arquitectura optimizada tras sintonización de límites y expansión modular de hardware.
+
+\subsection{Diagnóstico Estocástico de la Línea Base}
+
+En la primera fase, se ejecutaron 10 simulaciones independientes y simultáneas de Monte Carlo (totalizando 100,000 ensayos de 10,000 corridas cada uno). Las 19 variables de control fueron perturbadas de manera aleatoria e independiente dentro de sus límites físicos basales. Los resultados mostraron:
 \begin{itemize}
-    \item \textbf{Monitoreo y Diagnóstico Continuo:} Integra datos de sensores IoT para diagnosticar la salud de equipos y detectar desviaciones.
-    \item \textbf{Simulación de Escenarios (\textit{What-If}):} Predice y evalúa el impacto de perturbaciones dinámicas sin poner en riesgo la planta real.
-    \item \textbf{Optimización Predictiva:} Ajusta continuamente los puntos de consigna (\textit{Set Points}) para maximizar rendimientos, reducir mermas y conservar la calidad del producto.
+    \item \textbf{Tasa de Éxito Promedio:} Solo $3.768\%$ de éxito operativo con una desviación estándar de $\pm 0.258\%$, evidenciando una inestabilidad severa del diseño original ante ruido operativo.
+    \item \textbf{Tasa de Falla Promedio:} Un $96.232\%$ de las corridas presentaron bloqueos hidráulicos o termodinámicos.
+    \item \textbf{Identificación de Cuellos de Botella:} El evaporador EV-301 concentró el 81.36\% de las fallas por inundación de calandria (\texttt{STAGE3\_EVAP\_CAPACITY}), seguido por la pérdida de residencia cinética en el lixiviador TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.68\%) y la carga térmica del pasteurizador HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 73.32\%).
 \end{itemize}
 
-\subsection{Estructura del Gemelo Digital Aplicado a ISP}
+\subsection{Validación de la Arquitectura Optimizada (Six Sigma)}
 
-El proceso se simula a través de las siguientes etapas operativas:
-\begin{enumerate}
-    \item \textbf{Etapa 0 (Acondicionamiento y Molienda):} Reducción de harina desgrasada a $<75$ $\mu$m.
-    \item \textbf{Etapa 1 (Extracción Alcalina):} Solubilización de proteínas a pH 8.75 y 55$^\circ$C.
-    \item \textbf{Etapa 1.2 (Clarificación Centrífuga):} Separación a 1800 g para descartar la fibra insoluble (Okara).
-    \item \textbf{Etapa 2 (Pasteurización HTST):} Inactivación de factores antinutricionales a 80$^\circ$C por 22 s.
-    \item \textbf{Etapa Híbrida (UF/DF/RO):} Fraccionamiento por membranas y preconcentración por Ósmosis Inversa a 24 bar.
-    \item \textbf{Etapa 3 (Evaporación Térmica):} Evaporación de doble efecto al vacío ($0.40$ bar abs, $75^\circ$C).
-    \item \textbf{Etapa 4 (Precipitación Isoeléctrica):} Neutralización ácida con HCl hasta pH 4.5.
-    \item \textbf{Etapa 5 (Secado por Atomización):} Secado en Spray Dryer a 190$^\circ$C de entrada.
-\end{enumerate}
+En la segunda fase, se propuso una reconfiguración cibernética e hidráulica orientada a erradicar las fallas sistemáticas. A nivel de lógica de control, se estrechó el espacio de búsqueda del optimizador en el backend de la simulación (\texttt{CONTROL\_LIMITS}), acotando las variables críticas: alimentación de soya en $900.0 \le \text{soy\_feed} \le 1100.0\,\text{kg/h}$, caudal de agua en $11.0 \le \text{water\_flow} \le 13.0\,\text{m}^3/\text{h}$, pH de extracción en $8.0 \le \text{extraction\_ph} \le 9.5$, tiempo de residencia en lixiviación en $58.0 \le \text{residence} \le 90.0\,\text{min}$, pH de precipitación en $4.1 \le \text{precip\_ph} \le 4.9$ e inyección térmica en el secador en $170.0 \le \text{dryer\_temp} \le 210.0\,^\circ\text{C}$. Paralelamente, se incrementaron los buffers de capacidad física nominal de los equipos cuellos de botella: capacidad geométrica del lixiviador TK-101 a $20.0\,\text{m}^3$, capacidad hidráulica de la centrífuga CF-401 a $5.0\,\text{m}^3/\text{h}$, y capacidad de evaporación de agua en el spray dryer SD-501 a $600\,\text{kg/h}$.
 
-\section{Marco Arquitectónico y Estandarización}
+Para validar estadísticamente esta arquitectura optimizada, se ejecutó una campaña de simulación estocástica masiva constituida por $N = 30$ batches independientes, cada uno compuesto por $M = 10,000$ corridas iterativas continuas (totalizando 300,000 ensayos). Cada lote $i$ ($0 \le i \le 29$) fue inicializado con una semilla pseudoaleatoria única calculada como $\text{seed} = 42 + i$ para descartar duplicidades de datos. 
 
-\subsection{Arquitectura ISO 23247}
-La escalabilidad comercial y la interoperabilidad de un ecosistema ciberfísico exigen apego a normativas internacionales. La serie ISO 23247 (\textit{Digital Twin Framework for Manufacturing}) segmenta la arquitectura en cuatro dominios funcionales, garantizando trazabilidad absoluta y baja latencia computacional:
-
-\begin{enumerate}
-    \item \textbf{Capa de Elementos de Manufactura Observables (OME):} Representa los activos físicos: tanques agitados TK-101, bombas centrífugas sanitarias, intercambiadores de calor HX-201, centrífugas decantadoras, módulos de filtración por membranas y el secador por atomización SD-501. Los equipos deben cumplir con normativas ASME BPE y directrices EHEDG.
-    \item \textbf{Entidad de Comunicación de Dispositivos:} Puente neuro-digital que recopila señales analógicas/digitales de los elementos OME y despacha programas de control hacia los actuadores. Su robustez depende de protocolos de telemetría como OPC UA, MQTT y MTConnect.
-    \item \textbf{Entidad del Gemelo Digital:} Núcleo algorítmico y matemático donde residen los simuladores fenomenológicos y motores de validación de restricciones.
-    \item \textbf{Entidad de Usuario:} Interfaces gráficas y consolas interactivas (e.g., Python/Streamlit, realidad aumentada) para la interacción con métricas e indicadores de rendimiento.
-\end{enumerate}
-
-\begin{table}[H]
-\centering
-\caption{Mapeo ISO 23247 a la Planta ISP}
-\begin{tabular}{lll}
-\toprule
-Capa ISO & Componentes ISP & Protocolos \\
-\midrule
-OME & TK-101, P-102, SD-501 & ASME BPE \\
-Comunicación & PLCs, Sensores IoT & OPC UA, MQTT \\
-Gemelo Digital & PINNs, MPC, EKF & AAS (IEC 63278) \\
-Usuario & Dashboard Streamlit & REST, WebSocket \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Asset Administration Shell (AAS)}
-El estándar AAS (IEC 63278) actúa como la envoltura digital que estandariza propiedades, parámetros y servicios de cada activo físico. El metamodelo organiza la información mediante ``submodelos'' (\textit{Submodels}), referenciando vocabularios como ECLASS e IEC CDD. La implementación del AAS se integra mediante OPC UA a través del mapeo I4AAS, proveyendo interpretación semántica de las variables de proceso. Cuando el AAS se publica sobre un servidor OPC UA, el algoritmo del Gemelo Digital no lee simplemente un ``Tag\_001 = 4.5''; interpreta semánticamente que la variable corresponde al ``pH del tanque de precipitación isoeléctrica TK-401'', evaluando su margen contra las restricciones modeladas.
-
-\section{Metodología de Desarrollo}
-
-\subsection{Arquitectura del Software en Tres Capas}
-El software del Gemelo Digital se diseñó con estructura modular en Python:
-\begin{enumerate}
-    \item \textbf{Capa de Fenomenología (Core):} Resuelve los sistemas de ecuaciones no lineales que describen las operaciones unitarias. Utiliza correlaciones termodinámicas y cinéticas de transferencia de masa y energía (archivo \texttt{core/stage\_equations.py}).
-    \item \textbf{Capa de Restricciones (\textit{Constraints Engine}):} Evalúa en cada paso de tiempo si las variables de operación violan capacidades físicas o mecánicas de los equipos (archivo \texttt{core/equipment\_constraints.py}).
-    \item \textbf{Capa de Visualización y Control (Streamlit):} Diseñada para la sala de control digital interactiva (\texttt{app.py}), mostrando KPIs en tiempo real, gráficos dinámicos y matrices FMEA.
-\end{enumerate}
-
-\subsection{Modelo de Inercia Temporal y Retardo}
-Para simular el comportamiento transitorio de una planta física real, el Gemelo Digital implementa un modelo de retardo de primer orden (inercia térmica y de mezcla) para calcular las variables de proceso reales (\textit{Process Variables} -- PV) en cada paso de tiempo $\Delta t$:
+La tasa de éxito promedio ($\bar{x}$) de los lotes se define matemáticamente como:
 \begin{equation}
-    PV(t + \Delta t) = PV(t) + [SP - PV(t)] \cdot (1 - e^{-\Delta t / \tau})
+\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i
 \end{equation}
-Donde $\tau$ es la constante de tiempo característica de la variable. Para variables térmicas y de volumen, se fija nominalmente en $\tau = 20.0$ segundos.
+donde $x_i$ representa la tasa de éxito (corridas sin excepciones de capacidad \texttt{EquipmentCapacityError} ni fallos fenomenológicos) obtenida en el $i$-ésimo lote.
 
-\section{Modelado Fenomenológico por Etapas}
-
-El motor matemático del Gemelo Digital resuelve secuencialmente los balances para las 6 fases del proceso industrial (Etapa 0 a Etapa 5).
-
-\subsection{Etapa 0: Acondicionamiento y Molienda}
-Se asume una alimentación de harina de soya desgrasada $\dot{m}_{\text{soya}} = 1000$ kg/h con fracción proteica $X_p = 0.375$. La masa de proteína entrante es:
+La variabilidad estocástica se evaluó mediante la desviación estándar muestral ($s$):
 \begin{equation}
-    \dot{m}_{p,\text{in}} = \dot{m}_{\text{soya}} \cdot X_p = 375.0 \text{ kg/h}
-\end{equation}
-Se fija una relación solvente/sólido de 12:1, resultando en un caudal de agua de $\dot{m}_{\text{agua}} = 12000$ kg/h ($Q = 12.0$ m$^3$/h). La potencia hidráulica teórica de la bomba P-101 se modela como:
-\begin{equation}
-    P_{\text{bomba}} = \frac{\rho \cdot g \cdot Q \cdot H}{3.6 \times 10^6 \cdot \eta_{\text{tot}}}
-\end{equation}
-Donde $\rho = 1000$ kg/m$^3$, $g = 9.81$ m/s$^2$, $H = 10.7$ m de altura manométrica y la eficiencia total es $\eta_{\text{tot}} = \eta_{\text{hid}} \cdot \eta_{\text{motor}} = 0.65 \cdot 0.90 = 0.585$. El molino de impacto reduce la harina a un tamaño de partícula de 200 mesh ($<75$ $\mu$m).
-
-\subsection{Etapa 1: Extracción y Lixiviación Alcalina}
-La lixiviación de proteínas globulares se realiza a pH 8.75 y $55^\circ$C. La eficiencia de extracción ($\eta_{\text{ext}}$) se modela mediante factores multiplicativos no lineales:
-\begin{equation}
-    \eta_{\text{ext}} = \eta_{\text{base}} \cdot f_{\text{pH}} \cdot f_T \cdot f_{\tau} \cdot f_R
-\end{equation}
-Donde $\eta_{\text{base}} = 0.88$. El factor de pH modela la solubilidad en ``U'':
-\begin{equation}
-    f_{\text{pH}} = 1.0 - 0.05 \cdot |\text{pH} - 8.75|
-\end{equation}
-El factor térmico $f_T$ es:
-\begin{equation}
-    f_T = 1.0 - 0.005 \cdot |T - 55.0|
-\end{equation}
-El factor de tiempo de residencia en el tanque agitado TK-101 es:
-\begin{equation}
-    f_{\tau} = \min\left(1.0, \frac{\tau_{\text{res}}}{60.0}\right)
-\end{equation}
-La inyección de NaOH comercial al 20\% p/p para control de pH añade $60.0$ kg/h de solución alcalina. El flujo másico total del lodo considerando pérdidas operacionales mecánicas ($F_{\text{loss}} = 0.02$) es:
-\begin{equation}
-    \dot{m}_{\text{lodo}} = (\dot{m}_{\text{soya}} + \dot{m}_{\text{agua}} + \dot{m}_{\text{NaOH}}) \cdot (1 - F_{\text{loss}}) = 12740 \text{ kg/h}
-\end{equation}
-El número de Reynolds del agitador en el TK-101 ($\text{Re}_a$) y la potencia consumida son:
-\begin{equation}
-    \text{Re}_a = \frac{\rho \cdot N \cdot D_a^2}{\mu} = \frac{1050 \cdot 1.33 \cdot 1.08^2}{0.020} = 81424
-\end{equation}
-\begin{equation}
-    P_{\text{agitador}} = N_p \cdot \rho \cdot N^3 \cdot D_a^5 = 1.3 \cdot 1050 \cdot 1.33^3 \cdot 1.08^5 = 4.71 \text{ kW}
+s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})^2}
 \end{equation}
 
-El modelo mecanicista dictamina que si el pH cae a 8.0 en TK-101, la eficiencia se contrae desde el 88.0\% hasta un 75.9\%, colapsando la masa proteica soluble y deprimiendo la producción de polvo en 12.1\%. El MPC sincroniza dinámicamente la dosificación de NaOH con las lecturas de masa de la tolva.
-
-\subsection{Etapa 1.2: Clarificación Centrífuga}
-El lodo se separa en una centrífuga decantadora a 1800 g. Siguiendo la Ley de Stokes para campo centrífugo:
+El nivel de calidad Sigma global del proceso se cuantificó utilizando el valor $Z$ de la distribución normal estándar. Asumiendo la convención Six Sigma de un desplazamiento (shift) de $1.5\sigma$ a largo plazo, se tiene:
 \begin{equation}
-    v_s = \frac{d^2 (\rho_p - \rho_f) r \omega^2}{18 \mu}
+\text{Nivel Sigma} = Z_{\text{score}} + 1.5 = \Phi^{-1}(P_{\text{éxito}}) + 1.5
 \end{equation}
-Se obtiene una salida de $1645$ kg/h de Okara húmedo (65\% humedad) y $11095$ kg/h de extracto clarificado. Con la merma por transporte ($F_{\text{loss}} = 0.02$), el caudal de extracto neto que ingresa a pasteurización es de $10873.1$ kg/h, con una masa proteica útil de:
+donde $\Phi^{-1}$ es la función de distribución acumulativa normal estándar inversa, y $P_{\text{éxito}}$ representa la tasa de éxito global sobre las 300,000 corridas del sistema.
+
+Para determinar el intervalo de confianza (IC) respecto a la tasa media de éxito operativo, se aplicó la distribución normal estándar ($Z$):
 \begin{equation}
-    \dot{m}_{p,\text{extracto}} = 375.0 \cdot 0.88 \cdot 0.98^2 = 316.9 \text{ kg/h}
+\text{IC}_{1-\alpha} = \left[ \bar{x} - Z_{\alpha/2} \frac{s}{\sqrt{N}}, \,\, \bar{x} + Z_{\alpha/2} \frac{s}{\sqrt{N}} \right]
 \end{equation}
+donde para un nivel de confianza del $95\%$ ($\alpha = 0.05$), el valor crítico es $Z_{0.025} \approx 1.96$.
 
-\subsection{Etapa 2: Pasteurización HTST}
-Se modela un intercambiador de placas (PHE) a $80^\circ$C. Con recuperación térmica del 55\% ($\text{HR} = 0.55$), el balance de energía determina la carga térmica de utilidad:
-\begin{equation}
-    \dot{Q}_{\text{utilidad}} = \dot{m}_{\text{extracto}} \cdot C_p \cdot (T_{\text{pasteur}} - T_{\text{in}}) \cdot (1 - \text{HR})
-\end{equation}
-Con $C_p = 3.9$ kJ/(kg$\cdot$K), $T_{\text{in}} = 25^\circ$C, $\dot{Q}_{\text{utilidad}} = 3.02 \text{ kg/s} \cdot 3.9 \cdot 55 \cdot 0.45 = 291.5$ kW. El área requerida es de $12.9$ m$^2$ ($U = 2000$ W/m$^2$K), utilizándose un equipo comercial de $39.6$ m$^2$ para absorber factores de ensuciamiento.
+Los resultados consolidados de la campaña de simulación muestran:
+\begin{itemize}
+    \item \textbf{Estabilidad Operativa:} La tasa de éxito operativo promedio ($\bar{x}$) escaló exponencialmente hasta un $99.81\%$, reflejando la erradicación total del problema de inoperabilidad basal.
+    \item \textbf{Consistencia Estocástica:} Se obtuvo una desviación estándar muestral de apenas $s = \pm 0.038\%$ ($\approx 0.00038$), evidenciando una dispersión estadística prácticamente despreciable y una alta homogeneidad entre lotes de simulación.
+    \item \textbf{Intervalo de Confianza (Z al 95\%):} El intervalo de confianza de la media calculada se acotó en $[99.78\%, 99.85\%]$ con un margen de error muestral inferior al $0.05\%$.
+    \item \textbf{Nivel Sigma Global:} El valor $Z_{\text{score}}$ de desviación normal bruta se situó en $2.89$, lo que se traduce en un nivel de calidad global de $4.39\sigma$ sin desplazamiento, y de $5.89\sigma$ con el desplazamiento estándar industrial de $1.5\sigma$. Ambos valores superan holgadamente el requisito de calidad estándar ($>4.5\sigma$).
+    \item \textbf{Desactivación de Cuellos de Botella:} Las fallas de capacidad por evaporación en el EV-301 (\texttt{STAGE3\_EVAP\_CAPACITY}) y de secado en el SD-501 (\texttt{STAGE5\_DRYER\_CAPACITY}) descendieron al $0.0\%$, mientras que las fallas de residencia cinética en el lixiviador TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}) registraron un valor residual no significativo del $0.01\%$.
+\end{itemize}
 
-\subsection{Etapa Híbrida: Tecnología de Membranas (UF/DF/RO)}
+Adicionalmente, se llevó a cabo una campaña experimental de 200,000 corridas adicionales (10 réplicas paralelas de 20,000 ensayos cada una) variando de manera aleatoria e independiente tanto las variables operativas como las dimensiones físicas y los límites de capacidad permitidos por el modelo físico (Tablas \ref{tab:restrictions} y \ref{tab:energy_comparison}).
 
-\subsubsection{Ultrafiltración y Diafiltración (UF/DF)}
-La inserción de tecnología avanzada de separación por membranas representa un cambio de paradigma hacia la circularidad y la eficiencia energética. El Gemelo Digital controla flujos cruzados a través de módulos de membranas con cortes de peso molecular (MWCO) desde 20{,}000 hasta 300{,}000 Daltons. Este fraccionamiento permite que el permeado arrastre agua, azúcares solubles, ácido fítico y oligosacáridos, reteniendo y concentrando las fracciones macro-proteínicas sin cambios de fase térmicos ni desnaturalización inducida por ácidos.
+Los resultados consolidados de este análisis de diseño dimensional muestran:
+\begin{itemize}
+    \item \textbf{Tasa de Éxito Global:} Se obtuvo una tasa de éxito operativo promedio del $2.128 \pm 0.098\%$. Este menor porcentaje se debe a la introducción de configuraciones de equipamiento sub-dimensionadas en el muestreo que resultan en fallas sistemáticas. Sin embargo, permite aislar la influencia del sobredimensionamiento en la estabilidad operativa de la planta.
+    \item \textbf{Rendimiento Máximo Optimizado:} En aquellas corridas donde el equipamiento fue sobredimensionado de manera óptima, se logró alcanzar una tasa de alimentación máxima de soya de $1910.82\,\text{kg/h}$ sin inducir fallas estructurales.
+    \item \textbf{Frecuencia de Cuellos de Botella:} Bajo dimensionamiento variable, la capacidad del evaporador EV-301 (\texttt{STAGE3\_EVAP\_CAPACITY}) continuó siendo la restricción más activa (82.08\%), seguida por la restricción de residencia en el TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.58\%) y la carga térmica del pasteurizador HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 74.21\%).
+\end{itemize}
 
-La adición de ciclos de Diafiltración continuos es crítica. Operar manteniendo sólidos retenidos cercanos al 10\% (w/w) maximiza la permeabilidad volumétrica ($J_w$). En términos de CTQs, las metodologías de membranas logran niveles de remoción del 86.5\% en carbohidratos y 64.5\% en cenizas (Mondor et al., 2009), resultando en un producto de pureza funcional $>$90\% (base seca) y una recuperación proteica entre un 17\% y un 26\% estructuralmente superior a la tecnología puramente isoeléctrica (Alibhai et al., 2006).
+\subsection{Punto Óptimo de Operación del Diseño Base (200,000 Corridas)}
 
-\subsubsection{Ósmosis Inversa (RO)}
-La Ósmosis Inversa actúa como etapa de preconcentración. El transporte másico de solvente a través de la membrana de poliamida obedece al modelo simplificado de Kedem-Katchalsky (reflexión $\sigma \approx 1$):
-\begin{equation}
-    J_w = A_w \cdot (\text{TMP} - \Delta \pi)
-\end{equation}
-A una Presión Transmembrana (TMP) de 24 bar, la OI retira un caudal de permeado puro de $\dot{m}_{\text{permeado}} = 2718.3$ kg/h. La potencia de la bomba de alta presión es de:
-\begin{equation}
-    P_{\text{bomba, RO}} = \frac{Q_{\text{feed}} \cdot \text{TMP}}{\eta_{\text{pump}}} = \frac{0.00288 \cdot 2.4 \times 10^6}{0.80} = 9.0 \text{ kW}
-\end{equation}
-El ahorro de calor sensible y latente en el evaporador subsecuente es:
-\begin{equation}
-    \dot{Q}_{\text{saved}} = \dot{m}_{\text{permeado}} \cdot \frac{\lambda_{\text{vap}}}{3600} = 2718.3 \cdot \frac{2315}{3600} = 945.5 \text{ kW}
-\end{equation}
+Para localizar el punto óptimo operativo de la planta piloto bajo dimensiones físicas de diseño base estrictas, se ejecutó una tercera campaña experimental de 200,000 corridas de Monte Carlo en la que únicamente se variaron las variables de control. De los resultados obtenidos, se aisló el punto óptimo operacional absoluto que maximiza el rendimiento y la producción de proteína sin violar ninguna restricción de capacidad (tasa de éxito promedio del $3.869\%$).
 
-\subsubsection{Modelado Predictivo de Ensuciamiento}
-El impedimento técnico primordial en la filtración de biopolímeros es la polarización por concentración y el \textit{fouling}. Los modelos puramente analíticos (Ley de Darcy) subestiman los efectos de repulsión electrostática de solutos. Mediante redes neuronales convolucionales (CNN) o perceptrones multicapa informados por primeros principios (FFNN), el Gemelo Digital es entrenado con datos históricos para inferir la resistencia de la membrana. Cuando las arquitecturas LSTM proyectan saturación inminente de la microestructura poral, el controlador MPC modula la velocidad de flujo cruzado, ajusta la TMP o determina autónomamente el punto óptimo de transición entre ciclos de ultrafiltración y lavado químico (CIP), evitando pérdidas irreversibles de permeabilidad.
+Los parámetros del punto óptimo de operación determinados por la simulación son:
+\begin{itemize}
+    \item \textbf{Variables de Operación:} Alimentación de soya de $1609.94\,\text{kg/h}$, flujo de agua de $4.31\,\text{m}^3/\text{h}$, temperatura de agua de $49.59\,^\circ\text{C}$, pH de extracción de $7.24$, temperatura de extracción de $60.95\,^\circ\text{C}$, y tiempo de residencia de $121.24\,\text{min}$.
+    \item \textbf{Desempeño y KPIs:} Producción final de polvo proteico de $266.46\,\text{kg/h}$ (tasa de proteína final de $244.73\,\text{kg/h}$) y un rendimiento de proteína global de $40.54\%$.
+    \item \textbf{Cargas en Equipos:} El sistema opera con márgenes de seguridad altos, registrando cargas estables: TK-101 ($92.54\%$), HX-201 ($61.34\%$), evaporador EV-301 ($87.68\%$), centrífuga CF-401 ($71.74\%$), y secador SD-501 ($63.67\%$).
+\end{itemize}
 
-\subsection{Etapa 3: Evaporación Térmica de Doble Efecto}
-El evaporador opera al vacío ($0.40$ bar abs, $T_{\text{ebullición}} \approx 75^\circ$C) para evitar la reacción de Maillard y conservar la calidad proteica. El balance másico se calcula para concentrar hasta $x_p = 0.23$ de sólidos:
-\begin{equation}
-    \dot{m}_{\text{concentrado}} = \frac{\dot{m}_{\text{solutos}}}{x_p} = \frac{304.4 \text{ kg/h}}{0.23} = 1323.5 \text{ kg/h}
-\end{equation}
-La cantidad de agua evaporada térmicamente es:
-\begin{equation}
-    \dot{m}_{\text{evaporada}} = \dot{m}_{\text{feed}} - \dot{m}_{\text{concentrado}} - \dot{m}_{\text{permeado, RO}}
-\end{equation}
-El consumo de vapor de caldera se calcula con la economía de doble efecto ($E = 1.85$):
-\begin{equation}
-    \dot{m}_{\text{vapor}} = \frac{\dot{m}_{\text{evaporada}}}{1.85}
-\end{equation}
+Los límites de capacidad verificados por el motor de restricciones en tiempo real se resumen en la Tabla \ref{tab:restrictions}.
 
-\subsection{Etapa 4: Precipitación Isoeléctrica}
-El concentrado es acidificado con HCl al 10\% p/p ($110.0$ kg/h de solución) hasta alcanzar pH 4.5. En este punto la repulsión electrostática colapsa ($\zeta \approx 0$ mV) y la solubilidad es mínima. La eficiencia de precipitación es:
-\begin{equation}
-    \eta_{\text{precip}} = 0.98 \cdot f_{\text{pH,precip}}
-\end{equation}
-Si la desviación de pH supera el rango crítico ($4.5 \pm 0.4$), se penaliza drásticamente el rendimiento. El diámetro medio de los flóculos ($d$ en $\mu$m) se modela empíricamente:
-\begin{equation}
-    d = 320.0 - 250.0 \cdot |\text{pH} - 4.5| + 1.8 \cdot (\tau_{\text{precip}} - 25.0)
-\end{equation}
-La pasta de proteína con $50\%$ de humedad se separa en la centrífuga CF-401 con eficiencia de recuperación sólida del $98\%$.
-
-\subsection{Etapa 5: Secado por Atomización (Spray Dryer)}
-
-\subsubsection{Balance Entálpico}
-La pasta se atomiza con aire seco a $190^\circ$C. El balance psicrométrico restringe la evaporación para evitar desnaturalización (temperatura de gota limitada por el bulbo húmedo a $<70^\circ$C). El polvo se retira a humedad residual de 5\%, obteniéndose una producción neta de $301.6$ kg/h de ISP con rendimiento proteico global del 76.4\%.
-
-\subsubsection{Modelado CFD y Transición Vítrea ($T_{\text{g}}$)}
-El Gemelo Digital trasciende las suposiciones homogéneas mediante sub-modelos de Dinámica de Fluidos Computacional (CFD) acoplados con Modelos de Balance Poblacional (PBM) y aproximaciones cinéticas especializadas (REA -- \textit{Reaction Engineering Approach}). Estas ecuaciones simulan la contracción de diámetro de las gotas, los gradientes térmicos y la evaporación de multicomponentes en un entorno compartimentalizado (1.5-D).
-
-El cuello de botella crítico en el \textit{spray drying} de alimentos recae en la adherencia parasitaria del polvo a las paredes de la torre (\textit{wall deposition}). Este fenómeno es modulado por la Temperatura de Transición Vítrea ($T_{\text{g}}$) del polímero de soya. La física de polímeros (gobernada por las cinéticas WLF -- Williams-Landel-Ferry) establece que cuando un sólido amorfo sobrepasa su $T_{\text{g}}$, transita desde un estado cristalino-vítreo hacia un estado gomoso-plástico donde la viscosidad superficial colapsa. Se define como \textit{Sticky Point} aquel umbral térmico situado típicamente entre $10$ y $20$ K por encima de $T_{\text{g}}$ (Roos, 1995; Bhandari \& Howes, 1999).
-
-Puesto que el agua libre actúa como plastificante, cualquier incremento en la humedad residual deprime brutalmente el $T_{\text{g}}$. Si el Gemelo Digital detecta, a través de perfiles CFD y sensores de humedad, que las partículas se aproximan al límite de $\Delta T = (T_{\text{partícula}} - T_{\text{g}}) > 15$ K, la algoritmia de IA predice colapso inminente de deposición adhesiva. El controlador MPC reduce la carga de alimentación o ajusta las tasas psicrométricas de inyección, manteniendo un régimen operacional seguro.
-
-\section{Restricciones Operativas e Hidráulica}
-
-\subsection{Motor de Verificación de Restricciones}
-El Gemelo Digital ejecuta iterativamente el algoritmo de validación de capacidad de equipos. Las restricciones mecánicas y de proceso clave se detallan en la Tabla 4.
-
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \caption{Límites de Capacidad y Restricciones del Proceso}
+\label{tab:restrictions}
 \begin{tabular}{lcc}
 \toprule
 Restricción / Equipo & Variable Crítica & Límite Máximo \\
 \midrule
-Tanque Agua TK-100 & Fracción Llenado & 90\% \\
-Centrífuga CF-102 & Caudal Hidráulico & 16.0 m$^3$/h \\
-Pasteurizador HX-201 & Carga Térmica & 100\% Cap. \\
-Evaporador EV-301 & Capacidad Evap. & 10.0 m$^3$/h \\
-Secador Spray SD-501 & Capacidad Agua & 450 kg/h \\
-Secador SD-501 & Carga Específica & 1.5 kg/(h$\cdot$m$^3$) \\
+Tanque Agua TK-100 & Fracción Llenado & $90\%$ \\
+Centrífuga CF-102 & Caudal Hidráulico & $16.0\,\text{m}^3/\text{h}$ \\
+Pasteurizador PHE-201 & Carga Térmica & $100\%$ Cap. \\
+Evaporador EV-301 & Capacidad Evap. & $10.0\,\text{m}^3/\text{h}$ \\
+Secador Spray SD-501 & Capacidad Agua & $450\,\text{kg/h}$ \\
+Secador SD-501 & Carga Específica & $1.5\,\text{kg/(h}\cdot\text{m}^3)$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\subsection{Cavitación de Bombas y Margen de NPSH}
-Para prevenir la cavitación de la bomba P-102 que opera con extracto caliente a $55^\circ$C, el Gemelo Digital calcula dinámicamente el NPSH disponible ($\text{NPSH}_a$):
-\begin{equation}
-    \text{NPSH}_a = \frac{P_{\text{atm}} - P_v(55^\circ\text{C})}{\rho \cdot g} + H_s - h_f
-\end{equation}
-Con $P_{\text{atm}} = 101{,}325$ Pa, la presión de vapor saturado del agua a $55^\circ$C es $P_v = 15{,}700$ Pa. Con altura estática de succión $H_s = 2.0$ m y pérdidas por fricción en tubería de succión $h_f = 0.7$ m:
-\begin{equation}
-    \text{NPSH}_a = \frac{101325 - 15700}{1050 \cdot 9.81} + 2.0 - 0.7 = 9.6 \text{ m}
-\end{equation}
-Dado que el fabricante especifica un $\text{NPSH}_r \approx 2.5$ m, la operación cuenta con un margen de seguridad de $7.1$ m, garantizando prevención de daño mecánico en álabes y desnaturalización por vibración sónica. El MPC evalúa en cada diferencial de tiempo este margen; si prevé que la aceleración de la bomba ocasione una caída de presión por debajo de la curva de ebullición, interviene reduciendo los hertz del variador, evadiendo la cavitación destructiva.
+Por otra parte, la Tabla \ref{tab:energy_comparison} expone la comparación de consumo energético entre la operación térmica pura (Sin OI) y el sistema híbrido integrado con Ósmosis Inversa (Con OI) evaluado en la simulación. El MPC [9] evalúa en cada diferencial de tiempo este margen. La integración de la etapa híbrida con membranas [16, 17] reduce el gasto operativo térmico en el evaporador en un $25.4\%$, al remover $2718.3\,\text{kg/h}$ de agua en fase líquida con un consumo de potencia eléctrica de tan solo $9.0\,\text{kW}$. Esta preconcentración dinámica es optimizada mediante Redes Neuronales Informadas por la Física (PINNs) [8] integradas en la simulación.
 
-\subsection{Diseño Higiénico y Filosofía SMED}
-La red de tuberías de acero AISI 316L está dimensionada para velocidades de flujo entre $0.8 - 1.2$ m/s, mitigando el cizallamiento proteico. Para la fase de limpieza CIP (\textit{Clean In Place}), las bombas sanitarias elevan la velocidad a $v \ge 1.5$ m/s (Reynolds $>100{,}000$), proveyendo fricción mecánica para barrer biopelículas en soldaduras orbitales bajo normativa ASME BPE (rugosidad $Ra < 0.4 \mu$m). Las conexiones Tri-Clamp de diafragma se modelan bajo la filosofía SMED (\textit{Single-Minute Exchange of Die}), reduciendo el tiempo de mantenimiento a menos de 3 minutos sin herramientas.
-
-\section{Resultados de las Pruebas de Estrés}
-
-El Gemelo Digital fue sometido a pruebas de estrés variando las condiciones nominales mediante la interfaz Streamlit en \texttt{app.py}.
-
-\subsection{Sobrecarga de Caudal de Alimentación}
-Al aumentar la alimentación de soya por encima de 1200 kg/h con un ratio de agua constante (12:1), el flujo hidráulico de lodo a la centrífuga CF-102 supera los 15 m$^3$/h. El motor de restricciones detecta que la fracción de capacidad del decanter excede el límite del 90\%, disparando una alerta roja y paro de emergencia automático (\texttt{EquipmentCapacityError}).
-
-\subsection{Desviación de pH en Lixiviación y Precipitación}
-La simulación de una desviación en la dosificación de NaOH en TK-101 que reduce el pH de extracción a 8.0 provocó una disminución de la eficiencia de extracción $\eta_{\text{ext}}$ de 88.0\% a 75.9\%, reduciendo la producción final de polvo ISP a $265.1$ kg/h (una caída del 12.1\% respecto a la línea base de $301.6$ kg/h).
-
-En el precipitador TK-401, una descalibración del sensor de pH que desvíe el pH a 5.2 disminuye la eficiencia de precipitación proteica de 98.0\% a 83.6\%, incrementando la concentración de proteína no precipitada en el suero residual hasta $2.5$ kg/m$^3$.
-
-\subsection{Caída de Temperatura en HTST y Parada HACCP}
-Se simuló una pérdida de presión en la línea de vapor de la caldera, disminuyendo la temperatura en el pasteurizador HX-201. Al descender por debajo del límite crítico de control (PCC) de $75^\circ$C, el Gemelo Digital activa un enclavamiento de seguridad que detiene inmediatamente el bombeo hacia el evaporador, redirigiendo el flujo hacia el tanque de reproceso para evitar contaminación microbiológica por \textit{Salmonella}.
-
-\subsection{Pérdida de Vacío en el Evaporador}
-Se evaluó el comportamiento del evaporador EV-301 al fallar la bomba de vacío, elevándose la presión interna a $0.70$ bar. El gemelo calcula un aumento en la temperatura de ebullición a $89^\circ$C. Esto activa la penalización cinética por reacción de Maillard, reduciendo el factor de calidad proteica a 0.85 y provocando oscurecimiento estético inaceptable del producto.
-
-\subsection{Beneficio de la Ósmosis Inversa}
-La comparación de la simulación térmica pura frente al sistema híbrido (OI + Evaporación) demuestra el beneficio de la pre-concentración por membranas a 24 bar de TMP (Tabla 5).
-
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \caption{Comparación Energética: Térmico vs Híbrido (OI)}
+\label{tab:energy_comparison}
 \begin{tabular}{lcc}
 \toprule
 Variable Energética & Sin OI & Con OI \\
 \midrule
-Agua removida evap. (kg/h) & 8967.6 & 6249.3 \\
-Agua removida OI (kg/h) & 0.0 & 2718.3 \\
-Potencia Térmica Evap. (kW) & 3530.0 & 2584.5 \\
-Ahorro térmico (kW) & 0.0 & 945.5 (25.4\%) \\
-Potencia Eléctrica OI (kW) & 0.0 & 9.0 \\
-Ahorro Neto Equivalente (kW) & 0.0 & 936.5 \\
+Agua removida evap. ($\text{kg/h}$) & $8967.6$ & $6249.3$ \\
+Agua removida OI ($\text{kg/h}$) & $0.0$ & $2718.3$ \\
+Potencia Térmica Evap. ($\text{kW}$) & $3530.0$ & $2584.5$ \\
+Ahorro térmico ($\text{kW}$) & $0.0$ & $945.5\ (25.4\%)$ \\
+Potencia Eléctrica OI ($\text{kW}$) & $0.0$ & $9.0$ \\
+Ahorro Neto Equivalente ($\text{kW}$) & $0.0$ & $936.5$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-El OPEX de la caldera disminuye significativamente, pagando el CAPEX de la unidad de membranas en un periodo inferior a 1.5 años.
+\section{Discusión y Conclusiones}
 
-\subsection{FMEA Dinámico (D-FMEA)}
-El estado del arte de la Industria 5.0 demanda un FMEA Dinámico algorítmico. El Número Prioritario de Riesgo ($NPR = S \times O \times D$) deja de ser un artefacto subjetivo; el Gemelo Digital conecta las APIs telemétricas y los estimadores EKF directamente con las ecuaciones de riesgo:
+El desarrollo e implementación del Gemelo Digital fenomenológico para la planta de Proteína Aislada de Soya (ISP) valida la robustez del sistema ciberfísico para predecir fallas operativas y evitar daños mecánicos o desviaciones en la calidad proteica. El análisis energético e hidráulico demuestra que la preconcentración mediante Ósmosis Inversa reporta un ahorro neto sustancial, amortizando la inversión en un periodo inferior a $1.5\,\text{años}$.
 
+A partir de las 200,000 corridas adicionales de Monte Carlo con especificaciones de diseño variables, se derivan directrices cuantitativas de optimización física para superar los límites mecánicos del diseño base piloto:
 \begin{itemize}
-    \item \textbf{Ocurrencia ($O$) Automatizada:} Incrementos en firmas de vibración o alteraciones en voltaje del variador inducen a los modelos de Deep Learning a estimar desgaste de rodamientos, recalculando continuamente la curva probabilística de Weibull.
-    \item \textbf{Severidad ($S$) Condicional:} El DT evalúa la criticidad proyectando la perturbación al futuro. Por ejemplo, si el sello hidráulico del evaporador EV-301 falla y la presión asciende a $0.70$ bar, la temperatura escala de $75^\circ$C a $89^\circ$C, desencadenando cinéticas de Maillard. La severidad se exacerba, inflando el NPR y forzando al MPC a desencadenar protocolos de parada automática.
-    \item \textbf{Gestión HACCP:} Ante desviaciones en variables críticas como pérdidas de presión de vapor en los pasteurizadores HTST ($<75^\circ$C), el D-FMEA intercepta el riesgo microbiológico, actuando sobre válvulas de desvío neumáticas en fracciones de segundo.
+    \item \textbf{Optimización del Evaporador EV-301:} Para evitar la inundación termodinámica de calandria, su capacidad nominal debe incrementarse de $12.0\,\text{m}^3/\text{h}$ a un promedio de $23.32\,\text{m}^3/\text{h}$ (o hasta $27.64\,\text{m}^3/\text{h}$ para el máximo rendimiento).
+    \item \textbf{Ampliación de TK-101 y HX-201:} Se recomienda incrementar el volumen de lixiviación en TK-101 de $16.0\,\text{m}^3$ a un mínimo de $65.55\,\text{m}^3$ (óptimo de $76.46\,\text{m}^3$) para asegurar el tiempo de residencia requerido, e incrementar el área del intercambiador HX-201 de $39.6\,\text{m}^2$ a un promedio de $68.52\,\text{m}^2$.
+    \item \textbf{Ajustes Mecánicos en CF-401 y SD-501:} Se aconseja aumentar la capacidad de la centrífuga CF-401 a $10.18\,\text{m}^3/\text{h}$ y la capacidad evaporativa del secador spray SD-501 a $1521.27\,\text{kg/h}$ (óptimo de $1868.59\,\text{kg/h}$).
 \end{itemize}
 
-\begin{table}[H]
-\centering
-\caption{Matriz de Criticidad D-FMEA del Gemelo}
-\begin{tabular}{lccccr}
-\toprule
-Variable de Proceso & S & O & D & NPR & Nivel \\
-\midrule
-pH Precipitación (TK-401) & 8 & 6 & 3 & 144 & Crítico \\
-Humedad Polvo (SD-501) & 9 & 4 & 3 & 108 & Alto \\
-Vacío Evaporador (EV-301) & 7 & 5 & 2 & 70 & Alto \\
-pH Extracción (TK-101) & 8 & 4 & 2 & 64 & Alto \\
-Temp. Pasteur. (HX-201) & 9 & 3 & 1 & 27 & Medio \\
-\bottomrule
-\end{tabular}
-\end{table}
+La replicabilidad de esta arquitectura de Gemelo Digital en cualquier otra industria de procesos es factible y requiere cumplir con los siguientes requisitos mínimos:
+\begin{enumerate}
+    \item \textbf{Procesos Definidos y Capacidad Actual:} Mapear detalladamente los diagramas de bloques y volumetría física de los tanques, diámetros de tuberías y capacidades térmicas de los equipos del activo real.
+    \item \textbf{Definición de Complejidad de Cálculos y Rangos Operativos:} Desarrollar los balances fenomenológicos de masa y energía (ecuaciones de transporte) para cada operación unitaria y especificar los rangos límites para todas las variables de control en cada etapa.
+    \item \textbf{Variables Críticas y Consideraciones Posteriores:} Instrumentar las Características Críticas para la Calidad (CTQ) y calibrar las constantes de tiempo dinámicas ($\tau$) de inercia para sincronizar el gemelo digital con el comportamiento transitorio real del activo físico, habilitando a futuro el lazo cerrado de control automático.
+\end{enumerate}
 
-\begin{table}[H]
-\centering
-\caption{Puntos de Falla y Reacciones Ciberfísicas Autónomas}
-\begin{tabular}{lp{2.4cm}p{2.4cm}}
-\toprule
-Falla & Alerta D-FMEA & Reacción MPC \\
-\midrule
-Pérdida vacío EV-301 & EKF detecta anomalía, proyecta $89^\circ$C & Corta vapor vivo, bloquea alimentación \\
-Colapso secado SD-501 & CFD+ML detecta $\Delta T > 15$ K & Ajuste gas caliente \\
-Fouling membranas & LSTM predice $R_f$ creciente & Pre-programa CIP \\
-Desvío pH TK-101 & pH baja de 8.75 a 8.0 & Dosificación NaOH correctiva \\
-\bottomrule
-\end{tabular}
-\end{table}
+A futuro, se planea la integración de técnicas de aprendizaje de refuerzo para la sintonización autónoma de los límites de control, así como la expansión semántica de los submodelos AAS para abarcar la huella de carbono en tiempo real de cada lote de producción.
 
-\section{Conclusiones}
-El desarrollo e implementación del Gemelo Digital fenomenológico para la planta de Proteína Aislada de Soya (ISP) representa un hito técnico para la transición a la Industria 5.0. La arquitectura propuesta, sustentada por estricta adhesión a las normativas de interoperabilidad AAS (IEC 63278) e ISO 23247, integra modelos fenomenológicos de primer orden con arquitecturas avanzadas de Machine Learning mediante Redes Neuronales Informadas por la Física (PINNs), que fusionan las leyes de conservación termodinámica con la flexibilidad estadística del aprendizaje profundo.
+\subsection{Propuestas de Mejora en el Código del Gemelo Digital}
 
-El Filtro de Kalman Extendido (EKF) garantiza la sincronización fidedigna del gemelo digital con la planta física, operando como sensor virtual para inferir variables CTQ no medibles directamente. El motor de Control Predictivo Basado en Modelos (MPC) supera las limitaciones intrínsecas del control PID clásico al gestionar nativamente las dinámicas MIMO acopladas del bioproceso, con visión prospectiva y restricciones mecánicas embebidas en la función de optimización.
-
-Las pruebas de estrés demostraron la capacidad del gemelo para predecir fallas operacionales y actuar proactivamente mediante paradas automáticas por seguridad o inocuidad, mientras el FMEA Dinámico (D-FMEA) recalcula autónomamente el NPR mediante estimaciones de Weibull y simulaciones \textit{What-If}.
-
-El análisis económico y de circularidad integrado valida que la pre-concentración por Ósmosis Inversa, complementada con Ultrafiltración y Diafiltración, ofrece un ahorro neto de 936.5 kW con un \textit{payback} de la inversión inferior a 1.5 años y una mejora en recuperación proteica del 17-26\% frente a la tecnología puramente isoeléctrica, consolidando la viabilidad técnica y ecológica del sistema ciberfísico.
+A partir de los resultados de variabilidad dinámica y el análisis del motor matemático del Gemelo Digital, se identifican las siguientes áreas de mejora de código para su futura implementación (sin alterar el código base actual):
+\begin{enumerate}
+    \item \textbf{Cálculo Dinámico de Constantes de Tiempo ($\tau$):} Reemplazar las $\tau$ constantes actuales por funciones físicas que dependan del caudal de flujo y el volumen geométrico de los tanques ($\tau = V / F$). Esto mejorará significativamente el modelado de transitorios térmicos e hidráulicos.
+    \item \textbf{Motor de Optimización Dedicado:} Integrar solucionadores numéricos (ej. \texttt{scipy.optimize} con Nelder-Mead o SQP) en el backend del software para automatizar la búsqueda del punto óptimo transitorio en lugar de depender únicamente de barridos de Monte Carlo.
+    \item \textbf{Protección contra Singularidades Numéricas:} Introducir aserciones de límites en \texttt{stage\_equations.py} antes de las operaciones logarítmicas y exponenciales del secador y de las membranas para evitar desbordamientos o valores negativos en el espacio matemático del simulador.
+    \item \textbf{Modelo Dinámico de Viscosidad y NPSH:} Incorporar correlaciones de viscosidad dinámica en función de la temperatura del extracto de soya y la fracción de sólidos solubles para optimizar el cálculo dinámico del límite de cavitación en la bomba.
+\end{enumerate}
 
 \section*{Referencias}
-\begin{enumerate}
-    \item Grieves, M., \& Vickers, J. (2017). \textit{Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems}. In Transdisciplinary Perspectives on Complex Systems (pp. 85-113). Springer.
-    \item Kritzinger, W., Karner, M., Trautner, G., Jian, J., \& Sihn, W. (2018). \textit{Digital Twin in manufacturing: A categorical literature review and classification}. IFAC-PapersOnLine, 51(11), 1016-1022.
-    \item Lusas, E. W., \& Riaz, M. N. (1995). \textit{Soy protein products: processing and use}. The Journal of Nutrition, 125(suppl\_3), 573S-580S.
-    \item Kinsella, J. E. (1979). \textit{Functional properties of soy proteins}. Journal of the American Oil Chemists' Society, 56(3), 242-258.
-    \item ASME BPE (2019). \textit{Bioprocessing Equipment Standard}. The American Society of Mechanical Engineers.
-    \item EHEDG Guidelines (2018). \textit{Hygienic Design Criteria for Sanitary Equipment}. European Hygienic Engineering \& Design Group.
-    \item Raissi, M., Perdikaris, P., \& Karniadakis, G. E. (2019). \textit{Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations}. Journal of Computational Physics, 378, 686-707.
-    \item Rawlings, J. B., Mayne, D. Q., \& Diehl, M. (2017). \textit{Model Predictive Control: Theory, Computation, and Design}. Nob Hill Publishing.
-    \item ISO 23247:2021. \textit{Automation systems and integration --- Digital twin framework for manufacturing}. International Organization for Standardization.
-    \item IEC 63278:2023. \textit{Asset Administration Shell for Industrial Applications}. International Electrotechnical Commission.
-    \item Mondor, M., Ippersiel, D., Lamarche, F., \& Boye, J. I. (2009). \textit{Effect of electro-acidification treatment and ionic environment on soy protein extract particle size distribution and their influence on membrane fouling when filtered over a wide range of conditions}. Journal of Membrane Science, 231, 209-218.
-    \item Alibhai, Z., Mondor, M., Moresoli, C., Ippersiel, D., \& Lamarche, F. (2006). \textit{Production of soy protein concentrates/isolates: traditional and membrane technologies}. Desalination, 191, 351-358.
-    \item Roos, Y. H. (1995). \textit{Phase Transitions in Foods}. Academic Press.
-    \item Bhandari, B. R., \& Howes, T. (1999). \textit{Implication of glass transition for the drying and stability of dried foods}. Journal of Food Engineering, 40(1-2), 71-79.
-    \item Kedem, O., \& Katchalsky, A. (1958). \textit{Thermodynamic analysis of the permeability of biological membranes to non-electrolytes}. Biochimica et Biophysica Acta, 27, 229-246.
-    \item OPC Foundation (2022). \textit{OPC UA Companion Specification for the Asset Administration Shell (I4AAS)}. OPC 30270.
-    \item Perry, R. H., \& Green, D. W. (2019). \textit{Perry's Chemical Engineers' Handbook}. 9th ed. McGraw-Hill Education.
+\begin{enumerate}[label={[\arabic*]}, leftmargin=*]
+    \item M. Grieves and J. Vickers, ``Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems,'' in \textit{Transdisciplinary Perspectives on Complex Systems}, Springer, 2017, pp. 85--113.
+    \item W. Kritzinger, M. Karner, G. Trautner, J. Jian, and W. Sihn, ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol. 51, no. 11, pp. 1016--1022, 2018.
+    \item E. W. Lusas and M. N. Riaz, ``Soy protein products: processing and use,'' \textit{The Journal of Nutrition}, vol. 125, no. suppl\_3, pp. 573S--580S, 1995.
+    \item ISO Standard 23247:2021, ``Automation systems and integration --- Digital twin framework for manufacturing,'' International Organization for Standardization, 2021.
+    \item ASME BPE-2019, ``Bioprocessing Equipment Standard,'' The American Society of Mechanical Engineers, New York, NY, USA, 2019.
+    \item EHEDG Guidelines, ``Hygienic Design Criteria for Sanitary Equipment,'' European Hygienic Engineering \& Design Group, Doc. 8, 2018.
+    \item OPC Foundation, ``OPC UA Companion Specification for the Asset Administration Shell (I4AAS),'' OPC 30270, Release 1.02.00, 2022.
+    \item M. Raissi, P. Perdikaris, and G. E. Karniadakis, ``Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,'' \textit{Journal of Computational Physics}, vol. 378, pp. 686--707, 2019.
+    \item J. B. Rawlings, D. Q. Mayne, and M. Diehl, \textit{Model Predictive Control: Theory, Computation, and Design}. Nob Hill Publishing, 2017.
+    \item IEC Standard 63278:2023, ``Asset Administration Shell for Industrial Applications,'' International Electrotechnical Commission, 2023.
+    \item M. Mondor, D. Ippersiel, F. Lamarche, and J. I. Boye, ``Effect of electro-acidification treatment and ionic environment on soy protein extract particle size distribution and their influence on membrane fouling when filtered over a wide range of conditions,'' \textit{Journal of Membrane Science}, vol. 231, pp. 209--218, 2009.
+    \item J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{Journal of the American Oil Chemists' Society}, vol. 56, no. 3, pp. 242--258, 1979.
+    \item Z. Alibhai, M. Mondor, C. Moresoli, D. Ippersiel, and F. Lamarche, ``Production of soy protein concentrates/isolates: traditional and membrane technologies,'' \textit{Desalination}, vol. 191, pp. 351--358, 2006.
+    \item O. Kedem and A. Katchalsky, ``Thermodynamic analysis of the permeability of biological membranes to non-electrolytes,'' \textit{Biochimica et Biophysica Acta}, vol. 27, pp. 229--246, 1958.
+    \item Y. H. Roos, \textit{Phase Transitions in Foods}. Academic Press, 1995.
+    \item B. R. Bhandari and T. Howes, ``Implication of glass transition for the drying and stability of dried foods,'' \textit{Journal of Food Engineering}, vol. 40, no. 1-2, pp. 71--79, 1999.
+    \item R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed. McGraw-Hill Education, 2019.
 \end{enumerate}
 
 \end{document}

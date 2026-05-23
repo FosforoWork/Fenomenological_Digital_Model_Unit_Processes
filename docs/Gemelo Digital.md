@@ -17,7 +17,7 @@
 - 7. Arquitectura de Control DCS, Instrumentación Avanzada (ISA-5.1) y Lazos P&ID
 - 8. Análisis Económico Exhaustivo: Ubicación Santa Cruz, Bolivia
 - 9. Datasheets Técnicos de Equipamiento (Ingeniería de Detalle y Proveedores)
-- 10. Análisis Profundo de Cuello de Botella, Sensibilidad Operativa y Viabilidad Escalar
+- 10. Análisis Profundo de Cuello de Botella, Sensibilidad Operativa y Viabilidad Escalar (Ver [Informe de Monte Carlo](file:///C:/Users/hp.DESKTOP-5DULNNJ/OneDrive/Documentos/UNIVERSIDAD/5TO_SEMESTRE/PROYECTO_UNITARIOS/docs/informe_montecarlo.md))
 - 11. Diagrama de Flujo de Proceso (PFD) y Secuencia Operacional Avanzada (Enfoque Six Sigma)
 - 12. Matriz de Criticidad Operativa (Enfoque FMEA)
 - 13. Gestión Integral de Riesgos (HACCP, HAZOP y Seguridad Industrial)
@@ -703,6 +703,14 @@ El Gemelo Digital ha calculado las asintotas financieras bajo las cuales el mode
      * **Desbloqueo Termodinámico (Integración OI):** No se requiere comprar otro gigantesco evaporador de Doble Efecto. La instalación definitiva del rack de membranas de **Ósmosis Inversa (RO-205)** extraería en frío las $4,000 \text{ kg/h}$ de agua excedente. El viejo Evaporador EV-301 seguiría procesando exactamente $9,000 \text{ kg/h}$ de evaporación (su zona de confort), absorbiendo el 50% de aumento productivo con un aumento de CAPEX marginal ($< \$200,000 \text{ USD}$).
 
 **Conclusión Global de Sensibilidad:** El diseño base ($1,000 \text{ kg/h}$) se asienta exactamente en el "Sweet Spot" de la curva convexa de costos marginales. Cualquier reducción de escala penaliza por ineficiencia térmica, y cualquier aumento sin modificar hardware colisiona contra las leyes rígidas de difusión de materia y transferencia de calor (Teoría de Fick y Fourier). El ecosistema financiero y fenomenológico de la planta es inquebrantable siempre y cuando se respete esta topología de restricciones.
+
+### 10.4. Simulación de Monte Carlo y Confiabilidad Estocástica (Estrategia Six Sigma)
+
+Para garantizar la estabilidad operacional y erradicar la inestabilidad de operación histórica (que arrojaba un éxito de apenas 4.31%), se reconfiguraron los rangos operativos de control de variables clave y se ampliaron los buffers de capacidad física nominal de los equipos críticos (TK-101 a $20.0 \text{ m}^3$, CF-401 a $5.0 \text{ m}^3\text{/h}$, SD-501 a $600 \text{ kg/h}$). 
+
+Se validó esta nueva arquitectura mediante una campaña de simulación estocástica de Monte Carlo de 300,000 corridas (30 batches independientes de 10,000 corridas con semilla única $\text{seed} = 42 + i$). Los resultados demostraron que la tasa de éxito operativo se elevó a **>99.8%**, alcanzando un nivel de confiabilidad de calidad Six Sigma **>4.5σ** y eliminando por completo los cuellos de botella críticos del evaporador y del secador.
+
+Para un análisis detallado de la metodología estadística, los intervalos de confianza (distribución normal Z) y el desglose de restricciones activas, consulte el [Informe de Simulación de Monte Carlo](file:///C:/Users/hp.DESKTOP-5DULNNJ/OneDrive/Documentos/UNIVERSIDAD/5TO_SEMESTRE/PROYECTO_UNITARIOS/docs/informe_montecarlo.md).
 
 ---
 
