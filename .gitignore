@@ -77,3 +77,8 @@ htmlcov/
 # Sistema de archivos
 .AppleDouble
 .LSOverride
+
+# Agentes y configuración
+.agents/
+mcp.json
+
