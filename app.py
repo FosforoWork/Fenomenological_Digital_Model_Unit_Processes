@@ -20,12 +20,6 @@ from core.equipment_specs import (
     get_default_equipment_specs,
 )
 from core.process_model import ControlLog, build_snapshot
-from core.sales_economics import (
-    DEFAULT_SALES_PRICE_BS_PER_KG,
-    DOC_OPEX_TOTAL_ANNUAL_BS,
-    FinancialModeler,
-    compute_sales_stage,
-)
 from core.stage_equations import run_process_model
 
 
@@ -306,15 +300,6 @@ KPI_ERROR_BASE_PCT = {
     "stage_5_overall_yield_pct": 1.0,
     "capacity_stage_0_tank_utilization_pct": 1.0,
     "capacity_stage_2_hex_thermal_load_pct": 1.0,
-    "stage_ventas_cost_per_kg_bs": 0.4,
-    "stage_ventas_revenue_per_kg_bs": 0.4,
-    "stage_ventas_profit_per_kg_bs": 0.7,
-    "stage_ventas_opex_annual_bs": 0.3,
-    "stage_ventas_opex_hourly_bs": 0.3,
-    "stage_ventas_sales_annual_bs": 1.0,
-    "stage_ventas_sales_hourly_bs": 1.0,
-    "stage_ventas_operating_profit_annual_bs": 1.2,
-    "stage_ventas_operating_profit_hourly_bs": 1.2,
     "stage_1_protein_extracted_kg_h": 1.1,
     "stage_4_protein_precip_kg_h": 1.1,
     "stage_5_protein_final_kg_h": 1.0,
@@ -594,14 +579,6 @@ def apply_visual_theme_css() -> None:
 
 
 
-def _append_sales_stage(result: dict) -> dict:
-    stage_5 = result.get("stage_5", {})
-    powder_mass_kg_h = float(stage_5.get("powder_mass_kg_h", 0.0))
-    result["stage_ventas"] = compute_sales_stage(
-        powder_mass_kg_h=powder_mass_kg_h,
-        selling_price_bs_kg=float(st.session_state.sales_price_bs_kg),
-    )
-    return result
 
 
 def _format_number_es(value: float, decimals: int) -> str:
@@ -622,7 +599,6 @@ def _apply_full_reset() -> None:
     st.session_state.controls = DEFAULT_CONTROLS.copy()
     st.session_state.equipment_specs = get_default_equipment_specs()
     st.session_state.capacity_limits = get_default_capacity_limits()
-    st.session_state.sales_price_bs_kg = float(DEFAULT_SALES_PRICE_BS_PER_KG)
 
     for key, value in st.session_state.controls.items():
         st.session_state[f"w_{key}"] = float(value)
@@ -630,14 +606,13 @@ def _apply_full_reset() -> None:
         st.session_state[f"w_eq_{key}"] = float(value)
     for key, value in st.session_state.capacity_limits.items():
         st.session_state[f"w_lim_{key}"] = float(value)
-    st.session_state.w_sales_price_bs_kg = float(st.session_state.sales_price_bs_kg)
 
     st.session_state.log = ControlLog(max_points=1000)
-    st.session_state.last_result = _append_sales_stage(run_process_model(
+    st.session_state.last_result = run_process_model(
         st.session_state.controls,
         equipment_specs=st.session_state.equipment_specs,
         capacity_limits=st.session_state.capacity_limits,
-    ))
+    )
     st.session_state.capacity_issues = []
     st.session_state.last_run_error = ""
     st.session_state.production_elapsed_s = 0.0
@@ -666,18 +641,12 @@ def init_state() -> None:
         st.session_state.visual_mode = "Baluarte (CAT)"
     elif st.session_state.visual_mode != "Baluarte (CAT)":
         st.session_state.visual_mode = "Baluarte (CAT)"
-    if "sales_price_bs_kg" not in st.session_state:
-        st.session_state.sales_price_bs_kg = float(DEFAULT_SALES_PRICE_BS_PER_KG)
-    if "w_sales_price_bs_kg" not in st.session_state:
-        st.session_state.w_sales_price_bs_kg = float(st.session_state.sales_price_bs_kg)
     if "last_result" not in st.session_state:
-        st.session_state.last_result = _append_sales_stage(run_process_model(
+        st.session_state.last_result = run_process_model(
             st.session_state.controls,
             equipment_specs=st.session_state.equipment_specs,
             capacity_limits=st.session_state.capacity_limits,
-        ))
-    elif "stage_ventas" not in st.session_state.last_result:
-        st.session_state.last_result = _append_sales_stage(st.session_state.last_result)
+        )
     if "capacity_issues" not in st.session_state:
         st.session_state.capacity_issues = []
     if "last_run_error" not in st.session_state:
@@ -732,10 +701,6 @@ def sync_capacity_limits_from_widgets() -> None:
             st.session_state.capacity_limits[key] = float(st.session_state[widget_key])
 
 
-def sync_sales_price_from_widgets() -> None:
-    st.session_state.sales_price_bs_kg = float(
-        st.session_state.get("w_sales_price_bs_kg", st.session_state.sales_price_bs_kg)
-    )
 
 
 def _get_variable_ranges(key: str, vmin: float, vmax: float) -> tuple[tuple[float, float], tuple[float, float]]:
@@ -806,21 +771,6 @@ def render_capacity_limits_editor() -> None:
     sync_capacity_limits_from_widgets()
 
 
-def render_sales_modification_panel() -> None:
-    with st.expander("Modificacion comercial", expanded=True):
-        st.number_input(
-            "Costo de venta (Bs/kg)",
-            min_value=0.0,
-            max_value=200.0,
-            value=float(st.session_state.sales_price_bs_kg),
-            step=0.05,
-            key="w_sales_price_bs_kg",
-        )
-        sync_sales_price_from_widgets()
-        st.caption(
-            f"Fuente documental: escenario base {DEFAULT_SALES_PRICE_BS_PER_KG:.2f} Bs/kg (~3.50 USD/kg) | "
-            f"OPEX anual fijo: {_format_number_es(DOC_OPEX_TOTAL_ANNUAL_BS, 0)} Bs"
-        )
 
 
 def render_capacity_issues() -> None:
@@ -833,6 +783,47 @@ def render_capacity_issues() -> None:
             )
     elif st.session_state.last_run_error:
         st.error(st.session_state.last_run_error)
+
+
+def validate_steady_state_on_change() -> None:
+    """Ejecuta una validacion rapida en estado estacionario si la simulacion esta pausada,
+    actualizando la telemetria y limpiando o mostrando restricciones activas inmediatamente."""
+    # 1. Chequeo de seguridad de controles y especificaciones (como en run_step, pero usando controls)
+    danger_vars = []
+    for key, value in st.session_state.controls.items():
+        _, warning = _get_variable_ranges(key, 0, 100)
+        w_min, w_max = warning
+        if value < w_min or value > w_max:
+            danger_vars.append(f"Control: {CONTROL_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
+
+    for key, value in st.session_state.equipment_specs.items():
+        _, warning = _get_variable_ranges(key, 0, 100)
+        w_min, w_max = warning
+        if value < w_min or value > w_max:
+            danger_vars.append(f"Equipo: {EQUIPMENT_SPEC_LABELS.get(key, key)} ({value:.2f} fuera del rango documental [{w_min}, {w_max}])")
+
+    if danger_vars:
+        st.session_state.last_run_error = "PARO DEL SISTEMA: Variables en rango de peligro."
+        st.session_state.capacity_issues = [{"equipment": "SEGURIDAD", "message": v, "recommendation": "Ajuste la variable al rango ideal."} for v in danger_vars]
+        return
+
+    # Sincronizamos las variables de proceso (PV) directamente con los Setpoints (SP) al estar pausados
+    st.session_state.pv_controls = st.session_state.controls.copy()
+    try:
+        result = run_process_model(
+            st.session_state.pv_controls,
+            equipment_specs=st.session_state.equipment_specs,
+            capacity_limits=st.session_state.capacity_limits,
+        )
+        st.session_state.last_result = result
+        st.session_state.capacity_issues = []
+        st.session_state.last_run_error = ""
+    except EquipmentCapacityError as exc:
+        st.session_state.capacity_issues = exc.issues
+        st.session_state.last_run_error = str(exc)
+    except (ValueError, TypeError, KeyError) as exc:
+        st.session_state.capacity_issues = []
+        st.session_state.last_run_error = f"Error de validacion: {exc}"
 
 
 def _render_control_with_pv(label: str, key: str, vmin: float, vmax: float, step: float) -> float:
@@ -925,7 +916,7 @@ def run_step() -> None:
         st.session_state.running = False
         st.session_state.last_run_error = "PARO DEL SISTEMA: Variables en rango de peligro."
         st.session_state.capacity_issues = [{"equipment": "SEGURIDAD", "message": v, "recommendation": "Ajuste la variable al rango ideal."} for v in danger_vars]
-        return
+        st.rerun()
 
     try:
         # El modelo ahora corre con los PVs calculados con inercia
@@ -934,17 +925,17 @@ def run_step() -> None:
             equipment_specs=st.session_state.equipment_specs,
             capacity_limits=st.session_state.capacity_limits,
         )
-        result = _append_sales_stage(result)
+
     except EquipmentCapacityError as exc:
         st.session_state.running = False
         st.session_state.capacity_issues = exc.issues
         st.session_state.last_run_error = str(exc)
-        return
+        st.rerun()
     except (ValueError, TypeError, KeyError) as exc:
         st.session_state.running = False
         st.session_state.capacity_issues = []
         st.session_state.last_run_error = f"Error de validacion: {exc}"
-        return
+        st.rerun()
 
     st.session_state.capacity_issues = []
     st.session_state.last_run_error = ""
@@ -1008,10 +999,7 @@ def _inject_independent_error(snapshot: dict) -> dict:
         base_error_pct = _error_base_pct_for_key(key)
         amplitude = max(abs(float(value)) * (base_error_pct / 100.0), base_error_pct * 0.01)
         noisy_value = float(value) + random.uniform(-amplitude, amplitude)
-        if key.startswith("stage_ventas_operating_profit") or key.startswith("stage_ventas_profit_per_kg"):
-            noisy_snapshot[key] = noisy_value
-        else:
-            noisy_snapshot[key] = max(0.0, noisy_value)
+        noisy_snapshot[key] = max(0.0, noisy_value)
 
     return noisy_snapshot
 
@@ -1381,117 +1369,66 @@ with head_right:
         st.markdown("<small><span class='status-pill status-paused'></span> SISTEMA EN ESPERA</small>", unsafe_allow_html=True)
 
 # DASHBOARD PRINCIPAL
-render_capacity_issues()
-
-# ... (dentro de los tabs)
-
-tab_labels = ["E0: Captacion", "E1: Extraccion", "E2: Pasteurizacion", "E-RO: Osmosis Inversa", "E3: Evaporacion", "E4: Precipitacion", "E5: Secado", "Vista Global"]
-main_tabs = st.tabs(tab_labels)
-
-for i, tab in enumerate(main_tabs):
-    with tab:
-        if i < 7:
-            render_stage_tab(i)
-        elif i == 7:
-            # Vista Global — Dashboard Integrado del Gemelo Digital
-            result = st.session_state.last_result
-
-            # ─── 1) INTEGRIDAD DEL BALANCE DE MASA ───────────────────
-            st.subheader("Integridad del Balance de Masa")
-            integrity = result.get("integrity", {})
-            m1, m2, m3, m4 = st.columns(4)
-            with m1:
-                closure = integrity.get("mass_balance_closure_pct", 0.0)
-                st.metric("Cierre de Balance", f"{closure:.2f}%")
-            with m2:
-                st.metric("Masa Entrada", f"{integrity.get('mass_in_kg_h', 0.0):,.1f} kg/h")
-            with m3:
-                st.metric("Masa Salida", f"{integrity.get('mass_out_kg_h', 0.0):,.1f} kg/h")
-            with m4:
-                st.metric("Mermas Totales", f"{integrity.get('total_mermas_kg_h', 0.0):,.1f} kg/h")
-
-            st.divider()
-
-            # ─── 2) KPIs PRINCIPALES ──────────────────────────────────
-            st.subheader("KPIs de Produccion")
-            render_kpis()
-
-            st.divider()
-
-            # ─── 3) PRODUCCION ACUMULADA ──────────────────────────────
-            st.subheader("Produccion Acumulada (Sesion)")
-            elapsed_h = st.session_state.production_elapsed_s / 3600.0
-            p1, p2, p3, p4 = st.columns(4)
-            with p1:
-                st.metric("Tiempo Operativo", f"{elapsed_h:.2f} h")
-            with p2:
-                st.metric("Proteina Producida", f"{st.session_state.production_protein_kg:,.1f} kg")
-            with p3:
-                bags = st.session_state.production_bags_1kg
-                st.metric("Polvo ISP Producido", f"{bags:,.1f} kg")
-            with p4:
-                sacks_20kg = bags / 20.0
-                st.metric("Sacos (20 kg)", f"{sacks_20kg:,.0f}")
-
-            st.divider()
-
-            # ─── 4) PANEL FINANCIERO AVANZADO ─────────────────────────
-            col_fin, col_eco = st.columns([1, 1])
-            with col_fin:
-                st.subheader("Simulacion Financiera")
-                powder_kg_h = result.get("stage_5", {}).get("powder_mass_kg_h", 301.6)
-                fm = FinancialModeler(powder_mass_kg_h=powder_kg_h)
-                fin = fm.run_financial_simulation()
-
-                f1, f2 = st.columns(2)
-                with f1:
-                    st.metric("CAPEX Total", f"${fin['capex_total_usd']:,.0f} USD")
-                    st.metric("NPV (10a, 12%)", f"${fin['npv_usd']:,.0f} USD")
-                    st.metric("Offset Circular", f"${fin['circularity_offset_usd']:,.0f} USD/a")
-                with f2:
-                    st.metric("Payback Period", f"{fin['payback_years']:.2f} a")
-                    st.metric("EBITDA", f"${fin['ebitda_usd']:,.0f} USD/a")
-                    st.metric("OPEX Neto", f"${fin['opex_total_net_usd']:,.0f} USD/a")
-
-            with col_eco:
-                render_sales_modification_panel()
-
-            st.divider()
-
-            # ─── 5) MATRIZ DE CRITICIDAD FMEA (Doc 10.2) ─────────────
-            st.subheader("Matriz de Criticidad FMEA")
-
-            fmea_data = [
-                {"var": "pH Precipitacion TK-401", "falla": "pH fuera 4.5+-0.2", "s": 8, "o": 6, "d": 3, "npr": 144, "nivel": "CRITICO", "ck": "precip_ph"},
-                {"var": "Humedad Final SD-501", "falla": "Humedad >6%", "s": 9, "o": 4, "d": 3, "npr": 108, "nivel": "ALTA", "ck": "dryer_temp_c"},
-                {"var": "Vacio Evaporador EV-301", "falla": "P >0.6 bar", "s": 7, "o": 5, "d": 2, "npr": 70, "nivel": "ALTA", "ck": "evap_pressure_bar"},
-                {"var": "pH Extraccion TK-101", "falla": "pH <8.0", "s": 8, "o": 4, "d": 2, "npr": 64, "nivel": "ALTA", "ck": "extraction_ph"},
-                {"var": "T Past. HX-201", "falla": "T <75C", "s": 9, "o": 3, "d": 1, "npr": 27, "nivel": "MEDIA", "ck": "pasteur_temp_c"},
-            ]
-
-            pv = st.session_state.pv_controls
-            fmea_md = "| Variable | Modo de Falla | S | O | D | NPR | Nivel | Estado |\n"
-            fmea_md += "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n"
-            for row in fmea_data:
-                current_pv = pv.get(row["ck"], 0.0)
-                ideal, fail = _get_variable_ranges(row["ck"], 0, 100)
-                if ideal[0] <= current_pv <= ideal[1]:
-                    status = "OK"
-                elif fail[0] <= current_pv <= fail[1]:
-                    status = "ALERTA"
-                else:
-                    status = "FALLO"
-                npr_str = f"**{row['npr']}**" if row["npr"] >= 100 else str(row["npr"])
-                fmea_md += f"| {row['var']} | {row['falla']} | {row['s']} | {row['o']} | {row['d']} | {npr_str} | {row['nivel']} | {status} |\n"
-
-            st.markdown(fmea_md)
-            st.caption("NPR = Severidad x Ocurrencia x Deteccion. Niveles >= 100 requieren accion inmediata.")
-
-            st.divider()
-            st.image("assets/image/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
-
-if st.session_state.running:
-    run_step()
+@st.fragment(run_every=st.session_state.interval_s if st.session_state.running else None)
+def render_dashboard() -> None:
+    # 1. Si está activo, ejecuta un paso
     if st.session_state.running:
-        time.sleep(st.session_state.interval_s)
-    st.rerun()
+        run_step()
+    else:
+        # Validación en estado estacionario inmediata si la simulación está pausada
+        validate_steady_state_on_change()
+
+    render_capacity_issues()
+
+    tab_labels = ["E0: Captacion", "E1: Extraccion", "E2: Pasteurizacion", "E-RO: Osmosis Inversa", "E3: Evaporacion", "E4: Precipitacion", "E5: Secado", "Vista Global"]
+    main_tabs = st.tabs(tab_labels)
+
+    for i, tab in enumerate(main_tabs):
+        with tab:
+            if i < 7:
+                render_stage_tab(i)
+            elif i == 7:
+                # Vista Global — Dashboard Integrado del Gemelo Digital
+                result = st.session_state.last_result
+
+                # ─── 1) INTEGRIDAD DEL BALANCE DE MASA ───────────────────
+                st.subheader("Integridad del Balance de Masa")
+                integrity = result.get("integrity", {})
+                m1, m2, m3, m4 = st.columns(4)
+                with m1:
+                    closure = integrity.get("mass_balance_closure_pct", 0.0)
+                    st.metric("Cierre de Balance", f"{closure:.2f}%")
+                with m2:
+                    st.metric("Masa Entrada", f"{integrity.get('mass_in_kg_h', 0.0):,.1f} kg/h")
+                with m3:
+                    st.metric("Masa Salida", f"{integrity.get('mass_out_kg_h', 0.0):,.1f} kg/h")
+                with m4:
+                    st.metric("Mermas Totales", f"{integrity.get('total_mermas_kg_h', 0.0):,.1f} kg/h")
+
+                st.divider()
+
+                # ─── 2) KPIs PRINCIPALES ──────────────────────────────────
+                st.subheader("KPIs de Produccion")
+                render_kpis()
+
+                st.divider()
+
+                # ─── 3) PRODUCCION ACUMULADA ──────────────────────────────
+                st.subheader("Produccion Acumulada (Sesion)")
+                elapsed_h = st.session_state.production_elapsed_s / 3600.0
+                p1, p2, p3, p4 = st.columns(4)
+                with p1:
+                    st.metric("Tiempo Operativo", f"{elapsed_h:.2f} h")
+                with p2:
+                    st.metric("Proteina Producida", f"{st.session_state.production_protein_kg:,.1f} kg")
+                with p3:
+                    bags = st.session_state.production_bags_1kg
+                    st.metric("Polvo ISP Producido", f"{bags:,.1f} kg")
+                with p4:
+                    sacks_20kg = bags / 20.0
+                    st.metric("Sacos (20 kg)", f"{sacks_20kg:,.0f}")
+
+                st.divider()
+                st.image("assets/image/planta_industrial_soja.png", caption="Gemelo Digital: Topologia de Planta Integrada", use_container_width=True)
+
+render_dashboard()

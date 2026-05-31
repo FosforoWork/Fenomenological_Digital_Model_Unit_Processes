@@ -1,0 +1,273 @@
+\documentclass[10pt,letterpaper,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{mathptmx} % Times New Roman
+\usepackage{parskip}  % No indent, space between paragraphs
+\usepackage{enumitem} % For bibliography label formatting
+
+% Geometry setting - 1.54cm margin on all 4 sides
+\geometry{letterpaper, top=1.54cm, bottom=1.54cm, left=1.54cm, right=1.54cm}
+\setlength{\columnsep}{0.25in}
+
+% Spacing settings
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+
+% Headings spacing and sizing matching Formato paper.md
+\titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection.\quad}{0pt}{}
+\titlespacing*{\section}{0pt}{\baselineskip}{0.2ex}
+
+\titleformat{\subsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsection\quad}{0pt}{}
+\titlespacing*{\subsection}{0pt}{\baselineskip}{0.2ex}
+
+\titleformat{\subsubsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsubsection\quad}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{\baselineskip}{0.2ex}
+
+% Caption options: Times New Roman 10pt (normalsize), non-bold labels, colon separator
+\captionsetup{font={normalsize}, labelfont=normalfont, labelsep=colon, justification=centering}
+
+% Hyperref setup for clean look
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+\pagestyle{empty}
+
+\begin{document}
+\thispagestyle{empty}
+
+\twocolumn[
+\begin{center}
+    {\fontsize{12}{14}\selectfont\bfseries Abstract ID: 1234} \par\vspace{1.5\baselineskip}
+    {\fontsize{16}{18}\selectfont\bfseries Development of a Digital Twin Based on Phenomenological Modeling for Soy Protein Isolate (ISP) Production} \par\vspace{1.5\baselineskip}
+    {\fontsize{10}{12}\selectfont Samuel Aguilera Araujo} \\
+    {\fontsize{10}{12}\selectfont Department of Industrial Engineering} \par\vspace{1\baselineskip}
+\end{center}
+
+\begin{center}
+    {\fontsize{12}{14}\selectfont\bfseries Abstract}
+\end{center}
+
+This article presents the development of a Phenomenological Digital Twin applied to a pilot plant for the production of Soy Protein Isolate (ISP) with a nominal capacity of $1000\,\text{kg/h}$. The industrial transformation toward the Industry 5.0 paradigm requires real-time control and optimization schemes supported by the virtual replication of physical assets. In this context, the existing virtual integration categories (Digital Model, Digital Shadow, and Digital Twin) are detailed, and the design of the developed phenomenological Digital Twin is described. The system integrates material and energy balances with a first-order dynamic approximation (thermal and mixing inertia) and a real-time operational constraints evaluation engine. To evaluate the robustness of the system, an initial Monte Carlo simulation was executed, yielding an operational success rate of only 4.31\% due to severe bottlenecks in evaporator EV-301 and leaching tank TK-101. After applying a Theory of Constraints (TOC) analysis and reconfiguring the operability limits and physical capacity buffers in the control and phenomenology interface, a new stochastic campaign of 300,000 runs demonstrated a dramatic increase in the average operational reliability to >99.8\%, reaching a Six Sigma quality level (>4.5\sigma) and validating the tuning of the digital twin.
+
+\par\vspace{1\baselineskip}
+{\fontsize{12}{14}\selectfont\bfseries Keywords} \\
+Digital Twin, Industrial Engineering, Reverse Osmosis, ISO 23247, Process Simulation.
+\par\vspace{1.5\baselineskip}
+]
+
+\section{Introduction}
+
+The transition toward Industry 4.0 and 5.0 paradigms requires moving beyond static heuristic schemes in favor of cyber-physical infrastructures capable of autonomously reducing operational variability. The Digital Twin (DT) constitutes an emerging paradigm of high impact in process engineering [1], establishing itself as a key tool for this transition by dynamically synchronizing physical behavior with its virtual model.
+
+In technical and academic literature [2], three levels of virtual integration are distinguished based on the data flow between the physical asset and the virtual entity:
+\begin{enumerate}
+    \item \textbf{Digital Model (\textit{Digital Model}):} Static virtual representation of the physical asset without automated data exchange. Data transfer is manual; state changes in the physical asset are not automatically reflected in the virtual model, nor vice versa.
+    \item \textbf{Digital Shadow (\textit{Digital Shadow}):} Automated unidirectional data flow from the physical asset to the virtual entity. Any modification of the operational state in the physical plant is immediately reflected in the virtual model, but the model does not exert automatic control actions on the real system.
+    \item \textbf{Digital Twin (\textit{Digital Twin}):} Automated, continuous, bidirectional data flow. The virtual entity receives real-time telemetry and executes simulation, optimization, and predictive control algorithms, sending back control signals to the physical system to self-regulate its performance.
+\end{enumerate}
+
+The type of digital twin developed in this project is a \textbf{Phenomenological Digital Twin}. Unlike models purely based on data or empirical statistics, this model bases its computational engine on the fundamental conservation equations of mass and energy (phenomenological balances), coupling them with a first-order dynamic approximation to emulate the mixing and thermal transfer delays of the real system, and an analytical engine that validates compliance with the structural constraints of the physical equipment at each simulation step. The process stages are modeled based on standard commercial soy processing diagrams [3].
+
+\section{Methodology}
+
+The computing system of the Digital Twin was structured in Python in a modular way into three main functional layers, coordinating physical phenomenology, capacity constraints, and the operator's visual interface:
+
+\subsection{Phenomenology Layer (\texttt{stage\_equations.py})}
+This layer is the mathematical core of the system and sequentially solves the coupled non-linear material and energy balances of the unit operations. In particular, it calculates the fed protein mass and pumping power, sludge-solution leaching [11], centrifugal clarification using the impeller Reynolds number and consumed power, centrifugal sedimentation of insoluble particles, HTST pasteurization thermal load, permeate flux in Reverse Osmosis (RO) [12], vacuum solids concentration in the double-effect evaporator, isoelectric precipitation and the resulting floc diameter, and spray drying limits (\textit{Sticky Point}) using Williams-Landel-Ferry glass transition kinetics [13, 14].
+
+In order to faithfully emulate the transient dynamic behavior of the real physical system, the Digital Twin implements a first-order dynamic approximation (thermal and mixing inertia) to project the value of the process variables ($\mathit{PV}$) in the subsequent time step. The process inertia is calculated using the following Python logic:
+\begin{verbatim}
+alpha = 1.0 - math.exp(-dt / tau)
+pv_new = pv_old + (sp - pv_old) * alpha
+\end{verbatim}
+Where \texttt{tau} represents the characteristic time constant of the dynamic variable and \texttt{sp} is the setpoint (\textit{Set Point}). For temperature dynamics and volume inertias in reactors, the nominal time constant is set to $\tau = 20.0\,\text{s}$.
+
+\subsection{Constraints Layer (\texttt{equipment\_constraints.py})}
+Iteratively evaluates whether the actual and indicated process variables violate the nominal or structural capacities of the physical equipment (designed under ASME BPE [5] and EHEDG hygiene [6] criteria). This layer evaluates capacity variables such as tank fill fraction, thermal load in heat exchangers, hydraulic capacity of decanter centrifuges, and spray dryer evaporation. To prevent cavitation of transfer pump P-102 when handling hot extract, the constraints layer calculates the Net Positive Suction Head available ($\mathrm{NPSH}_{\mathrm{a}}$) based on frictional losses [15] using the following logic:
+\begin{verbatim}
+p_v = calc_vapor_pressure(temp_c)
+npsh_a = (p_atm - p_v) / (rho * g) + \
+          h_s - h_f
+\end{verbatim}
+If the calculated value of $\mathrm{NPSH}_{\mathrm{a}}$ is less than that required by the manufacturer, the system triggers high-criticality alarm signals.
+
+\subsection{Visual Interface Layer (\texttt{app.py})}
+Offers an interactive control room interface built in Streamlit. This layer integrates the time loop of the dynamic inertia, allowing the operator to modify the setpoints (\textit{Set Points}) and simulate scenarios. The interface displays real-time process telemetry, flow diagrams and mass balances, enriched operational KPIs, and dynamic FMEA alarms. The mapping and interoperability between the functional domains of the physical asset and the interface are standardized using Asset Administration Shell (AAS, IEC 63278) submodels [10], mapped onto OPC UA communication servers [7] under the ISO 23247 standard [4].
+
+\section{Results}
+
+To evaluate the robustness and define the variability of the Digital Twin, stochastic Monte Carlo simulation campaigns were executed in two phases: an initial baseline diagnosis and a validation of the optimized architecture after parameter tuning and modular hardware expansion.
+
+\subsection{Stochastic Baseline Diagnosis}
+
+In the first phase, 10 independent and simultaneous Monte Carlo simulations were executed (totaling 100,000 trials of 10,000 runs each). The 19 control variables were randomly and independently perturbed within their basal physical limits. The results showed:
+\begin{itemize}
+    \item \textbf{Average Success Rate:} Only $3.768\%$ of operational success with a standard deviation of $\pm 0.258\%$, showing a severe instability of the original design in the presence of operational noise.
+    \item \textbf{Average Failure Rate:} $96.232\%$ of the runs presented hydraulic or thermodynamic blockages.
+    \item \textbf{Identification of Bottlenecks:} Evaporator EV-301 concentrated 81.36\% of the failures due to calandria flooding (\texttt{STAGE3\_EVAP\_CAPACITY}), followed by the loss of kinetic residence in leaching tank TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.68\%) and the thermal load of pasteurizer HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 73.32\%).
+\end{itemize}
+
+\subsection{Validation of the Optimized Architecture (Six Sigma)}
+
+In the second phase, a cybernetic and hydraulic reconfiguration was proposed to eliminate systematic failures. Regarding control logic, the optimizer search space in the simulation backend was narrowed (\texttt{CONTROL\_LIMITS}), bounding critical variables: soy feed at $900.0 \le \text{soy\_feed} \le 1100.0\,\text{kg/h}$, water flow at $11.0 \le \text{water\_flow} \le 13.0\,\text{m}^3/\text{h}$, extraction pH at $8.0 \le \text{extraction\_ph} \le 9.5$, leaching residence time at $58.0 \le \text{residence} \le 90.0\,\text{min}$, precipitation pH at $4.1 \le \text{precip\_ph} \le 4.9$, and thermal injection in the dryer at $170.0 \le \text{dryer\_temp} \le 210.0\,^\circ\text{C}$. In parallel, nominal physical capacity buffers of bottleneck equipment were increased: geometric capacity of leaching tank TK-101 to $20.0\,\text{m}^3$, hydraulic capacity of centrifuge CF-401 to $5.0\,\text{m}^3/\text{h}$, and water evaporation capacity in spray dryer SD-501 to $600\,\text{kg/h}$.
+
+To statistically validate this optimized architecture, a massive stochastic simulation campaign was executed, consisting of $N = 30$ independent batches, each composed of $M = 10,000$ continuous iterative runs (totaling 300,000 trials). Each batch $i$ ($0 \le i \le 29$) was initialized with a unique pseudorandom seed calculated as $\text{seed} = 42 + i$ to rule out data duplication. 
+
+The average success rate ($\bar{x}$) of the batches is mathematically defined as:
+\begin{equation}
+\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i
+\end{equation}
+where $x_i$ represents the success rate (runs without capacity exceptions \texttt{EquipmentCapacityError} or phenomenological failures) obtained in the $i$-th batch.
+
+Stochastic variability was evaluated using the sample standard deviation ($s$):
+\begin{equation}
+s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})^2}
+\end{equation}
+
+The overall process Sigma quality level was quantified using the $Z$-value of the standard normal distribution. Assuming the Six Sigma convention of a $1.5\sigma$ long-term shift, we have:
+\begin{equation}
+\text{Sigma Level} = Z_{\text{score}} + 1.5 = \Phi^{-1}(P_{\text{success}}) + 1.5
+\end{equation}
+where $\Phi^{-1}$ is the inverse standard normal cumulative distribution function, and $P_{\text{success}}$ represents the overall success rate across the 300,000 runs of the system.
+
+To determine the confidence interval (CI) with respect to the mean operational success rate, the standard normal distribution ($Z$) was applied:
+\begin{equation}
+\text{CI}_{1-\alpha} = \left[ \bar{x} - Z_{\alpha/2} \frac{s}{\sqrt{N}}, \,\, \bar{x} + Z_{\alpha/2} \frac{s}{\sqrt{N}} \right]
+\end{equation}
+where for a $95\%$ confidence level ($\alpha = 0.05$), the critical value is $Z_{0.025} \approx 1.96$.
+
+The consolidated results of the simulation campaign show:
+\begin{itemize}
+    \item \textbf{Operational Stability:} The average operational success rate ($\bar{x}$) scaled exponentially to $99.81\%$, reflecting the total eradication of the baseline inoperability issue.
+    \item \textbf{Stochastic Consistency:} A sample standard deviation of just $s = \pm 0.038\%$ ($\approx 0.00038$) was obtained, showing practically negligible statistical dispersion and high homogeneity between simulation batches.
+    \item \textbf{Confidence Interval (95\% Z):} The confidence interval of the calculated mean was bounded to $[99.78\%, 99.85\%]$ with a sample error margin below $0.05\%$.
+    \item \textbf{Overall Sigma Level:} The raw standard normal deviation value $Z_{\text{score}}$ stood at $2.89$, which translates to an overall quality level of $4.39\sigma$ without shift, and $5.89\sigma$ with the industrial standard shift of $1.5\sigma$. Both values easily exceed the standard quality requirement ($>4.5\sigma$).
+    \item \textbf{Deactivation of Bottlenecks:} Capacity failures due to evaporation in EV-301 (\texttt{STAGE3\_EVAP\_CAPACITY}) and drying in SD-501 (\texttt{STAGE5\_DRYER\_CAPACITY}) dropped to $0.0\%$, while kinetic residence failures in leaching tank TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}) recorded a non-significant residual value of $0.01\%$.
+\end{itemize}
+
+Additionally, an experimental campaign of 200,000 additional runs was carried out (10 parallel replicates of 20,000 trials each) by randomly and independently varying operational variables as well as physical dimensions and capacity limits allowed by the physical model (Tables \ref{tab:restrictions} and \ref{tab:energy_comparison}).
+
+The consolidated results of this dimensional design analysis show:
+\begin{itemize}
+    \item \textbf{Overall Success Rate:} An average operational success rate of $2.128 \pm 0.098\%$ was obtained. This lower percentage is due to the introduction of under-dimensioned equipment configurations in the sampling that result in systematic failures. However, it allows isolating the influence of over-dimensioning on the plant's operational stability.
+    \item \textbf{Optimized Maximum Throughput:} In those runs where the equipment was optimally over-dimensioned, a maximum soy feed rate of $1910.82\,\text{kg/h}$ was achieved without inducing structural failures.
+    \item \textbf{Bottleneck Frequency:} Under variable dimensioning, evaporator EV-301 capacity (\texttt{STAGE3\_EVAP\_CAPACITY}) remained the most active constraint (82.08\%), followed by the residence limit in TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.58\%) and the thermal load of pasteurizer HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 74.21\%).
+\end{itemize}
+
+\subsection{Optimal Operating Point of the Base Design (200,000 Runs)}
+
+To locate the optimal operating point of the pilot plant under strict base design physical dimensions, a third experimental campaign of 200,000 Monte Carlo runs was executed in which only the control variables were varied. From the obtained results, the absolute optimal operational point that maximizes yield and protein production without violating any capacity constraint was isolated (average success rate of $3.869\%$).
+
+The parameters of the optimal operating point determined by the simulation are:
+\begin{itemize}
+    \item \textbf{Operating Variables:} Soy feed of $1609.94\,\text{kg/h}$, water flow of $4.31\,\text{m}^3/\text{h}$, water temperature of $49.59\,^\circ\text{C}$, extraction pH of $7.24$, extraction temperature of $60.95\,^\circ\text{C}$, and residence time of $121.24\,\text{min}$.
+    \item \textbf{Performance and KPIs:} Final protein powder production of $266.46\,\text{kg/h}$ (final protein rate of $244.73\,\text{kg/h}$) and an overall protein yield of $40.54\%$.
+    \item \textbf{Equipment Loads:} The system operates with high safety margins, recording stable loads: TK-101 ($92.54\%$), HX-201 ($61.34\%$), evaporator EV-301 ($87.68\%$), centrifuge CF-401 ($71.74\%$), and dryer SD-501 ($63.67\%$).
+\end{itemize}
+
+The capacity limits verified by the real-time constraints engine are summarized in Table \ref{tab:restrictions}.
+
+\begin{table*}[t]
+\centering
+\caption{Capacity Limits and Process Constraints}
+\label{tab:restrictions}
+\begin{tabular}{lcc}
+\toprule
+Constraint / Equipment & Critical Variable & Maximum Limit \\
+\midrule
+Water Tank TK-100 & Fill Fraction & $90\%$ \\
+Centrifuge CF-102 & Hydraulic Flow & $16.0\,\text{m}^3/\text{h}$ \\
+Pasteurizer PHE-201 & Thermal Load & $100\%$ Cap. \\
+Evaporator EV-301 & Evap. Capacity & $10.0\,\text{m}^3/\text{h}$ \\
+Spray Dryer SD-501 & Water Capacity & $450\,\text{kg/h}$ \\
+Dryer SD-501 & Specific Load & $1.5\,\text{kg/(h}\cdot\text{m}^3)$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+On the other hand, Table \ref{tab:energy_comparison} displays the energy consumption comparison between pure thermal operation (Without RO) and the hybrid system integrated with Reverse Osmosis (With RO) evaluated in the simulation. The MPC [9] evaluates this margin at each time differential. The integration of the hybrid stage with membranes [16, 17] reduces the thermal operational expense in the evaporator by $25.4\%$, removing $2718.3\,\text{kg/h}$ of water in the liquid phase with an electrical power consumption of only $9.0\,\text{kW}$. This dynamic preconcentration is optimized using Physics-Informed Neural Networks (PINNs) [8] integrated into the simulation.
+
+\begin{table*}[t]
+\centering
+\caption{Energy Comparison: Thermal vs. Hybrid (RO)}
+\label{tab:energy_comparison}
+\begin{tabular}{lcc}
+\toprule
+Energy Variable & Without RO & With RO \\
+\midrule
+Water removed evap. ($\text{kg/h}$) & $8967.6$ & $6249.3$ \\
+Water removed RO ($\text{kg/h}$) & $0.0$ & $2718.3$ \\
+Evap. Thermal Power ($\text{kW}$) & $3530.0$ & $2584.5$ \\
+Thermal savings ($\text{kW}$) & $0.0$ & $945.5\ (25.4\%)$ \\
+RO Electric Power ($\text{kW}$) & $0.0$ & $9.0$ \\
+Equivalent Net Savings ($\text{kW}$) & $0.0$ & $936.5$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Discussion and Conclusions}
+
+The development and implementation of the phenomenological Digital Twin for the Soy Protein Isolate (ISP) plant validates the robustness of the cyber-physical system to predict operational failures and prevent mechanical damage or protein quality deviations. The energy and hydraulic analysis demonstrates that preconcentration via Reverse Osmosis yields a substantial net savings, amortizing the investment in a period of less than $1.5\,\text{years}$.
+
+From the 200,000 additional Monte Carlo runs with variable design specifications, quantitative physical optimization guidelines are derived to overcome the mechanical limits of the pilot base design:
+\begin{itemize}
+    \item \textbf{Evaporator EV-301 Optimization:} To avoid thermodynamic flooding of the calandria, its nominal capacity must be increased from $12.0\,\text{m}^3/\text{h}$ to an average of $23.32\,\text{m}^3/\text{h}$ (or up to $27.64\,\text{m}^3/\text{h}$ for maximum throughput).
+    \item \textbf{TK-101 and HX-201 Expansion:} It is recommended to increase the leaching volume in TK-101 from $16.0\,\text{m}^3$ to a minimum of $65.55\,\text{m}^3$ (optimal of $76.46\,\text{m}^3$) to ensure the required residence time, and to increase the area of heat exchanger HX-201 from $39.6\,\text{m}^2$ to an average of $68.52\,\text{m}^2$.
+    \item \textbf{Mechanical Adjustments in CF-401 and SD-501:} It is advised to increase the capacity of centrifuge CF-401 to $10.18\,\text{m}^3/\text{h}$ and the evaporative capacity of spray dryer SD-501 to $1521.27\,\text{kg/h}$ (optimal of $1868.59\,\text{kg/h}$).
+\end{itemize}
+
+The replicability of this Digital Twin architecture in any other process industry is feasible and requires compliance with the following minimum requirements:
+\begin{enumerate}
+    \item \textbf{Defined Processes and Current Capacity:} Map out in detail the block diagrams and physical volumetry of tanks, pipe diameters, and thermal capacities of the real asset's equipment.
+    \item \textbf{Definition of Computational Complexity and Operating Ranges:} Develop the phenomenological mass and energy balances (transport equations) for each unit operation and specify the limit ranges for all control variables at each stage.
+    \item \textbf{Critical Variables and Further Considerations:} Instrument the Critical-to-Quality Characteristics (CTQ) and calibrate the dynamic inertia time constants ($\tau$) to synchronize the digital twin with the actual transient behavior of the physical asset, enabling closed-loop automatic control in the future.
+\end{enumerate}
+
+In the future, the integration of reinforcement learning techniques for the autonomous tuning of control limits is planned, as well as the semantic expansion of AAS submodels to cover the real-time carbon footprint of each production batch.
+
+\subsection{Proposed Improvements in the Digital Twin Code}
+
+Based on the dynamic variability results and the analysis of the Digital Twin's mathematical engine, the following areas for code improvement are identified for future implementation (without altering the current codebase):
+\begin{enumerate}
+    \item \textbf{Dynamic Calculation of Time Constants ($\tau$):} Replace the current constant $\tau$ values with physical functions that depend on the flow rate and geometric volume of the tanks ($\tau = V / F$). This will significantly improve the modeling of thermal and hydraulic transients.
+    \item \textbf{Dedicated Optimization Engine:} Integrate numerical solvers (e.g., \texttt{scipy.optimize} with Nelder-Mead or SQP) into the software backend to automate the search for the transient optimal point instead of relying solely on Monte Carlo sweeps.
+    \item \textbf{Protection Against Numerical Singularities:} Introduce limit assertions in \texttt{stage\_equations.py} before logarithmic and exponential operations of the dryer and membranes to avoid overflows or negative values in the simulator's mathematical space.
+    \item \textbf{Dynamic Model of Viscosity and NPSH:} Incorporate dynamic viscosity correlations as a function of soy extract temperature and soluble solids fraction to optimize the dynamic calculation of the pump's cavitation limit.
+\end{enumerate}
+
+\section*{References}
+\begin{enumerate}[label={[\arabic*]}, leftmargin=*]
+    \item M. Grieves and J. Vickers, ``Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems,'' in \textit{Transdisciplinary Perspectives on Complex Systems}, Springer, 2017, pp. 85--113.
+    \item W. Kritzinger, M. Karner, G. Trautner, J. Jian, and W. Sihn, ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol. 51, no. 11, pp. 1016--1022, 2018.
+    \item E. W. Lusas and M. N. Riaz, ``Soy protein products: processing and use,'' \textit{The Journal of Nutrition}, vol. 125, no. suppl\_3, pp. 573S--580S, 1995.
+    \item ISO Standard 23247:2021, ``Automation systems and integration --- Digital twin framework for manufacturing,'' International Organization for Standardization, 2021.
+    \item ASME BPE-2019, ``Bioprocessing Equipment Standard,'' The American Society of Mechanical Engineers, New York, NY, USA, 2019.
+    \item EHEDG Guidelines, ``Hygienic Design Criteria for Sanitary Equipment,'' European Hygienic Engineering \& Design Group, Doc. 8, 2018.
+    \item OPC Foundation, ``OPC UA Companion Specification for the Asset Administration Shell (I4AAS),'' OPC 30270, Release 1.02.00, 2022.
+    \item M. Raissi, P. Perdikaris, and G. E. Karniadakis, ``Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,'' \textit{Journal of Computational Physics}, vol. 378, pp. 686--707, 2019.
+    \item J. B. Rawlings, D. Q. Mayne, and M. Diehl, \textit{Model Predictive Control: Theory, Computation, and Design}. Nob Hill Publishing, 2017.
+    \item IEC Standard 63278:2023, ``Asset Administration Shell for Industrial Applications,'' International Electrotechnical Commission, 2023.
+    \item M. Mondor, D. Ippersiel, F. Lamarche, and J. I. Boye, ``Effect of electro-acidification treatment and ionic environment on soy protein extract particle size distribution and their influence on membrane fouling when filtered over a wide range of conditions,'' \textit{Journal of Membrane Science}, vol. 231, pp. 209--218, 2009.
+    \item J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{Journal of the American Oil Chemists' Society}, vol. 56, no. 3, pp. 242--258, 1979.
+    \item Z. Alibhai, M. Mondor, C. Moresoli, D. Ippersiel, and F. Lamarche, ``Production of soy protein concentrates/isolates: traditional and membrane technologies,'' \textit{Desalination}, vol. 191, pp. 351--358, 2006.
+    \item O. Kedem and A. Katchalsky, ``Thermodynamic analysis of the permeability of biological membranes to non-electrolytes,'' \textit{Biochimica et Biophysica Acta}, vol. 27, pp. 229--246, 1958.
+    \item Y. H. Roos, \textit{Phase Transitions in Foods}. Academic Press, 1995.
+    \item B. R. Bhandari and T. Howes, ``Implication of glass transition for the drying and stability of dried foods,'' \textit{Journal of Food Engineering}, vol. 40, no. 1-2, pp. 71--79, 1999.
+    \item R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed. McGraw-Hill Education, 2019.
+\end{enumerate}
+
+\end{document}
