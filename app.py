@@ -1342,7 +1342,7 @@ apply_visual_theme_css()
 head_left, head_right = st.columns([2, 1])
 
 with head_left:
-    st.title("Gemelo Digital AJAX")
+    st.title("Gemelo Digital")
     st.markdown(
         "<div class='hero-panel'><strong>Consola Unificada:</strong> Operacion y monitoreo integrado por etapas.</div>",
         unsafe_allow_html=True,

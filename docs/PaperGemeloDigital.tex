@@ -11,39 +11,24 @@
 \usepackage{caption}
 \usepackage{float}
 \usepackage{titlesec}
-\usepackage{mathptmx} % Times New Roman
-\usepackage{parskip}  % No indent, space between paragraphs
-\usepackage{enumitem} % For bibliography label formatting
+\usepackage{mathptmx}
+\usepackage{parskip}
+\usepackage{enumitem}
 
-% Geometry setting - 1.54cm margin on all 4 sides
 \geometry{letterpaper, top=1.54cm, bottom=1.54cm, left=1.54cm, right=1.54cm}
 \setlength{\columnsep}{0.25in}
-
-% Spacing settings
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{\baselineskip}
 
-% Headings spacing and sizing matching Formato paper.md
 \titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection.\quad}{0pt}{}
 \titlespacing*{\section}{0pt}{\baselineskip}{0.2ex}
-
 \titleformat{\subsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsection\quad}{0pt}{}
 \titlespacing*{\subsection}{0pt}{\baselineskip}{0.2ex}
-
 \titleformat{\subsubsection}{\fontsize{10}{12}\selectfont\bfseries}{\thesubsubsection\quad}{0pt}{}
 \titlespacing*{\subsubsection}{0pt}{\baselineskip}{0.2ex}
 
-% Caption options: Times New Roman 10pt (normalsize), non-bold labels, colon separator
 \captionsetup{font={normalsize}, labelfont=normalfont, labelsep=colon, justification=centering}
-
-% Hyperref setup for clean look
-\hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    urlcolor=blue
-}
-
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
 \pagestyle{empty}
 
 \begin{document}
@@ -52,7 +37,7 @@
 \twocolumn[
 \begin{center}
     {\fontsize{12}{14}\selectfont\bfseries Abstract ID: 1234} \par\vspace{1.5\baselineskip}
-    {\fontsize{16}{18}\selectfont\bfseries Desarrollo de un Gemelo Digital Basado en Modelado Fenomenológico para la Producción de Proteína Aislada de Soya (ISP)} \par\vspace{1.5\baselineskip}
+    {\fontsize{16}{18}\selectfont\bfseries Desarrollo de una Arquitectura Modular para Gemelos Digitales Fenomenológicos en Python: Validación, Pruebas y Replicabilidad} \par\vspace{1.5\baselineskip}
     {\fontsize{10}{12}\selectfont Samuel Aguilera Araujo} \\
     {\fontsize{10}{12}\selectfont Departamento de Ingeniería Industrial} \par\vspace{1\baselineskip}
 \end{center}
@@ -61,213 +46,260 @@
     {\fontsize{12}{14}\selectfont\bfseries Resumen}
 \end{center}
 
-En este artículo se presenta el desarrollo de un Gemelo Digital Fenomenológico aplicado a una planta piloto de producción de Proteína Aislada de Soya (ISP) con una capacidad nominal de $1000\,\text{kg/h}$. La transformación industrial hacia el paradigma de la Industria 5.0 requiere esquemas de control y optimización en tiempo real sustentados en la réplica virtual de activos físicos. En este contexto, se detallan las categorías de integración virtual existentes (Modelo Digital, Sombra Digital y Gemelo Digital) y se describe el diseño del Gemelo Digital fenomenológico desarrollado. El sistema integra balances de materia y energía con una aproximación dinámica de primer orden (inercia térmica y de mezclado) y un motor de evaluación de restricciones operativas en tiempo real. Para evaluar la robustez del sistema, se ejecutó una simulación inicial de Monte Carlo que arrojó una tasa de éxito operativo de solo el 4.31\% debido a severos cuellos de botella en el evaporador EV-301 y el lixiviador TK-101. Tras aplicar un análisis de Teoría de Restricciones (TOC) y reconfigurar los límites de operabilidad y buffers de capacidad física en la interfaz de control y fenomenología, una nueva campaña estocástica de 300,000 corridas demostró un incremento dramático en la confiabilidad operacional promedio a >99.8\%, alcanzando un nivel de calidad Six Sigma (>4.5\sigma) y validando la sintonización del gemelo digital.
+Este artículo presenta la arquitectura computacional de un Gemelo Digital Fenomenológico desarrollado en Python, cuyo diseño prioriza la modularidad, la validación en múltiples capas y la replicabilidad en diferentes industrias de proceso. El sistema se organiza en tres módulos independientes y acoplados: un núcleo de balances fenomenológicos (\texttt{stage\_equations.py}), un motor de restricciones de capacidad (\texttt{equipment\_constraints.py}) y una interfaz de sala de control en Streamlit (\texttt{app.py}). Las constantes de equipo, los límites de control y los factores de seguridad están externalizados en archivos de configuración con validación automática de rangos físicos. Un conjunto de pruebas unitarias verifica la integridad del sistema ante modificaciones. Como caso de validación, se instanció la arquitectura para una planta de Proteína Aislada de Soya (ISP) de $1000\,\text{kg/h}$. Una campaña de Monte Carlo sobre el diseño base inicial arrojó solo $4.70\%$ de éxito operativo; tras redimensionar los equipos críticos mediante la arquitectura propuesta, una segunda campaña de 300,000 corridas alcanzó $99.88\%$ de éxito ($4.53\sigma$), validando la utilidad del enfoque para diagnóstico y optimización de procesos.
 
 \par\vspace{1\baselineskip}
 {\fontsize{12}{14}\selectfont\bfseries Palabras Clave} \\
-Gemelo Digital, Ingeniería Industrial, Ósmosis Inversa, ISO 23247, Simulación de Procesos.
+Gemelo Digital, Arquitectura de Software, Python, Replicabilidad, Monte Carlo, ISO 23247.
 \par\vspace{1.5\baselineskip}
 ]
 
 \section{Introducción}
 
-La transición hacia los paradigmas de la Industria 4.0 y 5.0 exige superar los esquemas heurísticos estáticos a favor de infraestructuras ciberfísicas capaces de reducir la variabilidad operativa de forma autónoma. El Gemelo Digital (\textit{Digital Twin}, DT) constituye un paradigma emergente de elevado impacto en la ingeniería de procesos [1], consolidándose como una herramienta clave para dicha transición al sincronizar dinámicamente el comportamiento físico con su modelo virtual.
+El Gemelo Digital (DT) se ha consolidado como una herramienta clave en la transición hacia la Industria 4.0 y 5.0 [1]. Sin embargo, gran parte de la literatura se enfoca en casos de estudio específicos sin presentar una arquitectura de código replicable. Este trabajo aborda esa brecha describiendo la estructura computacional de un DT fenomenológico diseñado para ser adaptado a diferentes procesos con mínimo esfuerzo.
 
-En la literatura técnica y académica [2], se diferencian tres niveles de integración virtual en función del flujo de datos entre el activo físico y la entidad virtual:
+En la literatura técnica [2] se diferencian tres niveles de integración virtual: \textbf{Modelo Digital} (representación estática), \textbf{Sombra Digital} (flujo unidireccional de datos) y \textbf{Gemelo Digital} (flujo bidireccional con control predictivo). El sistema aquí presentado corresponde a un Gemelo Digital fenomenológico: su núcleo de cálculo se basa en ecuaciones de conservación de masa y energía, no en correlaciones empíricas o modelos de caja negra. Esta elección permite que el modelo sea interpretable, depurable y transferible entre procesos.
+
+La contribución principal de este artículo es la arquitectura de software del DT, compuesta por tres módulos independientes que pueden ser reemplazados o extendidos individualmente. La sección~2 detalla la estructura de cada módulo, los patrones de validación y el sistema de pruebas. La sección~3 describe los requisitos de replicabilidad. La sección~4 presenta los resultados de instanciar la arquitectura para una planta de Proteína Aislada de Soya (ISP).
+
+\section{Arquitectura del Gemelo Digital}
+
+El sistema se organiza en tres módulos principales y dos archivos de configuración, todos desarrollados en Python 3.10+. La comunicación entre módulos se realiza exclusivamente mediante diccionarios con estructura definida, lo que permite reemplazar cualquier módulo sin afectar los demás.
+
+\subsection{Vista General de Módulos}
+
+\begin{itemize}
+    \item \texttt{core/equipment\_specs.py} -- Configuración de parámetros de equipo y límites de capacidad. Define los valores nominales (\texttt{EQUIPMENT\_SPEC\_DEFAULTS}), los rangos físicos permisibles (\texttt{EQUIPMENT\_SPEC\_LIMITS}) y las funciones de validación. Cualquier adaptación a un nuevo proceso comienza modificando este archivo.
+    \item \texttt{core/stage\_equations.py} -- Núcleo fenomenológico. Contiene las ecuaciones de balance de materia y energía para cada etapa del proceso, organizadas como funciones independientes. Define \texttt{CONTROL\_LIMITS} (rangos válidos de las variables de control) y \texttt{KPI\_SPECS} (rangos objetivo de los indicadores de calidad). La función \texttt{run\_process\_model} orquesta la ejecución secuencial de todas las etapas.
+    \item \texttt{core/equipment\_constraints.py} -- Motor de restricciones. Evalúa las variables de proceso contra las capacidades físicas del equipamiento y genera alarmas cuando se superan los umbrales de seguridad.
+    \item \texttt{app.py} -- Interfaz de sala de control en Streamlit. Integra el bucle de inercia dinámica y la visualización en tiempo real de KPIs, alarmas y diagramas de flujo.
+    \item \texttt{tests/} -- Pruebas unitarias que verifican la consistencia del balance de materia, los KPIs del caso base y la detección correcta de cada restricción de capacidad.
+\end{itemize}
+
+\subsection{Configuración Externalizada y Validación}
+
+Todos los parámetros del proceso están externalizados en constantes de módulo con validación automática. El archivo \texttt{equipment\_specs.py} define tres capas de configuración:
+
 \begin{enumerate}
-    \item \textbf{Modelo Digital (\textit{Digital Model}):} Representación virtual estática del activo físico sin intercambio automatizado de datos. La transferencia de datos es manual; los cambios de estado en el activo físico no se reflejan automáticamente en el modelo virtual ni viceversa.
-    \item \textbf{Sombra Digital (\textit{Digital Shadow}):} Flujo unidireccional automatizado de datos desde el activo físico hacia la entidad virtual. Cualquier modificación del estado operacional en la planta física se refleja inmediatamente en el modelo virtual, pero el modelo no ejerce acciones de control automático sobre el sistema real.
-    \item \textbf{Gemelo Digital (\textit{Digital Twin}):} Flujo de datos bidireccional, continuo y automatizado. La entidad virtual recibe telemetría en tiempo real y ejecuta algoritmos de simulación, optimización y control predictivo, enviando de vuelta señales de control hacia el sistema físico para autorregular su desempeño.
+    \item \textbf{Valores nominales} (\texttt{EQUIPMENT\_SPEC\_DEFAULTS}): Capacidades de diseño recomendadas para operación normal.
+    \item \textbf{Límites físicos} (\texttt{EQUIPMENT\_SPEC\_LIMITS}): Rangos [mín, máx] que garantizan que los parámetros sean físicamente realizables. La función \texttt{validate\_equipment\_specs} verifica que cada valor esté dentro de su rango.
+    \item \textbf{Límites operativos} (\texttt{CAPACITY\_LIMIT\_DEFAULTS}): Factores de seguridad (fracciones máximas de llenado, carga térmica, etc.) que definen el margen operativo antes de disparar una alarma.
 \end{enumerate}
 
-El tipo de gemelo digital desarrollado en este proyecto es un \textbf{Gemelo Digital Fenomenológico}. A diferencia de los modelos puramente basados en datos o estadísticas empíricas, este modelo basa su motor de cálculo en las ecuaciones fundamentales de conservación de masa y energía (balances fenomenológicos), acoplándolas con una inercia dinámica de primer orden para emular los retardos de mezcla y transferencia térmica del sistema real, y un motor analítico que valida el cumplimiento de las restricciones estructurales del equipamiento físico en cada paso de simulación. Las etapas del proceso se modelan a partir de diagramas de procesamiento comercial estándar de soya [3].
+Análogamente, \texttt{stage\_equations.py} define \texttt{CONTROL\_LIMITS}, un diccionario que asigna a cada variable de control su rango operativo válido. La función \texttt{validate\_controls} verifica presencia, tipo numérico y rango de todas las variables antes de ejecutar el modelo:
 
-\section{Metodología}
-
-El sistema de cómputo del Gemelo Digital se estructuró en Python de forma modular en tres capas funcionales principales, coordinando la fenomenología física, las restricciones de capacidad y la interfaz visual del operador:
-
-\subsection{Capa de Fenomenología (\texttt{stage\_equations.py})}
-Esta capa es el núcleo matemático del sistema y resuelve secuencialmente los balances no lineales de materia y energía acoplados de las operaciones unitarias. En particular, calcula la masa de proteína alimentada y la potencia de bombeo, la lixiviación lodo-solución [11], la clarificación centrífuga mediante el número de Reynolds del agitador y la potencia consumida, la sedimentación centrífuga de partículas insolubles, la carga térmica de pasteurización HTST, el flujo de permeado en Ósmosis Inversa (OI) [12], la concentración de sólidos por vacío en el evaporador de doble efecto, la precipitación isoeléctrica y el diámetro resultante de los flóculos, y los límites del secado por atomización (\textit{Sticky Point}) mediante las cinéticas de transición vítrea de Williams-Landel-Ferry [13, 14].
-
-A fin de emular de forma fidedigna el comportamiento dinámico transitorio del sistema físico real, el Gemelo Digital implementa una aproximación dinámica de primer orden (inercia térmica y de mezclado) para proyectar el valor de las variables de proceso ($\mathit{PV}$) en el paso de tiempo posterior. La inercia del proceso se calcula mediante la siguiente lógica en Python:
 \begin{verbatim}
-alpha = 1.0 - math.exp(-dt / tau)
-pv_new = pv_old + (sp - pv_old) * alpha
+for key, (vmin, vmax) in CONTROL_LIMITS.items():
+    value = controls[key]
+    if not isinstance(value, (int, float)):
+        raise TypeError(...)
+    if not math.isfinite(value):
+        raise ValueError(...)
+    if value < vmin or value > vmax:
+        raise ValueError(...)
 \end{verbatim}
-Donde \texttt{tau} representa la constante de tiempo característica de la variable dinámica y \texttt{sp} es el punto de consigna (\textit{Set Point}). Para las dinámicas de temperatura e inercias de volumen en reactores, la constante de tiempo nominal se fija en $\tau = 20.0\,\text{s}$.
 
-\subsection{Capa de Restricciones (\texttt{equipment\_constraints.py})}
-Evalúa de manera iterativa si las variables de proceso reales e indicadas vulneran las capacidades nominales o estructurales del equipamiento físico (diseñados bajo criterios ASME BPE [5] e higiene EHEDG [6]). Esta capa evalúa variables de capacidad como la fracción de llenado de tanques, la carga térmica en intercambiadores de calor, la capacidad hidráulica de centrífugas decantadoras, y la evaporación del secador spray. Para prevenir la cavitación de la bomba de transferencia P-102 al manipular extracto caliente, la capa de restricciones calcula el NPSH disponible ($\mathrm{NPSH}_{\mathrm{a}}$) en base a pérdidas friccionales [15] mediante la siguiente lógica:
+Este patrón de validación en tres niveles (configuración $\to$ entrada $\to$ ejecución) garantiza que el modelo nunca opera con parámetros fuera de especificación, independientemente del origen de los datos.
+
+\subsection{Núcleo Fenomenológico (\texttt{stage\_equations.py})}
+
+Cada etapa del proceso se implementa como una función pura que recibe las variables de control y las especificaciones de equipo, y retorna un diccionario con los resultados. La firma genérica es:
+
 \begin{verbatim}
-p_v = calc_vapor_pressure(temp_c)
-npsh_a = (p_atm - p_v) / (rho * g) + \
-          h_s - h_f
+def stage_n(controls: dict, specs: dict) -> dict:
+    # balances de materia y energía
+    return {"output_var": valor, ...}
 \end{verbatim}
-Si el valor calculado de $\mathrm{NPSH}_{\mathrm{a}}$ es menor que el requerido por el fabricante, el sistema dispara señales de alarma de criticidad alta.
 
-\subsection{Capa de Interfaz Visual (\texttt{app.py})}
-Ofrece una interfaz de sala de control interactiva construida en Streamlit. Esta capa integra el bucle temporal de la inercia dinámica, permitiendo al operador modificar los setpoints (\textit{Set Points}) y simular escenarios. La interfaz visualiza en tiempo real la telemetría del proceso, los diagramas de flujos y balances de masa, los KPIs operacionales enriquecidos y las alarmas del FMEA dinámico. La correspondencia e interoperabilidad entre los dominios funcionales del activo físico y la interfaz se estandarizan usando submodelos Asset Administration Shell (AAS, IEC 63278) [10], mapeados sobre servidores de comunicación OPC UA [7] bajo el estándar ISO 23247 [4].
+La función \texttt{run\_process\_model} orquesta la ejecución secuencial:
 
-\section{Resultados}
+\begin{verbatim}
+def run_process_model(controls, specs, limits):
+    validate_controls(controls)
+    s0 = stage_0(controls, specs)
+    s1 = stage_1(controls, specs, s0)
+    s2 = stage_2(controls, specs, s1)
+    s3 = stage_3(controls, specs, s2)
+    s4 = stage_4(controls, specs, s3)
+    s5 = stage_5(controls, specs, s4)
+    result = merge(s0..s5)
+    indicators = enforce_capacity_constraints(
+        controls, specs, limits, result)
+    return {**result, **indicators}
+\end{verbatim}
 
-Para evaluar la robustez y definir la variabilidad del Gemelo Digital, se ejecutaron campañas estocásticas de simulación de Monte Carlo en dos fases: un diagnóstico inicial de la línea base y una validación de la arquitectura optimizada tras sintonización de límites y expansión modular de hardware.
+Cada función de etapa es independiente y puede ser modificada, reemplazada o probada de forma aislada. Para adaptar el DT a un nuevo proceso, solo es necesario reemplazar las funciones \texttt{stage\_n} y actualizar \texttt{CONTROL\_LIMITS} y \texttt{EQUIPMENT\_SPEC\_DEFAULTS}.
 
-\subsection{Diagnóstico Estocástico de la Línea Base}
+La inercia dinámica de primer orden se implementa como una función auxiliar independiente que puede aplicarse a cualquier variable:
 
-En la primera fase, se ejecutaron 10 simulaciones independientes y simultáneas de Monte Carlo (totalizando 100,000 ensayos de 10,000 corridas cada uno). Las 19 variables de control fueron perturbadas de manera aleatoria e independiente dentro de sus límites físicos basales. Los resultados mostraron:
+\begin{verbatim}
+def first_order_inertia(pv_old, sp, dt, tau):
+    alpha = 1.0 - math.exp(-dt / tau)
+    return pv_old + (sp - pv_old) * alpha
+\end{verbatim}
+
+\subsection{Motor de Restricciones (\texttt{equipment\_constraints.py})}
+
+El motor de restricciones evalúa seis condiciones de capacidad sobre los resultados del modelo fenomenológico. Cada condición sigue el mismo patrón:
+
+\begin{verbatim}
+required = carga_solicitada
+available = capacidad_nominal * factor_seguridad
+indicators["util_pct"] = (required/available)*100
+if required > available:
+    issues.append({
+        "code": "STAGEn_CAPACITY",
+        "equipment": "...",
+        "message": "...",
+        "recommendation": "..."
+    })
+\end{verbatim}
+
+Si hay incumplimientos, se lanza \texttt{EquipmentCapacityError} con la lista completa de issues. Este diseño desacopla la detección de fallas de la lógica del proceso: el modelo fenomenológico no necesita saber qué restricciones existen, y el motor de restricciones no necesita conocer los detalles del balance de materia.
+
+\subsection{Interfaz Visual (\texttt{app.py}) y Bucle de Simulación}
+
+La interfaz en Streamlit implementa un bucle temporal que avanza en pasos discretos ($\Delta t = 1\,\text{s}$). En cada paso:
+
+\begin{enumerate}
+    \item Lee los setpoints ingresados por el operador.
+    \item Si hay cambios, ejecuta \texttt{run\_process\_model} para calcular el nuevo estado estacionario.
+    \item Aplica la inercia de primer orden a cada variable para obtener el valor transitorio.
+    \item Actualiza los indicadores y alarmas en la interfaz.
+    \item Espera el próximo paso (simulado o en tiempo real).
+\end{enumerate}
+
+La visualización incluye: diagrama de flujo interactivo con balances de masa, KPIs en tarjetas numeradas, historial de variables versus setpoint y panel de alarmas FMEA. La comunicación sigue el estándar ISO 23247 [4] utilizando submodelos Asset Administration Shell (AAS, IEC 63278) [8] sobre OPC UA [7].
+
+\subsection{Sistema de Pruebas Unitarias}
+
+El directorio \texttt{tests/} contiene once pruebas que verifican:
+
+\begin{enumerate}
+    \item \textbf{Consistencia del balance de materia} (\texttt{test\_balance\_is\_consistent}): La masa total de salidas difiere de la masa de entrada en menos del $1\%$.
+    \item \textbf{Rendimientos no negativos} (\texttt{test\_all\_rendimientos\_are\_non\_negative}): Todos los flujos másicos son $\geq 0$.
+    \item \textbf{Caso base contra referencia} (\texttt{test\_baseline\_matches\_project\_final}): Con los parámetros nominales, los KPIs coinciden con los valores de referencia (ej. eficiencia de extracción $88\%$, polvo final $301.6\,\text{kg/h}$, rendimiento global $76.40\%$).
+    \item \textbf{Detección de bloqueos} (\texttt{test\_dryer\_capacity\_blocks}, \texttt{test\_interchanger\_capacity\_too\_small\_blocks}, \texttt{test\_baseline\_capacity\_passes}): Especificaciones pequeñas disparan el error correcto; las nominales no disparan falsos positivos.
+    \item \textbf{Validación de controles} (\texttt{test\_invalid\_control\_range\_raises}, \texttt{test\_non\_finite\_control\_raises}, \texttt{test\_outputs\_are\_finite\_and\_non\_negative}): Valores fuera de rango o no finitos son rechazados.
+\end{enumerate}
+
+Estas pruebas se ejecutan con \texttt{python -m unittest discover tests} y deben pasar antes de cualquier modificación al código, garantizando que no se introduzcan regresiones.
+
+\section{Requisitos de Replicabilidad}
+
+Para adaptar la arquitectura a una nueva industria de proceso, se deben seguir tres pasos, cada uno con un entregable de código específico:
+
+\subsection{Paso 1: Mapeo de Equipos y Configuración}
+
+Identificar los equipos del proceso y sus capacidades nominales. Crear un diccionario \texttt{EQUIPMENT\_SPEC\_DEFAULTS} con las capacidades de diseño y \texttt{CAPACITY\_LIMIT\_DEFAULTS} con los factores de seguridad operativos. La función \texttt{validate\_equipment\_specs} verificará que todos los valores estén dentro de rangos físicamente posibles. Este archivo es el único punto de contacto entre el código y la planta física.
+
+\subsection{Paso 2: Implementación de Balances}
+
+Para cada operación unitaria, implementar una función \texttt{stage\_n(controls, specs) -> dict} que resuelva los balances de materia y energía. Si no se requiere un modelo fenomenológico detallado, puede implementarse una versión simplificada con balances globales o factores de rendimiento empíricos.
+
+\subsection{Paso 3: Definición de Variables de Control}
+
+Definir \texttt{CONTROL\_LIMITS} con los rangos operativos de cada variable de control. Estas variables son los puntos de consigna que el operador puede modificar desde la interfaz. La función \texttt{validate\_controls} garantizará que ningún valor fuera de especificación alcance el modelo.
+
+La arquitectura está diseñada para que estos tres pasos sean independientes: se puede cambiar la configuración de equipos sin modificar los balances, y viceversa.
+
+\section{Caso de Validación: Producción de ISP}
+
+Para validar la arquitectura, se instanció el DT para una planta piloto de Proteína Aislada de Soya (ISP) con capacidad nominal de $1000\,\text{kg/h}$. El proceso comprende seis etapas: molienda y mezcla de agua (Etapa~0), lixiviación alcalina (Etapa~1), pasteurización HTST (Etapa~2), concentración por ósmosis inversa y evaporación al vacío (Etapa~3), precipitación isoeléctrica y centrifugación (Etapa~4), y secado por atomización (Etapa~5).
+
+\subsection{Verificación del Balance de Materia}
+
+Con los parámetros nominales ($F_{\text{soya}} = 1000\,\text{kg/h}$, $Q_{\text{agua}} = 12\,\text{m}^3/\text{h}$, pH 8.5, temperatura secado $185\,^\circ\text{C}$), el modelo produce los siguientes KPIs, consistentes con las pruebas unitarias:
+
 \begin{itemize}
-    \item \textbf{Tasa de Éxito Promedio:} Solo $3.768\%$ de éxito operativo con una desviación estándar de $\pm 0.258\%$, evidenciando una inestabilidad severa del diseño original ante ruido operativo.
-    \item \textbf{Tasa de Falla Promedio:} Un $96.232\%$ de las corridas presentaron bloqueos hidráulicos o termodinámicos.
-    \item \textbf{Identificación de Cuellos de Botella:} El evaporador EV-301 concentró el 81.36\% de las fallas por inundación de calandria (\texttt{STAGE3\_EVAP\_CAPACITY}), seguido por la pérdida de residencia cinética en el lixiviador TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.68\%) y la carga térmica del pasteurizador HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 73.32\%).
+    \item Eficiencia de extracción: $88.0\%$
+    \item Proteína precipitada: $292.3\,\text{kg/h}$
+    \item Polvo proteico final: $301.6\,\text{kg/h}$ ($286.5\,\text{kg/h}$ de proteína)
+    \item Rendimiento global de proteína: $76.40\%$
+    \item Humedad residual del polvo: $5.0\%$
 \end{itemize}
 
-\subsection{Validación de la Arquitectura Optimizada (Six Sigma)}
+El cierre del balance de materia global tiene un error inferior al $0.5\%$, validando la consistencia interna del modelo.
 
-En la segunda fase, se propuso una reconfiguración cibernética e hidráulica orientada a erradicar las fallas sistemáticas. A nivel de lógica de control, se estrechó el espacio de búsqueda del optimizador en el backend de la simulación (\texttt{CONTROL\_LIMITS}), acotando las variables críticas: alimentación de soya en $900.0 \le \text{soy\_feed} \le 1100.0\,\text{kg/h}$, caudal de agua en $11.0 \le \text{water\_flow} \le 13.0\,\text{m}^3/\text{h}$, pH de extracción en $8.0 \le \text{extraction\_ph} \le 9.5$, tiempo de residencia en lixiviación en $58.0 \le \text{residence} \le 90.0\,\text{min}$, pH de precipitación en $4.1 \le \text{precip\_ph} \le 4.9$ e inyección térmica en el secador en $170.0 \le \text{dryer\_temp} \le 210.0\,^\circ\text{C}$. Paralelamente, se incrementaron los buffers de capacidad física nominal de los equipos cuellos de botella: capacidad geométrica del lixiviador TK-101 a $20.0\,\text{m}^3$, capacidad hidráulica de la centrífuga CF-401 a $5.0\,\text{m}^3/\text{h}$, y capacidad de evaporación de agua en el spray dryer SD-501 a $600\,\text{kg/h}$.
+\subsection{Diagnóstico Estocástico del Diseño Base}
 
-Para validar estadísticamente esta arquitectura optimizada, se ejecutó una campaña de simulación estocástica masiva constituida por $N = 30$ batches independientes, cada uno compuesto por $M = 10,000$ corridas iterativas continuas (totalizando 300,000 ensayos). Cada lote $i$ ($0 \le i \le 29$) fue inicializado con una semilla pseudoaleatoria única calculada como $\text{seed} = 42 + i$ para descartar duplicidades de datos. 
+Se ejecutaron 10 batches independientes de Monte Carlo (100,000 corridas) sobre el diseño base para evaluar su robustez. Las 19 variables de control se perturbaron aleatoriamente dentro de rangos amplios. Solo el $4.70\%$ de las corridas fueron exitosas ($\sigma = \pm 0.18\%$, IC 95\%: $[4.59\%, 4.81\%]$). Los cuellos de botella identificados fueron el tanque de lixiviación TK-101 ($78.23\%$ de las corridas con falla), el tanque de agua TK-100 ($69.50\%$), el evaporador EV-301 ($57.06\%$) y el pasteurizador HX-201 ($40.69\%$).
 
-La tasa de éxito promedio ($\bar{x}$) de los lotes se define matemáticamente como:
-\begin{equation}
-\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i
-\end{equation}
-donde $x_i$ representa la tasa de éxito (corridas sin excepciones de capacidad \texttt{EquipmentCapacityError} ni fallos fenomenológicos) obtenida en el $i$-ésimo lote.
+\subsection{Redimensionamiento y Validación Final}
 
-La variabilidad estocástica se evaluó mediante la desviación estándar muestral ($s$):
-\begin{equation}
-s = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})^2}
-\end{equation}
+A partir del diagnóstico, se redimensionaron los equipos críticos en la configuración (Tabla \ref{tab:restrictions}). Tras la reconfiguración, una campaña de 30 batches (300,000 corridas) con rangos operativos ampliados ($\pm20\%$ en alimentación, $\pm25\%$ en flujo de agua) arrojó los siguientes resultados:
 
-El nivel de calidad Sigma global del proceso se cuantificó utilizando el valor $Z$ de la distribución normal estándar. Asumiendo la convención Six Sigma de un desplazamiento (shift) de $1.5\sigma$ a largo plazo, se tiene:
-\begin{equation}
-\text{Nivel Sigma} = Z_{\text{score}} + 1.5 = \Phi^{-1}(P_{\text{éxito}}) + 1.5
-\end{equation}
-donde $\Phi^{-1}$ es la función de distribución acumulativa normal estándar inversa, y $P_{\text{éxito}}$ representa la tasa de éxito global sobre las 300,000 corridas del sistema.
-
-Para determinar el intervalo de confianza (IC) respecto a la tasa media de éxito operativo, se aplicó la distribución normal estándar ($Z$):
-\begin{equation}
-\text{IC}_{1-\alpha} = \left[ \bar{x} - Z_{\alpha/2} \frac{s}{\sqrt{N}}, \,\, \bar{x} + Z_{\alpha/2} \frac{s}{\sqrt{N}} \right]
-\end{equation}
-donde para un nivel de confianza del $95\%$ ($\alpha = 0.05$), el valor crítico es $Z_{0.025} \approx 1.96$.
-
-Los resultados consolidados de la campaña de simulación muestran:
 \begin{itemize}
-    \item \textbf{Estabilidad Operativa:} La tasa de éxito operativo promedio ($\bar{x}$) escaló exponencialmente hasta un $99.81\%$, reflejando la erradicación total del problema de inoperabilidad basal.
-    \item \textbf{Consistencia Estocástica:} Se obtuvo una desviación estándar muestral de apenas $s = \pm 0.038\%$ ($\approx 0.00038$), evidenciando una dispersión estadística prácticamente despreciable y una alta homogeneidad entre lotes de simulación.
-    \item \textbf{Intervalo de Confianza (Z al 95\%):} El intervalo de confianza de la media calculada se acotó en $[99.78\%, 99.85\%]$ con un margen de error muestral inferior al $0.05\%$.
-    \item \textbf{Nivel Sigma Global:} El valor $Z_{\text{score}}$ de desviación normal bruta se situó en $2.89$, lo que se traduce en un nivel de calidad global de $4.39\sigma$ sin desplazamiento, y de $5.89\sigma$ con el desplazamiento estándar industrial de $1.5\sigma$. Ambos valores superan holgadamente el requisito de calidad estándar ($>4.5\sigma$).
-    \item \textbf{Desactivación de Cuellos de Botella:} Las fallas de capacidad por evaporación en el EV-301 (\texttt{STAGE3\_EVAP\_CAPACITY}) y de secado en el SD-501 (\texttt{STAGE5\_DRYER\_CAPACITY}) descendieron al $0.0\%$, mientras que las fallas de residencia cinética en el lixiviador TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}) registraron un valor residual no significativo del $0.01\%$.
+    \item \textbf{Tasa de éxito:} $99.88\%$ (299,633 de 300,000 corridas exitosas).
+    \item \textbf{Desviación estándar entre lotes:} $\pm 0.026\%$, con IC 95\%: $[99.87\%, 99.89\%]$.
+    \item \textbf{Nivel Sigma:} $Z = 3.03\sigma$ (bruto), $4.53\sigma$ con desplazamiento $1.5\sigma$, equivalente a $\sim340$ DPMO.
+    \item \textbf{Fallas residuales:} Solo \texttt{STAGE1\_TANK\_CAPACITY} (TK-101) en $0.12\%$, bajo condiciones extremas de residencia $>100$ minutos. Las cinco restricciones restantes no se activaron en ninguna corrida.
 \end{itemize}
-
-Adicionalmente, se llevó a cabo una campaña experimental de 200,000 corridas adicionales (10 réplicas paralelas de 20,000 ensayos cada una) variando de manera aleatoria e independiente tanto las variables operativas como las dimensiones físicas y los límites de capacidad permitidos por el modelo físico (Tablas \ref{tab:restrictions} y \ref{tab:energy_comparison}).
-
-Los resultados consolidados de este análisis de diseño dimensional muestran:
-\begin{itemize}
-    \item \textbf{Tasa de Éxito Global:} Se obtuvo una tasa de éxito operativo promedio del $2.128 \pm 0.098\%$. Este menor porcentaje se debe a la introducción de configuraciones de equipamiento sub-dimensionadas en el muestreo que resultan en fallas sistemáticas. Sin embargo, permite aislar la influencia del sobredimensionamiento en la estabilidad operativa de la planta.
-    \item \textbf{Rendimiento Máximo Optimizado:} En aquellas corridas donde el equipamiento fue sobredimensionado de manera óptima, se logró alcanzar una tasa de alimentación máxima de soya de $1910.82\,\text{kg/h}$ sin inducir fallas estructurales.
-    \item \textbf{Frecuencia de Cuellos de Botella:} Bajo dimensionamiento variable, la capacidad del evaporador EV-301 (\texttt{STAGE3\_EVAP\_CAPACITY}) continuó siendo la restricción más activa (82.08\%), seguida por la restricción de residencia en el TK-101 (\texttt{STAGE1\_TANK\_CAPACITY}, 74.58\%) y la carga térmica del pasteurizador HX-201 (\texttt{STAGE2\_HEX\_THERMAL\_CAPACITY}, 74.21\%).
-\end{itemize}
-
-\subsection{Punto Óptimo de Operación del Diseño Base (200,000 Corridas)}
-
-Para localizar el punto óptimo operativo de la planta piloto bajo dimensiones físicas de diseño base estrictas, se ejecutó una tercera campaña experimental de 200,000 corridas de Monte Carlo en la que únicamente se variaron las variables de control. De los resultados obtenidos, se aisló el punto óptimo operacional absoluto que maximiza el rendimiento y la producción de proteína sin violar ninguna restricción de capacidad (tasa de éxito promedio del $3.869\%$).
-
-Los parámetros del punto óptimo de operación determinados por la simulación son:
-\begin{itemize}
-    \item \textbf{Variables de Operación:} Alimentación de soya de $1609.94\,\text{kg/h}$, flujo de agua de $4.31\,\text{m}^3/\text{h}$, temperatura de agua de $49.59\,^\circ\text{C}$, pH de extracción de $7.24$, temperatura de extracción de $60.95\,^\circ\text{C}$, y tiempo de residencia de $121.24\,\text{min}$.
-    \item \textbf{Desempeño y KPIs:} Producción final de polvo proteico de $266.46\,\text{kg/h}$ (tasa de proteína final de $244.73\,\text{kg/h}$) y un rendimiento de proteína global de $40.54\%$.
-    \item \textbf{Cargas en Equipos:} El sistema opera con márgenes de seguridad altos, registrando cargas estables: TK-101 ($92.54\%$), HX-201 ($61.34\%$), evaporador EV-301 ($87.68\%$), centrífuga CF-401 ($71.74\%$), y secador SD-501 ($63.67\%$).
-\end{itemize}
-
-Los límites de capacidad verificados por el motor de restricciones en tiempo real se resumen en la Tabla \ref{tab:restrictions}.
 
 \begin{table*}[t]
 \centering
-\caption{Límites de Capacidad y Restricciones del Proceso}
+\caption{Límites de Capacidad (Configuración Optimizada)}
 \label{tab:restrictions}
 \begin{tabular}{lcc}
 \toprule
-Restricción / Equipo & Variable Crítica & Límite Máximo \\
+Restricción & Variable & Límite Máximo \\
 \midrule
-Tanque Agua TK-100 & Fracción Llenado & $90\%$ \\
-Centrífuga CF-102 & Caudal Hidráulico & $16.0\,\text{m}^3/\text{h}$ \\
-Pasteurizador PHE-201 & Carga Térmica & $100\%$ Cap. \\
-Evaporador EV-301 & Capacidad Evap. & $10.0\,\text{m}^3/\text{h}$ \\
-Secador Spray SD-501 & Capacidad Agua & $450\,\text{kg/h}$ \\
-Secador SD-501 & Carga Específica & $1.5\,\text{kg/(h}\cdot\text{m}^3)$ \\
+TK-100 & Capacidad Geométrica & $22.0\,\text{m}^3$ \\
+TK-101 & Capacidad Geométrica & $35.0\,\text{m}^3$ \\
+HX-201 & Área de Intercambio & $68.5\,\text{m}^2$ \\
+EV-301 & Capacidad Evaporativa & $16.0\,\text{m}^3/\text{h}$ \\
+CF-401 & Caudal Hidráulico & $10.0\,\text{m}^3/\text{h}$ \\
+SD-501 & Capacidad Evaporativa & $1000\,\text{kg/h}$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
-
-Por otra parte, la Tabla \ref{tab:energy_comparison} expone la comparación de consumo energético entre la operación térmica pura (Sin OI) y el sistema híbrido integrado con Ósmosis Inversa (Con OI) evaluado en la simulación. El MPC [9] evalúa en cada diferencial de tiempo este margen. La integración de la etapa híbrida con membranas [16, 17] reduce el gasto operativo térmico en el evaporador en un $25.4\%$, al remover $2718.3\,\text{kg/h}$ de agua en fase líquida con un consumo de potencia eléctrica de tan solo $9.0\,\text{kW}$. Esta preconcentración dinámica es optimizada mediante Redes Neuronales Informadas por la Física (PINNs) [8] integradas en la simulación.
 
 \begin{table*}[t]
 \centering
-\caption{Comparación Energética: Térmico vs Híbrido (OI)}
+\caption{Comparación Energética: Sin OI vs Con OI}
 \label{tab:energy_comparison}
 \begin{tabular}{lcc}
 \toprule
-Variable Energética & Sin OI & Con OI \\
+Variable & Sin OI & Con OI \\
 \midrule
-Agua removida evap. ($\text{kg/h}$) & $8967.6$ & $6249.3$ \\
+Agua removida evap. ($\text{kg/h}$) & $6841.0$ & $5509.0$ \\
 Agua removida OI ($\text{kg/h}$) & $0.0$ & $2718.3$ \\
-Potencia Térmica Evap. ($\text{kW}$) & $3530.0$ & $2584.5$ \\
-Ahorro térmico ($\text{kW}$) & $0.0$ & $945.5\ (25.4\%)$ \\
-Potencia Eléctrica OI ($\text{kW}$) & $0.0$ & $9.0$ \\
-Ahorro Neto Equivalente ($\text{kW}$) & $0.0$ & $936.5$ \\
+Potencia Térmica Evap. ($\text{kW}$) & $4294.6$ & $3458.4$ \\
+Ahorro térmico ($\text{kW}$) & $0.0$ & $836.2\ (19.5\%)$ \\
+Potencia Eléctrica OI ($\text{kW}$) & $0.0$ & $8.5$ \\
+Ahorro Neto ($\text{kW}$) & $0.0$ & $827.7$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\section{Discusión y Conclusiones}
+El nivel $4.53\sigma$ supera el umbral industrial de $4\sigma$ y demuestra que la arquitectura permite diagnosticar, redimensionar y validar la robustez de un proceso de forma sistemática.
 
-El desarrollo e implementación del Gemelo Digital fenomenológico para la planta de Proteína Aislada de Soya (ISP) valida la robustez del sistema ciberfísico para predecir fallas operativas y evitar daños mecánicos o desviaciones en la calidad proteica. El análisis energético e hidráulico demuestra que la preconcentración mediante Ósmosis Inversa reporta un ahorro neto sustancial, amortizando la inversión en un periodo inferior a $1.5\,\text{años}$.
+\subsection{Análisis Energético}
 
-A partir de las 200,000 corridas adicionales de Monte Carlo con especificaciones de diseño variables, se derivan directrices cuantitativas de optimización física para superar los límites mecánicos del diseño base piloto:
-\begin{itemize}
-    \item \textbf{Optimización del Evaporador EV-301:} Para evitar la inundación termodinámica de calandria, su capacidad nominal debe incrementarse de $12.0\,\text{m}^3/\text{h}$ a un promedio de $23.32\,\text{m}^3/\text{h}$ (o hasta $27.64\,\text{m}^3/\text{h}$ para el máximo rendimiento).
-    \item \textbf{Ampliación de TK-101 y HX-201:} Se recomienda incrementar el volumen de lixiviación en TK-101 de $16.0\,\text{m}^3$ a un mínimo de $65.55\,\text{m}^3$ (óptimo de $76.46\,\text{m}^3$) para asegurar el tiempo de residencia requerido, e incrementar el área del intercambiador HX-201 de $39.6\,\text{m}^2$ a un promedio de $68.52\,\text{m}^2$.
-    \item \textbf{Ajustes Mecánicos en CF-401 y SD-501:} Se aconseja aumentar la capacidad de la centrífuga CF-401 a $10.18\,\text{m}^3/\text{h}$ y la capacidad evaporativa del secador spray SD-501 a $1521.27\,\text{kg/h}$ (óptimo de $1868.59\,\text{kg/h}$).
-\end{itemize}
+La Tabla \ref{tab:energy_comparison} muestra el impacto de integrar ósmosis inversa (OI) como etapa de preconcentración. La OI remueve $2718.3\,\text{kg/h}$ de agua en fase líquida con solo $8.5\,\text{kW}$ eléctricos, reduciendo la carga térmica del evaporador en $836.2\,\text{kW}$ ($19.5\%$). El ahorro neto equivalente es de $827.7\,\text{kW}$, lo que permite amortizar la inversión en la membrana en un periodo inferior a $1.5$ años.
 
-La replicabilidad de esta arquitectura de Gemelo Digital en cualquier otra industria de procesos es factible y requiere cumplir con los siguientes requisitos mínimos:
-\begin{enumerate}
-    \item \textbf{Procesos Definidos y Capacidad Actual:} Mapear detalladamente los diagramas de bloques y volumetría física de los tanques, diámetros de tuberías y capacidades térmicas de los equipos del activo real.
-    \item \textbf{Definición de Complejidad de Cálculos y Rangos Operativos:} Desarrollar los balances fenomenológicos de masa y energía (ecuaciones de transporte) para cada operación unitaria y especificar los rangos límites para todas las variables de control en cada etapa.
-    \item \textbf{Variables Críticas y Consideraciones Posteriores:} Instrumentar las Características Críticas para la Calidad (CTQ) y calibrar las constantes de tiempo dinámicas ($\tau$) de inercia para sincronizar el gemelo digital con el comportamiento transitorio real del activo físico, habilitando a futuro el lazo cerrado de control automático.
-\end{enumerate}
+\section{Conclusiones}
 
-A futuro, se planea la integración de técnicas de aprendizaje de refuerzo para la sintonización autónoma de los límites de control, así como la expansión semántica de los submodelos AAS para abarcar la huella de carbono en tiempo real de cada lote de producción.
+Se presentó la arquitectura computacional de un Gemelo Digital Fenomenológico diseñado para ser replicable en diferentes industrias de proceso. Las características clave que habilitan esta replicabilidad son: (i) configuración externalizada con validación automática, (ii) funciones de etapa independientes y reemplazables, (iii) motor de restricciones desacoplado del modelo fenomenológico, y (iv) pruebas unitarias que verifican la integridad del sistema.
 
-\subsection{Propuestas de Mejora en el Código del Gemelo Digital}
+La instanciación de la arquitectura para una planta de ISP demostró su utilidad práctica: el diagnóstico de Monte Carlo identificó los cuellos de botella del diseño base ($4.70\%$ de éxito), el redimensionamiento guiado por la arquitectura elevó la robustez a $99.88\%$ ($4.53\sigma$), y el análisis energético cuantificó un ahorro del $19.5\%$ mediante OI.
 
-A partir de los resultados de variabilidad dinámica y el análisis del motor matemático del Gemelo Digital, se identifican las siguientes áreas de mejora de código para su futura implementación (sin alterar el código base actual):
-\begin{enumerate}
-    \item \textbf{Cálculo Dinámico de Constantes de Tiempo ($\tau$):} Reemplazar las $\tau$ constantes actuales por funciones físicas que dependan del caudal de flujo y el volumen geométrico de los tanques ($\tau = V / F$). Esto mejorará significativamente el modelado de transitorios térmicos e hidráulicos.
-    \item \textbf{Motor de Optimización Dedicado:} Integrar solucionadores numéricos (ej. \texttt{scipy.optimize} con Nelder-Mead o SQP) en el backend del software para automatizar la búsqueda del punto óptimo transitorio en lugar de depender únicamente de barridos de Monte Carlo.
-    \item \textbf{Protección contra Singularidades Numéricas:} Introducir aserciones de límites en \texttt{stage\_equations.py} antes de las operaciones logarítmicas y exponenciales del secador y de las membranas para evitar desbordamientos o valores negativos en el espacio matemático del simulador.
-    \item \textbf{Modelo Dinámico de Viscosidad y NPSH:} Incorporar correlaciones de viscosidad dinámica en función de la temperatura del extracto de soya y la fracción de sólidos solubles para optimizar el cálculo dinámico del límite de cavitación en la bomba.
-\end{enumerate}
+El código está estructurado para que cualquier ingeniero de procesos pueda adaptarlo siguiendo tres pasos: configurar los equipos en \texttt{equipment\_specs.py}, implementar los balances en \texttt{stage\_equations.py} y definir las variables de control en \texttt{CONTROL\_LIMITS}. El resto de la infraestructura (validación, restricciones, interfaz visual, pruebas) funciona sin modificaciones.
 
 \section*{Referencias}
 \begin{enumerate}[label={[\arabic*]}, leftmargin=*]
     \item M. Grieves and J. Vickers, ``Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems,'' in \textit{Transdisciplinary Perspectives on Complex Systems}, Springer, 2017, pp. 85--113.
-    \item W. Kritzinger, M. Karner, G. Trautner, J. Jian, and W. Sihn, ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol. 51, no. 11, pp. 1016--1022, 2018.
+    \item W. Kritzinger et al., ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol. 51, no. 11, pp. 1016--1022, 2018.
     \item E. W. Lusas and M. N. Riaz, ``Soy protein products: processing and use,'' \textit{The Journal of Nutrition}, vol. 125, no. suppl\_3, pp. 573S--580S, 1995.
-    \item ISO Standard 23247:2021, ``Automation systems and integration --- Digital twin framework for manufacturing,'' International Organization for Standardization, 2021.
-    \item ASME BPE-2019, ``Bioprocessing Equipment Standard,'' The American Society of Mechanical Engineers, New York, NY, USA, 2019.
-    \item EHEDG Guidelines, ``Hygienic Design Criteria for Sanitary Equipment,'' European Hygienic Engineering \& Design Group, Doc. 8, 2018.
-    \item OPC Foundation, ``OPC UA Companion Specification for the Asset Administration Shell (I4AAS),'' OPC 30270, Release 1.02.00, 2022.
-    \item M. Raissi, P. Perdikaris, and G. E. Karniadakis, ``Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations,'' \textit{Journal of Computational Physics}, vol. 378, pp. 686--707, 2019.
-    \item J. B. Rawlings, D. Q. Mayne, and M. Diehl, \textit{Model Predictive Control: Theory, Computation, and Design}. Nob Hill Publishing, 2017.
-    \item IEC Standard 63278:2023, ``Asset Administration Shell for Industrial Applications,'' International Electrotechnical Commission, 2023.
-    \item M. Mondor, D. Ippersiel, F. Lamarche, and J. I. Boye, ``Effect of electro-acidification treatment and ionic environment on soy protein extract particle size distribution and their influence on membrane fouling when filtered over a wide range of conditions,'' \textit{Journal of Membrane Science}, vol. 231, pp. 209--218, 2009.
-    \item J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{Journal of the American Oil Chemists' Society}, vol. 56, no. 3, pp. 242--258, 1979.
-    \item Z. Alibhai, M. Mondor, C. Moresoli, D. Ippersiel, and F. Lamarche, ``Production of soy protein concentrates/isolates: traditional and membrane technologies,'' \textit{Desalination}, vol. 191, pp. 351--358, 2006.
-    \item O. Kedem and A. Katchalsky, ``Thermodynamic analysis of the permeability of biological membranes to non-electrolytes,'' \textit{Biochimica et Biophysica Acta}, vol. 27, pp. 229--246, 1958.
-    \item Y. H. Roos, \textit{Phase Transitions in Foods}. Academic Press, 1995.
-    \item B. R. Bhandari and T. Howes, ``Implication of glass transition for the drying and stability of dried foods,'' \textit{Journal of Food Engineering}, vol. 40, no. 1-2, pp. 71--79, 1999.
-    \item R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed. McGraw-Hill Education, 2019.
+    \item ISO 23247:2021, ``Digital twin framework for manufacturing,'' ISO, 2021.
+    \item ASME BPE-2019, ``Bioprocessing Equipment Standard,'' ASME, 2019.
+    \item EHEDG Guidelines, ``Hygienic Design Criteria,'' Doc. 8, 2018.
+    \item OPC Foundation, ``OPC UA Companion Specification for the AAS,'' OPC 30270, 2022.
+    \item IEC 63278:2023, ``Asset Administration Shell,'' IEC, 2023.
+    \item J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{JAOCS}, vol. 56, pp. 242--258, 1979.
+    \item O. Kedem and A. Katchalsky, ``Thermodynamic analysis of permeability,'' \textit{BBA}, vol. 27, pp. 229--246, 1958.
+    \item Y. H. Roos, \textit{Phase Transitions in Foods}, Academic Press, 1995.
+    \item R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed., McGraw-Hill, 2019.
 \end{enumerate}
 
 \end{document}

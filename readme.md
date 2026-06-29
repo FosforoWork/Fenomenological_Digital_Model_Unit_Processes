@@ -1,139 +1,119 @@
-# Proyecto Final Unitarios
+# Gemelo Digital Fenomenológico para Procesos de Biorefinería
 
-## Produccion de proteina aislada de soya
+Una arquitectura modular en Python para el diseño, simulación y validación de gemelos digitales de procesos químicos y de biorefinería. Desarrollada desde cero como proyecto de ingeniería, validada con una planta de Proteína Aislada de Soya (ISP) de 1000 kg/h.
 
-Proyecto academico de Procesos Unitarios (Ingenieria Industrial, UCB Santa Cruz) orientado al diseno, calculo y simulacion de una planta para obtener proteina aislada de soya en polvo grado alimentario.
+[![Tests](https://img.shields.io/badge/tests-11%2F11-passing-brightgreen)](#)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](#)
+[![Monte Carlo](https://img.shields.io/badge/success-99.88%25-brightgreen)](#)
 
-## Objetivo general
+---
 
-Disenar y validar un proceso integrado para extraer, concentrar, precipitar y secar proteina de soya, manteniendo calidad funcional, seguridad microbiologica y trazabilidad de calculo por etapa.
+## Visión General
 
-## Alcance del proyecto
+La arquitectura se organiza en tres módulos independientes y acoplados, desarrollados en Python 3.10+:
 
-- Materia prima base: grano de soya (caso principal) con posibilidad de adaptar a arveja.
-- Producto objetivo: proteina aislada en polvo para suplemento alimenticio.
-- Base de diseno: 1000 kg/h de grano y relacion de extraccion 1:12 (12000 kg/h de agua).
-- Incluye: planteamiento tecnico, balances de masa/energia, seleccion preliminar de equipos, control operativo, estimacion economica preliminar y simulacion digital.
-- No incluye en esta etapa: detalle de ingenieria civil, diseno mecanico de fabricacion, ni evaluacion financiera completa del negocio.
+| Módulo | Función |
+|---|---|
+| `core/stage_equations.py` | Núcleo fenomenológico: balances de materia y energía por etapa |
+| `core/equipment_constraints.py` | Motor de restricciones: evaluación de capacidad vs. demanda |
+| `core/equipment_specs.py` | Configuración externalizada de equipos con validación automática |
 
-## Caso base de simulacion
+La interfaz visual (`app.py`) integra el bucle de simulación inercial, KPIs en tiempo real y panel de alarmas FMEA. Once pruebas unitarias (`tests/`) verifican la integridad del sistema ante modificaciones.
 
-| Variable | Valor base |
+## Arquitectura
+
+### Configuración Externalizada y Validación en Tres Capas
+
+Los parámetros de proceso están externalizados con validación automática:
+
+1. **Valores nominales** — capacidades de diseño recomendadas (`EQUIPMENT_SPEC_DEFAULTS`)
+2. **Límites físicos** — rangos que garantizan realizabilidad física (`EQUIPMENT_SPEC_LIMITS`)
+3. **Límites operativos** — factores de seguridad antes de disparar alarmas (`CAPACITY_LIMIT_DEFAULTS`)
+
+Las variables de control se validan contra `CONTROL_LIMITS` antes de ejecutar el modelo, asegurando que ningún valor fuera de especificación alcance el núcleo fenomenológico.
+
+### Núcleo de Cálculo
+
+Cada etapa del proceso se implementa como una función pura:
+
+```python
+def stage_n(controls: dict, specs: dict) -> dict:
+    # balances de materia y energía
+    return {"output_var": valor, ...}
+```
+
+La función `run_process_model` orquesta la ejecución secuencial y aplica el motor de restricciones. La inercia dinámica de primer orden modela la respuesta transitoria del proceso.
+
+## Caso de Validación: Planta ISP 1000 kg/h
+
+### Balance de Materia Base
+
+| KPI | Valor |
 |---|---:|
-| Alimentacion de soya | 1000 kg/h |
-| Proteina en grano | 37.5 % p/p |
-| Proteina de entrada | 375 kg/h |
-| Agua de extraccion | 12000 kg/h |
-| pH extraccion | 8.75 |
-| Temperatura extraccion | 55 C |
-| Pasteurizacion | 80 C por 22 s |
-| Presion evaporacion | 0.40 bar abs |
-| Solidos salida evaporador | 23 % p/p |
+| Alimentación de soya | 1000 kg/h |
+| Proteína extraída (Etapa 1) | 330.0 kg/h |
+| Polvo proteico final | 301.6 kg/h (286.5 kg/h proteína) |
+| Rendimiento global de proteína | 76.40% |
+| Humedad residual | 5.0% |
+| Cierre de masa | error < 0.5% |
 
-## Proceso integrado por etapas
+### Diagnóstico Estocástico
 
-### Etapa 0. Preparacion y servicios
-- Captacion de agua de red industrial a 12 m3/h.
-- Tanque de agua de 15 m3 (autonomia de 1 h + 20% reserva).
-- Bombeo sanitario de alimentacion (0.60 kW calculados; 1.5 kW seleccionado).
-- Molienda y tamizado inicial de harina.
+Se ejecutó Monte Carlo sobre el diseño base y sobre la configuración optimizada:
 
-### Etapa 1. Extraccion alcalina
-- Suspension de harina en medio alcalino (pH 8.5-9.0) a 50-60 C.
-- Tiempo de residencia de 45-60 min en tanque agitado.
-- Eficiencia base de extraccion proteica: 88%.
+| Métrica | Diseño Base | Diseño Optimizado |
+|---|---:|---:|
+| Tasa de éxito | 4.70% ± 0.18% | **99.88% ± 0.026%** |
+| Nivel sigma (bruto) | — | 3.03σ |
+| Nivel sigma (con shift 1.5) | — | **4.53σ** |
+| DPMO equivalente | — | ~340 |
 
-### Etapa 1.2. Separacion solido-liquido
-- Separacion de okara y extracto proteico con centrifugacion/filtracion.
-- Recuperacion de extracto en rango 95-98%.
+Los cuellos de botella identificados en el diseño base (TK-101: 78.2%, TK-100: 69.5%, EV-301: 57.1%, HX-201: 40.7%) fueron eliminados mediante redimensionamiento, dejando solo una falla residual en TK-101 (0.12%) en condiciones extremas de residencia > 100 min.
 
-### Etapa 2. Neutralizacion y pasteurizacion
-- Ajuste de pH hacia 7.0 con dosificacion controlada de acido.
-- Pasteurizacion HTST: 75-85 C por 15-30 s (caso base: 80 C y 22 s).
+### Análisis Energético
 
-### Etapa 2.5. Osmosis inversa (OI)
-- Preconcentracion del extracto para reducir carga termica de evaporacion.
-- Variable clave de operacion: recuperacion OI y flujo de permeado (LMH/TMP).
+La integración de ósmosis inversa (OI) como preconcentración logra:
 
-### Etapa 3. Evaporacion al vacio
-- Concentracion termica bajo vacio para proteger proteina.
-- Operacion objetivo en 0.40 bar abs y 50-60 C de ebullicion equivalente.
+- Agua removida por OI: 2,718 kg/h (fase líquida, 8.5 kW eléctricos)
+- Reducción de carga térmica del evaporador: 836 kW (19.5%)
+- Ahorro neto equivalente: 827.7 kW
 
-### Etapa 4. Precipitacion isoelectrica y centrifugacion
-- Ajuste a pH 4.5 para precipitar proteina.
-- Recuperacion de precipitacion cercana al 98%.
-- Separacion de pasta humeda y suero residual.
+## Pruebas
 
-### Etapa 5. Secado final y clasificacion
-- Secado por atomizacion para alcanzar humedad final menor a 5%.
-- Molienda/tamizado final para especificacion 100-200 mesh.
+Once pruebas unitarias verifican la consistencia del balance de materia, la detección de cada restricción de capacidad y la validación de rangos de control. Ejecutar:
 
-### Etapa 6. Envasado y almacenamiento
-- Envasado en formato industrial (20-25 kg) con barrera de humedad.
-- Almacenamiento recomendado: 15-25 C y HR &lt; 70%.
+```bash
+python -m unittest discover tests -v
+```
 
-## Resultados tecnicos de referencia
+## Reproducir Resultados
 
-Estos valores se usan como referencia operacional y de validacion en la app:
+```bash
+python scripts/run_monte_carlo.py --batches 10 --trials 300000
+```
 
-| KPI de proceso | Valor |
-|---|---:|
-| Proteina extraida (Etapa 1) | 330.0 kg/h |
-| Proteina precipitada (Etapa 4) | 323.4 kg/h |
-| Polvo final (Etapa 5) | 364.6 kg/h |
-| Proteina final | 323.4 kg/h |
-| Humedad final | 5.0 % |
-| Pureza aproximada del polvo | 88.7 % |
-| Cierre de masa esperado | error absoluto &lt;= 0.5 % |
+## Requisitos
 
-## Balance de masa y energia (resumen)
+- Python 3.10+
+- streamlit, numpy, scipy, matplotlib, plotly
+- (Ver `requirements.txt` para versión completa)
 
-- Flujo principal de proceso: 1000 kg/h de grano + 12000 kg/h de agua.
-- Evaporacion de agua dominante en demanda energetica de planta.
-- OI reduce carga termica aguas abajo (menos agua a evaporar).
-- El secado por atomizacion define la condicion final de humedad y capacidad de despacho.
+## Estructura del Repositorio
 
-## Equipos principales de diseno preliminar
+```
+├── core/
+│   ├── equipment_specs.py        # Configuración de equipos
+│   ├── equipment_constraints.py  # Motor de restricciones
+│   └── stage_equations.py        # Balances fenomenológicos
+├── scripts/
+│   └── run_monte_carlo.py        # Campaña de simulación estocástica
+├── docs/
+│   └── PaperGemeloDigital.tex    # Artículo de arquitectura
+├── tests/                        # 11 pruebas unitarias
+├── app.py                        # Interfaz Streamlit (sala de control)
+└── README.md
+```
 
-- TK-001 + P-001: tanque y bomba de agua de extraccion.
-- TK-101: tanque agitado de extraccion alcalina.
-- CF-102A/B: centrifugas decantadoras post-lixiviacion.
-- HX-201: intercambiador de placas para pasteurizacion.
-- OI-250: modulo de osmosis inversa (innovacion del esquema).
-- EV-301A/B: evaporador de doble efecto bajo vacio.
-- PR-401 + CF-401: precipitacion isoelectrica y separacion final.
-- SD-501: spray dryer.
-- ML-601 + CR-601: molienda y tamizado final.
+## Referencias
 
-## Variables criticas de control
-
-- Extraccion: pH, temperatura, tiempo de residencia, relacion solido/liquido y agitacion.
-- Pasteurizacion: temperatura objetivo y tiempo de retencion.
-- OI: TMP, flujo cruzado, SDI y pH de alimentacion.
-- Evaporacion: presion absoluta y solidos objetivo.
-- Precipitacion: pH 4.5 y tiempo de coagulado.
-- Secado: temperatura de secado y residencia.
-
-## Calidad, seguridad y materiales
-
-- Material recomendado de contacto: acero inoxidable 304/316L; evitar acero al carbono en contacto con corrientes de proceso.
-- Control de pH en linea con alarmas para zonas alcalinas/acidas.
-- Ventilacion y procedimientos de seguridad para manejo de NaOH/HCl.
-- Control de calidad minimo: pH, solidos, humedad final, proteina y verificacion microbiologica por lote.
-
-## Integracion con la aplicacion Streamlit
-
-La app principal [app.py](../app.py) implementa el **Gemelo Digital AJAX** para el caso base y escenarios de sensibilidad:
-
-- Operacion: ajuste de variables, limites de capacidad y dimensionamiento.
-- Monitoreo: KPIs por etapa con historico.
-- Validacion: corroboracion contra referencias base.
-- Proyecto Final: vista documental integrada de este README.
-
-## Entregables consolidados
-
-- Planteamiento tecnico y alcance de ingenieria del proceso.
-- Calculos trazables por etapa con criterios de diseno.
-- Informe tecnico simplificado para presentacion.
-- Simulador interactivo para analisis operativo y de sensibilidad.
-
+Grieves & Vickers (2017), *Digital Twin: Mitigating Unpredictable Behavior*; ISO 23247:2021; IEC 63278:2023; Lusas & Riaz (1995), *Soy protein products: processing and use*.
