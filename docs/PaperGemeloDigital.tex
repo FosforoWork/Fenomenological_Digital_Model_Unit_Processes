@@ -12,13 +12,12 @@
 \usepackage{float}
 \usepackage{titlesec}
 \usepackage{mathptmx}
-\usepackage{parskip}
 \usepackage{enumitem}
 
 \geometry{letterpaper, top=1.54cm, bottom=1.54cm, left=1.54cm, right=1.54cm}
 \setlength{\columnsep}{0.25in}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{\baselineskip}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
 
 \titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection.\quad}{0pt}{}
 \titlespacing*{\section}{0pt}{\baselineskip}{0.2ex}
@@ -37,43 +36,90 @@
 \twocolumn[
 \begin{center}
     {\fontsize{12}{14}\selectfont\bfseries Abstract ID: 1234} \par\vspace{1.5\baselineskip}
-    {\fontsize{16}{18}\selectfont\bfseries Desarrollo de una Arquitectura Modular para Gemelos Digitales Fenomenológicos en Python: Validación, Pruebas y Replicabilidad} \par\vspace{1.5\baselineskip}
-    {\fontsize{10}{12}\selectfont Samuel Aguilera Araujo} \\
-    {\fontsize{10}{12}\selectfont Departamento de Ingeniería Industrial} \par\vspace{1\baselineskip}
+    {\fontsize{16}{18}\selectfont\bfseries Desarrollo de una Arquitectura Modular para Modelos Digitales Fenomenológicos en Python: Validación, Pruebas y Replicabilidad} \par\vspace{1.5\baselineskip}
+    {\fontsize{10}{12}\selectfont Autor(es)} \\
+    {\fontsize{10}{12}\selectfont Departamento de Ingeniería} \par\vspace{1\baselineskip}
 \end{center}
 
 \begin{center}
     {\fontsize{12}{14}\selectfont\bfseries Resumen}
 \end{center}
 
-Este artículo presenta la arquitectura computacional de un Gemelo Digital Fenomenológico desarrollado en Python, cuyo diseño prioriza la modularidad, la validación en múltiples capas y la replicabilidad en diferentes industrias de proceso. El sistema se organiza en tres módulos independientes y acoplados: un núcleo de balances fenomenológicos (\texttt{stage\_equations.py}), un motor de restricciones de capacidad (\texttt{equipment\_constraints.py}) y una interfaz de sala de control en Streamlit (\texttt{app.py}). Las constantes de equipo, los límites de control y los factores de seguridad están externalizados en archivos de configuración con validación automática de rangos físicos. Un conjunto de pruebas unitarias verifica la integridad del sistema ante modificaciones. Como caso de validación, se instanció la arquitectura para una planta de Proteína Aislada de Soya (ISP) de $1000\,\text{kg/h}$. Una campaña de Monte Carlo sobre el diseño base inicial arrojó solo $4.70\%$ de éxito operativo; tras redimensionar los equipos críticos mediante la arquitectura propuesta, una segunda campaña de 300,000 corridas alcanzó $99.88\%$ de éxito ($4.53\sigma$), validando la utilidad del enfoque para diagnóstico y optimización de procesos.
+Este artículo presenta la arquitectura computacional de un Modelo Digital Fenomenológico desarrollado en Python, cuyo diseño prioriza la modularidad, la validación en múltiples capas y la replicabilidad en diferentes industrias de proceso. El sistema se organiza en tres módulos independientes y acoplados: un núcleo de balances fenomenológicos, un motor de restricciones de capacidad y una interfaz de visualización en Streamlit. Las constantes de equipo, los límites de control y los factores de seguridad están externalizados en archivos de configuración con validación automática de rangos físicos. Un conjunto de once pruebas unitarias verifica la integridad del sistema ante modificaciones. Como caso de validación, se instanció la arquitectura para una planta de Proteína Aislada de Soya (ISP) de $1000\,\text{kg/h}$. Una campaña de Monte Carlo sobre el diseño base inicial arrojó solo $4.70\%$ de éxito operativo; tras redimensionar los equipos críticos, una segunda campaña de 300,000 corridas alcanzó $99.88\%$ de éxito ($3.03\sigma$), validando la utilidad del enfoque para diagnóstico y optimización de procesos.
 
 \par\vspace{1\baselineskip}
 {\fontsize{12}{14}\selectfont\bfseries Palabras Clave} \\
-Gemelo Digital, Arquitectura de Software, Python, Replicabilidad, Monte Carlo, ISO 23247.
+Modelo Digital, Arquitectura de Software, Python, Replicabilidad, Monte Carlo, ISO 23247.
 \par\vspace{1.5\baselineskip}
 ]
 
 \section{Introducción}
 
-El Gemelo Digital (DT) se ha consolidado como una herramienta clave en la transición hacia la Industria 4.0 y 5.0 [1]. Sin embargo, gran parte de la literatura se enfoca en casos de estudio específicos sin presentar una arquitectura de código replicable. Este trabajo aborda esa brecha describiendo la estructura computacional de un DT fenomenológico diseñado para ser adaptado a diferentes procesos con mínimo esfuerzo.
+La taxonomía de Kritzinger et al.~\cite{kritzinger2018digital} establece tres niveles de integración virtual: \textbf{Modelo Digital} (representación estática sin intercambio automático de datos), \textbf{Sombra Digital} (flujo unidireccional de datos del proceso al modelo) y \textbf{Gemelo Digital} (flujo bidireccional con control predictivo en tiempo real). La mayoría de los desarrollos reportados en la literatura corresponden a los dos niveles superiores, pero dependen de infraestructuras de datos comerciales que dificultan su replicabilidad independiente~\cite{gil2024survey}. Existe una brecha en la disponibilidad de plataformas de código abierto para la capa base de esta jerarqu\'ia: el Modelo Digital fenomenológico.
 
-En la literatura técnica [2] se diferencian tres niveles de integración virtual: \textbf{Modelo Digital} (representación estática), \textbf{Sombra Digital} (flujo unidireccional de datos) y \textbf{Gemelo Digital} (flujo bidireccional con control predictivo). El sistema aquí presentado corresponde a un Gemelo Digital fenomenológico: su núcleo de cálculo se basa en ecuaciones de conservación de masa y energía, no en correlaciones empíricas o modelos de caja negra. Esta elección permite que el modelo sea interpretable, depurable y transferible entre procesos.
+Este trabajo aborda esa brecha presentando la arquitectura computacional de un Modelo Digital Fenomenológico modular y replicable. El sistema se posiciona explícitamente en el primer nivel de la taxonom\'ia de Kritzinger: no requiere flujo de datos en tiempo real ni infraestructura IoT, sino que constituye la representaci\'on matem\'atica validable que sirve como cimiento para una futura transici\'on hacia una Sombra o Gemelo Digital. Su núcleo de cálculo se basa en ecuaciones de conservación de masa y energía, no en correlaciones empíricas o modelos de caja negra, lo que lo hace interpretable, depurable y transferible entre procesos~\cite{perry2019}.
 
-La contribución principal de este artículo es la arquitectura de software del DT, compuesta por tres módulos independientes que pueden ser reemplazados o extendidos individualmente. La sección~2 detalla la estructura de cada módulo, los patrones de validación y el sistema de pruebas. La sección~3 describe los requisitos de replicabilidad. La sección~4 presenta los resultados de instanciar la arquitectura para una planta de Proteína Aislada de Soya (ISP).
+El art\'iculo se estructura como sigue. La secci\'on~2 revisa el estado del arte en arquitecturas modulares y presenta una comparativa con frameworks existentes, clasific\'andolos seg\'un su nivel de integraci\'on. La secci\'on~3 detalla la arquitectura propuesta y su formalizaci\'on matem\'atica. La secci\'on~4 describe los requisitos de replicabilidad. La secci\'on~5 presenta la verificaci\'on num\'erica mediante el caso de una planta ISP. La secci\'on~6 concluye y discute el trabajo futuro.
 
-\section{Arquitectura del Gemelo Digital}
+\section{Trabajo Relacionado y Comparativa}
 
-El sistema se organiza en tres módulos principales y dos archivos de configuración, todos desarrollados en Python 3.10+. La comunicación entre módulos se realiza exclusivamente mediante diccionarios con estructura definida, lo que permite reemplazar cualquier módulo sin afectar los demás.
+El desarrollo de frameworks open-source para gemelos digitales ha crecido significativamente en los últimos años~\cite{gil2024survey}. A continuación se revisan los trabajos más cercanos al enfoque propuesto.
+
+\subsection{Frameworks de Código Abierto}
+
+\textbf{OpenTwins}~\cite{robles2023opentwins} es un framework open-source para el desarrollo de DT composicionales, basado en Eclipse Ditto como núcleo e integrando IoT, ML y visualización 3D. Publicado en \textit{Computers in Industry} (2023), presenta una arquitectura modular que permite componer DT de subsistemas individuales en un DT de orden superior. Su caso de validación en la industria petroquímica demuestra su aplicabilidad en procesos industriales reales. A diferencia de nuestro enfoque, OpenTwins requiere una infraestructura de contenedores (Kubernetes) y no incorpora un modelo fenomenológico de balances de materia y energía.
+
+\textbf{CoFMPy}~\cite{friedrich2025cofmupy} es un framework Python para prototipado rápido de DT basados en co-simulación FMI (Functional Mock-up Interface). Desarrollado por IRT Saint-Exupéry, permite integrar FMUs con componentes de IA para crear DT híbridos. Su caso de estudio en monitoreo de baterías para aeronaves híbridas demuestra la viabilidad del enfoque. CoFMPy es la alternativa tecnológicamente más cercana a nuestro proyecto por su implementación en Python puro.
+
+\textbf{DT-Forge}~\cite{dtforge2025} propone una arquitectura de seis capas (datos, simulación, reactiva, inteligente, autónoma) con subsistemas transversales de conectores y agregación. Es domain-agnostic y está diseñado para gemelos que ingieren telemetría en tiempo real. Su filosofía arquitectónica es similar a la nuestra, aunque su complejidad operativa es significativamente mayor al requerir Docker, MQTT, InfluxDB, MongoDB, Neo4j y otros servicios.
+
+\textbf{UniTwin}~\cite{haussermann2024unitwin} presenta un enfoque de DT universales containerizados en entornos Kubernetes, con énfasis en reconfigurabilidad dinámica y escalabilidad. Un estudio comparativo reciente~\cite{haussermann2025comparative} lo evalúa frente a Azure Digital Twins, Eclipse Ditto y White Label DT, destacando su modularidad y eficiencia en tiempo real.
+
+\textbf{TumorTwin}~\cite{tumortwin2025} es un framework Python para DT personalizados en oncología, con una arquitectura modular que permite componer diferentes modelos de crecimiento tumoral, solvers y algoritmos de optimización. Aunque su dominio de aplicación es radicalmente distinto, comparte con nuestro proyecto el uso de Python como lenguaje único y el énfasis en la modularidad para facilitar la experimentación.
+
+\subsection{DT en Procesos de Biorefinería y Alimentos}
+
+En el dominio de procesos, \textbf{Udugama et al.}~\cite{udugama2023digital} proponen un modelo digital multi-capa para la industria alimentaria que captura comportamiento desde la escala sensorial hasta la planta completa, con casos conceptuales en fermentación de queso crema y congelación de carne. \textbf{Gamero et al.}~\cite{gamero2024data} presentan el concepto de \textit{Lean Digital Twin} para biorefinerías, abordando los desafíos prácticos de adquisición y gestión de datos. \textbf{Verboven et al.}~\cite{verboven2020digital} sientan las bases conceptuales para la implementación de DT en operaciones de procesamiento de alimentos, identificando la necesidad de modelos de alta fidelidad con capacidad de simulación en tiempo real.
+
+\subsection{Comparativa}
+
+La Tabla~\ref{tab:comparativa} presenta una comparación de la arquitectura propuesta con los frameworks analizados, clasificándolos según su nivel de integraci\'on virtual~\cite{kritzinger2018digital}.
+
+\begin{table*}[t]
+\centering
+\caption{Comparativa de Frameworks para Modelos Digitales}
+\label{tab:comparativa}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Framework} & \textbf{Python} & \textbf{Valid.} & \textbf{Pruebas} & \textbf{Modelo} & \textbf{Nivel} & \textbf{UI} & \textbf{Caso} \\
+ & \textbf{puro} & \textbf{Estad.} & \textbf{Unit.} & \textbf{Fenom.} & \textbf{Integr.} & & \textbf{Real} \\
+\midrule
+Este proyecto & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & Modelo & $\checkmark$ & $\checkmark$ \\
+OpenTwins~\cite{robles2023opentwins} & $\times$ & $\times$ & $\times$ & $\times$ & Gemelo & $\checkmark$ & $\checkmark$ \\
+CoFMPy~\cite{friedrich2025cofmupy} & $\checkmark$ & $\times$ & $\times$ & FMU ext. & Sombra & GUI & $\checkmark$ \\
+DT-Forge~\cite{dtforge2025} & $\checkmark$ & $\times$ & $\times$ & Opcional & Gemelo & $\times$ & $\times$ \\
+UniTwin~\cite{haussermann2024unitwin} & $\times$ & $\times$ & $\times$ & $\times$ & Gemelo & $\checkmark$ & $\times$ \\
+TumorTwin~\cite{tumortwin2025} & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & Modelo & $\times$ & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Como se observa, la mayoría de los frameworks existentes carecen de validación estadística y pruebas unitarias automatizadas, dos elementos esenciales para garantizar la robustez y replicabilidad de un modelo digital en entornos de ingeniería de procesos. Nuestra propuesta es el único framework clasificado como Modelo Digital que incorpora simultáneamente las cuatro capas de validación. Esta comparativa no pretende establecer superioridad, sino identificar oportunidades de integración futura: un sistema híbrido podría, por ejemplo, combinar el núcleo fenomenológico de esta arquitectura con las capacidades de ingestión de datos en tiempo real de DT-Forge (transición a Sombra Digital) o la composición de gemelos de OpenTwins (transición a Gemelo Digital).
+
+\section{Arquitectura del Modelo Digital}
+
+El sistema se organiza en cuatro módulos computacionales en el paquete \texttt{core/} y un módulo de interfaz, todos desarrollados en Python 3.10+. La comunicación entre módulos se realiza exclusivamente mediante diccionarios con estructura definida, lo que permite reemplazar cualquier módulo sin afectar los demás.
 
 \subsection{Vista General de Módulos}
 
 \begin{itemize}
-    \item \texttt{core/equipment\_specs.py} -- Configuración de parámetros de equipo y límites de capacidad. Define los valores nominales (\texttt{EQUIPMENT\_SPEC\_DEFAULTS}), los rangos físicos permisibles (\texttt{EQUIPMENT\_SPEC\_LIMITS}) y las funciones de validación. Cualquier adaptación a un nuevo proceso comienza modificando este archivo.
-    \item \texttt{core/stage\_equations.py} -- Núcleo fenomenológico. Contiene las ecuaciones de balance de materia y energía para cada etapa del proceso, organizadas como funciones independientes. Define \texttt{CONTROL\_LIMITS} (rangos válidos de las variables de control) y \texttt{KPI\_SPECS} (rangos objetivo de los indicadores de calidad). La función \texttt{run\_process\_model} orquesta la ejecución secuencial de todas las etapas.
-    \item \texttt{core/equipment\_constraints.py} -- Motor de restricciones. Evalúa las variables de proceso contra las capacidades físicas del equipamiento y genera alarmas cuando se superan los umbrales de seguridad.
-    \item \texttt{app.py} -- Interfaz de sala de control en Streamlit. Integra el bucle de inercia dinámica y la visualización en tiempo real de KPIs, alarmas y diagramas de flujo.
-    \item \texttt{tests/} -- Pruebas unitarias que verifican la consistencia del balance de materia, los KPIs del caso base y la detección correcta de cada restricción de capacidad.
+    \item \texttt{core/equipment\_specs.py} -- Configuración de equipo. Alberga los diccionarios \texttt{EQUIPMENT\_SPEC\_DEFAULTS} (capacidades nominales de diseño), \texttt{EQUIPMENT\_SPEC\_LIMITS} (rangos físicos permisibles de cada parámetro), \texttt{CAPACITY\_LIMIT\_DEFAULTS} y \texttt{CAPACITY\_LIMIT\_BOUNDS} (factores de seguridad operativos), junto con las funciones \texttt{validate\_equipment\_specs} y \texttt{validate\_capacity\_limits} que verifican automáticamente la integridad de todos los valores. Cualquier adaptación a un nuevo proceso comienza por modificar las claves y valores de este módulo.
+    \item \texttt{core/stage\_equations.py} -- Núcleo fenomenológico. Contiene las funciones independientes \texttt{calc\_stage\_N} que resuelven los balances de materia y energía de cada etapa; los diccionarios \texttt{CONTROL\_LIMITS} (rangos operativos de las variables de consigna) y \texttt{KPI\_SPECS} (rangos objetivo de los indicadores de calidad por etapa); y la función \texttt{run\_process\_model} que orquesta la ejecución secuencial de todas las etapas, valida la integridad numérica (finitud, no negatividad), calcula el cierre del balance de masa global e invoca el motor de restricciones.
+    \item \texttt{core/equipment\_constraints.py} -- Motor de restricciones. La función \texttt{evaluate\_capacity\_constraints} compara la carga solicitada por cada etapa contra la capacidad física del equipo correspondiente, ajustada por factores de seguridad, y genera alarmas estructuradas con código, mensaje y recomendación cuando se supera un umbral. La función \texttt{enforce\_capacity\_constraints} eleva una excepción \texttt{EquipmentCapacityError} ante cualquier violación.
+    \item \texttt{core/process\_model.py} -- Soporte de historial. Proporciona la clase \texttt{ControlLog} (buffer circular en memoria para 1000 puntos temporales) y la función \texttt{build\_snapshot} que aplana controles, especificaciones y resultados por etapa en un diccionario plano para persistencia y visualización de series temporales.
+    \item \texttt{app.py} -- Interfaz de sala de control en Streamlit. Integra el bucle de simulación con paso temporal configurable, la inercia de primer orden sobre cada variable de proceso y la visualización en tiempo real de KPIs, alarmas, diagrama de flujo y selector de configuración de equipo.
+    \item \texttt{tests/} -- Once pruebas unitarias distribuidas en tres archivos que verifican la consistencia del balance de materia, los KPIs del caso base, la detección de cada restricción de capacidad y la integridad del fluido grama visual.
 \end{itemize}
 
 \subsection{Configuración Externalizada y Validación}
@@ -86,76 +132,128 @@ Todos los parámetros del proceso están externalizados en constantes de módulo
     \item \textbf{Límites operativos} (\texttt{CAPACITY\_LIMIT\_DEFAULTS}): Factores de seguridad (fracciones máximas de llenado, carga térmica, etc.) que definen el margen operativo antes de disparar una alarma.
 \end{enumerate}
 
-Análogamente, \texttt{stage\_equations.py} define \texttt{CONTROL\_LIMITS}, un diccionario que asigna a cada variable de control su rango operativo válido. La función \texttt{validate\_controls} verifica presencia, tipo numérico y rango de todas las variables antes de ejecutar el modelo:
+Análogamente, cada variable de control $u_j$ tiene asociado un rango operativo $[u_{j,\min}, u_{j,\max}]$. La validación previa a la ejecución del modelo se expresa como el conjunto de condiciones:
 
-\begin{verbatim}
-for key, (vmin, vmax) in CONTROL_LIMITS.items():
-    value = controls[key]
-    if not isinstance(value, (int, float)):
-        raise TypeError(...)
-    if not math.isfinite(value):
-        raise ValueError(...)
-    if value < vmin or value > vmax:
-        raise ValueError(...)
-\end{verbatim}
+\begin{align}
+& u_j \in \mathbb{R}, \quad |u_j| < \infty, \quad u_{j,\min} \leq u_j \leq u_{j,\max} \quad \forall j
+\end{align}
 
-Este patrón de validación en tres niveles (configuración $\to$ entrada $\to$ ejecución) garantiza que el modelo nunca opera con parámetros fuera de especificación, independientemente del origen de los datos.
+Este patrón de validación en tres niveles (configuración, entrada, ejecución) garantiza que el modelo nunca opera con parámetros fuera de especificación.
 
-\subsection{Núcleo Fenomenológico (\texttt{stage\_equations.py})}
+\subsection{Núcleo Fenomenológico}
 
-Cada etapa del proceso se implementa como una función pura que recibe las variables de control y las especificaciones de equipo, y retorna un diccionario con los resultados. La firma genérica es:
+Cada etapa del proceso modela balances de materia y energía mediante ecuaciones algebraicas. Las ecuaciones presentadas a continuación representan los balances ideales de cada operación unitaria; la implementación computacional incorpora funciones de penalización por desviación de condiciones nominales (pH, temperatura, tiempo de residencia), un factor de pérdida operativa (\texttt{F\_LOSS}=2\,\% por etapa) y mapas de eficiencia empíricos que modifican los términos nominales en función del estado de las variables de control. La Figura~\ref{fig:diagrama} muestra las seis etapas principales y las substages de separación mecánica, ósmosis inversa y centrifugación que completan la secuencia del proceso ISP.
 
-\begin{verbatim}
-def stage_n(controls: dict, specs: dict) -> dict:
-    # balances de materia y energía
-    return {"output_var": valor, ...}
-\end{verbatim}
+\subsubsection{Etapa 0: Molienda y Mezcla}
 
-La función \texttt{run\_process\_model} orquesta la ejecución secuencial:
+El slurry de alimentación se obtiene combinando soya y agua:
 
-\begin{verbatim}
-def run_process_model(controls, specs, limits):
-    validate_controls(controls)
-    s0 = stage_0(controls, specs)
-    s1 = stage_1(controls, specs, s0)
-    s2 = stage_2(controls, specs, s1)
-    s3 = stage_3(controls, specs, s2)
-    s4 = stage_4(controls, specs, s3)
-    s5 = stage_5(controls, specs, s4)
-    result = merge(s0..s5)
-    indicators = enforce_capacity_constraints(
-        controls, specs, limits, result)
-    return {**result, **indicators}
-\end{verbatim}
+\begin{equation}
+\dot{m}_{0} = \dot{m}_{\text{soya}} + \rho_w Q_w
+\label{eq:stage0_mass}
+\end{equation}
 
-Cada función de etapa es independiente y puede ser modificada, reemplazada o probada de forma aislada. Para adaptar el DT a un nuevo proceso, solo es necesario reemplazar las funciones \texttt{stage\_n} y actualizar \texttt{CONTROL\_LIMITS} y \texttt{EQUIPMENT\_SPEC\_DEFAULTS}.
+donde $\dot{m}_{\text{soya}}$ es el flujo m\'asico de soya ($1000\,\text{kg/h}$), $\rho_w \approx 1000\,\text{kg/m}^3$ la densidad del agua, y $Q_w$ el caudal volum\'etrico de agua de mezcla.
 
-La inercia dinámica de primer orden se implementa como una función auxiliar independiente que puede aplicarse a cualquier variable:
+\subsubsection{Etapa 1: Lixiviaci\'on Alcalina}
 
-\begin{verbatim}
-def first_order_inertia(pv_old, sp, dt, tau):
-    alpha = 1.0 - math.exp(-dt / tau)
-    return pv_old + (sp - pv_old) * alpha
-\end{verbatim}
+La prote\'ina soluble se extrae en medio alcalino (pH~8.5). El residuo s\'olido (okara) retiene una fracci\'on de humedad $H_{\text{okara}}$, y el extracto l\'iquido global alimenta las etapas siguientes:
 
-\subsection{Motor de Restricciones (\texttt{equipment\_constraints.py})}
+\begin{align}
+\dot{m}_{\text{prot}} &= \eta_{\text{ext}} \, X_{\text{prot}} \, \dot{m}_{\text{soya}} \label{eq:stage1_extract} \\
+\dot{m}_{\text{okara}} &= \frac{\dot{m}_{\text{soya}} \,(1 - \eta_{\text{ext}} X_{\text{prot}})}{1 - H_{\text{okara}}} \label{eq:stage1_okara} \\
+\dot{m}_{\text{ext}} &= \dot{m}_0 - \dot{m}_{\text{okara}} \label{eq:stage1_extract_flow}
+\end{align}
 
-El motor de restricciones evalúa seis condiciones de capacidad sobre los resultados del modelo fenomenológico. Cada condición sigue el mismo patrón:
+donde $\eta_{\text{ext}} = 0.88$ es la eficiencia de extracci\'on nominal, $X_{\text{prot}} = 0.375$ la fracci\'on m\'asica de prote\'ina en la soya, y $H_{\text{okara}} = 0.65$ la humedad del okara. En la implementación, $\eta_{\text{ext}}$ es modulada por funciones continuas que penalizan desviaciones de pH, temperatura, tiempo de residencia y relaci\'on s\'olido--l\'iquido.
 
-\begin{verbatim}
-required = carga_solicitada
-available = capacidad_nominal * factor_seguridad
-indicators["util_pct"] = (required/available)*100
-if required > available:
-    issues.append({
-        "code": "STAGEn_CAPACITY",
-        "equipment": "...",
-        "message": "...",
-        "recommendation": "..."
-    })
-\end{verbatim}
+\subsubsection{Etapa 2: Pasteurizaci\'on HTST}
 
-Si hay incumplimientos, se lanza \texttt{EquipmentCapacityError} con la lista completa de issues. Este diseño desacopla la detección de fallas de la lógica del proceso: el modelo fenomenológico no necesita saber qué restricciones existen, y el motor de restricciones no necesita conocer los detalles del balance de materia.
+El extracto l\'iquido $\dot{m}_{\text{ext}}$ se calienta desde la temperatura de operaci\'on hasta la temperatura de pasteurizaci\'on. El \'area de intercambio se calcula del balance energ\'etico:
+
+\begin{align}
+\dot{Q}_{\text{HX}} &= \dot{m}_{\text{ext}} \, C_{p,\text{ext}} \, (T_{\text{out}} - T_{\text{in}}) \label{eq:stage2_energy} \\
+A_{\text{HX}} &= \frac{\dot{Q}_{\text{HX}}}{U \, \Delta T_{\text{lm}}} \label{eq:stage2_area}
+\end{align}
+
+con $T_{\text{in}} = 25\,^\circ\text{C}$, $T_{\text{out}} = 80\,^\circ\text{C}$, $C_{p,\text{ext}} = 3.9\,\text{kJ/kg}\,^\circ\text{C}$ la capacidad calor\'ifica del extracto acuoso (correlaci\'on de Siebel para $7.6\%$ de s\'olidos), $U$ el coeficiente global de transferencia, y $\Delta T_{\text{lm}}$ la diferencia de temperatura media logar\'itmica.
+
+\subsubsection{Etapa 3: Concentraci\'on (OI + Evaporaci\'on)}
+
+La preconcentraci\'on por \'osmosis inversa recibe el extracto pasteurizado $\dot{m}_{\text{ext}}$ y sigue el modelo de Kedem--Katchalsky~\cite{kedem1958}:
+
+\begin{equation}
+\dot{m}_{\text{perm}} = A_m \, A_w \, (\Delta P - \Delta\pi) \label{eq:stage3_ro}
+\end{equation}
+
+donde $A_m$ es el \'area de membrana, $A_w$ la permeabilidad hidr\'aulica, $\Delta P$ la presi\'on aplicada y $\Delta\pi$ la presi\'on osm\'otica. El concentrado que alimenta al evaporador es $\dot{m}_{\text{conc}} = \dot{m}_{\text{ext}} - \dot{m}_{\text{perm}}$.
+
+El evaporador al vac\'io remueve el agua remanente del concentrado:
+
+\begin{equation}
+\dot{Q}_{\text{ev}} = \lambda \, \dot{m}_{\text{vap}} = U_{\text{ev}} \, A_{\text{ev}} \, \Delta T_{\text{ev}} \label{eq:stage3_evap}
+\end{equation}
+
+con $\lambda$ el calor latente de vaporizaci\'on y $\dot{m}_{\text{vap}}$ el flujo de vapor generado. El concentrado final que avanza a precipitaci\'on es $\dot{m}_{\text{conc,out}} = \dot{m}_{\text{conc}} - \dot{m}_{\text{vap}}$.
+
+\subsubsection{Etapa 4: Precipitaci\'on Isoel\'ectrica y Centrifugaci\'on}
+
+La prote\'ina remanente en el concentrado $\dot{m}_{\text{conc,out}}$ se precipita en el punto isoel\'ectrico (pH~4.5) ajustando el pH con \'acido clorh\'idrico ($\dot{m}_{\text{acid}}$). La pasta h\'umeda se separa por centrifugaci\'on, dejando un suero residual:
+
+\begin{align}
+\dot{m}_{\text{ppt}} &= \eta_{\text{ppt}} \, \dot{m}_{\text{prot,4}} \label{eq:stage4_ppt} \\
+\dot{m}_{\text{ppt,h\'umedo}} &= \frac{\dot{m}_{\text{ppt}}}{1 - H_{\text{pasta}}} \label{eq:stage4_paste} \\
+\dot{m}_{\text{suero}} &= \dot{m}_{\text{conc,out}} + \dot{m}_{\text{acid}} + \dot{m}_{\text{wash}} - \dot{m}_{\text{ppt,h\'umedo}} \label{eq:stage4_whey}
+\end{align}
+
+con $\eta_{\text{ppt}} = 0.95$ la eficiencia de precipitaci\'on nominal, $H_{\text{pasta}} = 0.50$ la humedad de la pasta centrifugada, y $\dot{m}_{\text{prot,4}}$ la prote\'ina disponible tras las etapas previas.
+
+\subsubsection{Etapa 5: Secado por Atomizaci\'on}
+
+El balance de masa y energ\'ia en el secador determina el polvo final:
+
+\begin{align}
+\dot{m}_{\text{powder}} &= \dot{m}_{\text{ppt}} \, \frac{1 - X_{\text{moist,in}}}{1 - X_{\text{moist,out}}} \label{eq:stage5_mass} \\
+\dot{Q}_{\text{dry}} &= \dot{m}_{\text{air}} \, C_{p,\text{air}} \, (T_{\text{in}} - T_{\text{out}}) + \lambda \, \dot{m}_{\text{evap}} \label{eq:stage5_energy}
+\end{align}
+
+donde $X_{\text{moist,in}} = 0.80$, $X_{\text{moist,out}} = 0.05$, y $T_{\text{in}} = 185\,^\circ\text{C}$.
+
+\subsubsection{Inercia Din\'amica}
+
+La respuesta temporal del modelo ante cambios en las variables de control sigue una ecuaci\'on diferencial de primer orden con ganancia unitaria:
+
+\begin{equation}
+\tau \frac{dy(t)}{dt} + y(t) = u(t) \label{eq:inertia_ode}
+\end{equation}
+
+Cuya soluci\'on anal\'itica para entrada constante $u[k]$ en un intervalo $\Delta t$ es el filtro exponencial:
+
+\begin{equation}
+y[k+1] = y[k] + \bigl( u[k] - y[k] \bigr) \bigl( 1 - e^{-\Delta t / \tau} \bigr) \label{eq:inertia_discrete}
+\end{equation}
+
+donde $\tau$ es la constante de tiempo del sistema, $u[k]$ el setpoint en el paso $k$, y $y[k]$ la variable de proceso medida. Cada variable de control tiene su propia constante $\tau_j$, permitiendo capturar din\'amicas heterog\'eneas en las distintas etapas.
+
+Cada funci\'on de etapa (\eqref{eq:stage0_mass}--\eqref{eq:stage5_energy}) es independiente y puede ser modificada, reemplazada o validada de forma aislada. La ecuaci\'on~\eqref{eq:inertia_discrete} se aplica como paso posterior al c\'alculo del estado estacionario.
+
+\subsection{Motor de Restricciones}
+
+Las restricciones de capacidad se expresan como un sistema de inecuaciones que comparan la carga solicitada por el proceso contra la capacidad disponible del equipo, ajustada por factores de seguridad $f_s$:
+
+\begin{align}
+V_{\text{TK}} &\leq V_{\text{TK,max}} \cdot f_{s,\text{TK}} \quad &\text{(Tanques)} \label{eq:constr_tank} \\
+\dot{Q}_{\text{HX}} &\leq A_{\text{HX,max}} \cdot U \cdot \Delta T_{\text{lm}} \cdot f_{s,\text{HX}} \quad &\text{(Intercambiador)} \label{eq:constr_hx} \\
+\dot{m}_{\text{vap}} &\leq \dot{m}_{\text{vap,max}} \cdot f_{s,\text{EV}} \quad &\text{(Evaporador)} \label{eq:constr_evap} \\
+\dot{V}_{\text{CF}} &\leq \dot{V}_{\text{CF,max}} \cdot f_{s,\text{CF}} \quad &\text{(Centrifuga)} \label{eq:constr_cf} \\
+\dot{m}_{\text{evap,SD}} &\leq \dot{m}_{\text{evap,SD,max}} \cdot f_{s,\text{SD}} \quad &\text{(Secador)} \label{eq:constr_sd}
+\end{align}
+
+La violaci\'on de cualquiera de estas inecuaciones genera una alarma con el equipo y la magnitud del exceso. Este dise\~no desacopla la detecci\'on de fallas de la l\'ogica del proceso: el modelo fenomenol\'ogico no necesita conocer las restricciones, y el motor de restricciones no necesita conocer los detalles del balance de materia.
+
+\subsection{Disponibilidad del Código Fuente}
+
+El c\'odigo fuente completo de la arquitectura, incluyendo los módulos de balances fenomenológicos, motor de restricciones y batería de pruebas unitarias, está publicado en un repositorio público bajo licencia MIT. El repositorio incluye instrucciones detalladas para replicar el entorno computacional y ejecutar las simulaciones presentadas en este artículo. Puede accederse mediante el repositorio institucional del proyecto. Los experimentos de Monte Carlo son reproducibles ejecutando \texttt{python scripts/plot\_monte\_carlo.py}.
 
 \subsection{Interfaz Visual (\texttt{app.py}) y Bucle de Simulación}
 
@@ -169,18 +267,18 @@ La interfaz en Streamlit implementa un bucle temporal que avanza en pasos discre
     \item Espera el próximo paso (simulado o en tiempo real).
 \end{enumerate}
 
-La visualización incluye: diagrama de flujo interactivo con balances de masa, KPIs en tarjetas numeradas, historial de variables versus setpoint y panel de alarmas FMEA. La comunicación sigue el estándar ISO 23247 [4] utilizando submodelos Asset Administration Shell (AAS, IEC 63278) [8] sobre OPC UA [7].
+La visualización incluye: diagrama de flujo interactivo con balances de masa, KPIs en tarjetas numeradas, historial de variables versus setpoint y panel de alarmas FMEA. La estructura de datos del módulo de configuración (\texttt{EQUIPMENT\_SPEC\_DEFAULTS}) sigue el principio de submodelos de la Asset Administration Shell (IEC~63278)~\cite{iec63278}, y la interfaz de variables de control está diseñada para un acoplamiento futuro con OPC UA~\cite{opcfoundation2022} dentro del marco de la norma ISO~23247~\cite{iso23247} para la eventual transición a una Sombra Digital. En la sesión actual, la aplicación en Streamlit ejecuta exclusivamente operaciones en memoria sobre el modelo fenomenológico, sin comunicación con sistemas externos ni servidores OPC UA.
 
 \subsection{Sistema de Pruebas Unitarias}
 
 El directorio \texttt{tests/} contiene once pruebas que verifican:
 
 \begin{enumerate}
-    \item \textbf{Consistencia del balance de materia} (\texttt{test\_balance\_is\_consistent}): La masa total de salidas difiere de la masa de entrada en menos del $1\%$.
-    \item \textbf{Rendimientos no negativos} (\texttt{test\_all\_rendimientos\_are\_non\_negative}): Todos los flujos másicos son $\geq 0$.
-    \item \textbf{Caso base contra referencia} (\texttt{test\_baseline\_matches\_project\_final}): Con los parámetros nominales, los KPIs coinciden con los valores de referencia (ej. eficiencia de extracción $88\%$, polvo final $301.6\,\text{kg/h}$, rendimiento global $76.40\%$).
-    \item \textbf{Detección de bloqueos} (\texttt{test\_dryer\_capacity\_blocks}, \texttt{test\_interchanger\_capacity\_too\_small\_blocks}, \texttt{test\_baseline\_capacity\_passes}): Especificaciones pequeñas disparan el error correcto; las nominales no disparan falsos positivos.
-    \item \textbf{Validación de controles} (\texttt{test\_invalid\_control\_range\_raises}, \texttt{test\_non\_finite\_control\_raises}, \texttt{test\_outputs\_are\_finite\_and\_non\_negative}): Valores fuera de rango o no finitos son rechazados.
+    \item \textbf{Consistencia del balance de materia} (\texttt{test\_balance\_is\_consistent\_with\_model\_integrity}): El payload del fluido grama visual reproduce exactamente los totales de masa y el cierre del balance calculados por el núcleo fenomenológico.
+    \item \textbf{Rendimientos y flujos no negativos} (\texttt{test\_all\_rendimientos\_are\_non\_negative}, \texttt{test\_outputs\_are\_finite}): Todos los rendimientos del fluido grama y todos los valores numéricos del modelo son $\geq 0$ y finitos.
+    \item \textbf{Caso base contra referencia} (\texttt{test\_baseline\_matches\_project\_final}): Con los parámetros nominales, los KPIs coinciden con los valores de referencia (ej. eficiencia de extracción $88\%$, polvo final $301.6\,\text{kg/h}$, rendimiento global $76.40\%$, error del cierre de masa $\leq 0.1\%$).
+    \item \textbf{Detección de bloqueos} (\texttt{test\_dryer\_capacity\_blocks}, \texttt{test\_interchanger\_capacity\_too\_small\_blocks}, \texttt{test\_baseline\_capacity\_passes}): Especificaciones pequeñas disparan el código de error correcto; las nominales no disparan falsos positivos.
+    \item \textbf{Validación de controles} (\texttt{test\_invalid\_control\_range\_raises}, \texttt{test\_non\_finite\_control\_raises}): Valores fuera de rango o no finitos son rechazados con la excepción correspondiente.
 \end{enumerate}
 
 Estas pruebas se ejecutan con \texttt{python -m unittest discover tests} y deben pasar antes de cualquier modificación al código, garantizando que no se introduzcan regresiones.
@@ -203,9 +301,16 @@ Definir \texttt{CONTROL\_LIMITS} con los rangos operativos de cada variable de c
 
 La arquitectura está diseñada para que estos tres pasos sean independientes: se puede cambiar la configuración de equipos sin modificar los balances, y viceversa.
 
-\section{Caso de Validación: Producción de ISP}
+\section{Verificación Numérica: Caso de Estudio ISP}
 
-Para validar la arquitectura, se instanció el DT para una planta piloto de Proteína Aislada de Soya (ISP) con capacidad nominal de $1000\,\text{kg/h}$. El proceso comprende seis etapas: molienda y mezcla de agua (Etapa~0), lixiviación alcalina (Etapa~1), pasteurización HTST (Etapa~2), concentración por ósmosis inversa y evaporación al vacío (Etapa~3), precipitación isoeléctrica y centrifugación (Etapa~4), y secado por atomización (Etapa~5).
+Para verificar la arquitectura, se instanció el modelo digital para una planta de Proteína Aislada de Soya (ISP) con capacidad nominal de $1000\,\text{kg/h}$. El proceso comprende seis etapas principales, como se muestra en la Figura~\ref{fig:diagrama}: molienda y mezcla de agua (Etapa~0), lixiviación alcalina (Etapa~1), pasteurización HTST (Etapa~2), concentración por ósmosis inversa y evaporación al vacío (Etapa~3), precipitación isoeléctrica y centrifugación (Etapa~4), y secado por atomización (Etapa~5).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/diagrama_flujo.pdf}
+\caption{Diagrama de flujo del proceso ISP. Se muestran las seis etapas principales, las corrientes de entrada (soya, agua) y los subproductos (okara, suero).}
+\label{fig:diagrama}
+\end{figure*}
 
 \subsection{Verificación del Balance de Materia}
 
@@ -227,19 +332,29 @@ Se ejecutaron 10 batches independientes de Monte Carlo (100,000 corridas) sobre 
 
 \subsection{Redimensionamiento y Validación Final}
 
-A partir del diagnóstico, se redimensionaron los equipos críticos en la configuración (Tabla \ref{tab:restrictions}). Tras la reconfiguración, una campaña de 30 batches (300,000 corridas) con rangos operativos ampliados ($\pm20\%$ en alimentación, $\pm25\%$ en flujo de agua) arrojó los siguientes resultados:
+A partir del diagnóstico, se redimensionaron los equipos críticos en la configuración (Tabla~\ref{tab:restrictions}). Tras la reconfiguración, una campaña de 30 batches (300,000 corridas) con rangos operativos ampliados ($\pm20\%$ en alimentación, $\pm25\%$ en flujo de agua) arrojó los siguientes resultados:
 
 \begin{itemize}
     \item \textbf{Tasa de éxito:} $99.88\%$ (299,633 de 300,000 corridas exitosas).
     \item \textbf{Desviación estándar entre lotes:} $\pm 0.026\%$, con IC 95\%: $[99.87\%, 99.89\%]$.
-    \item \textbf{Nivel Sigma:} $Z = 3.03\sigma$ (bruto), $4.53\sigma$ con desplazamiento $1.5\sigma$, equivalente a $\sim340$ DPMO.
+    \item \textbf{Nivel Sigma:} $Z = 3.03\sigma$ (equivalente a $\sim1200$ DPMO), calculado mediante la funci\'on de distribuci\'on normal est\'andar inversa $\Phi^{-1}(1 - p_{\text{falla}})$ sobre la tasa de fallas residual $p_{\text{falla}} = 0.12\%$.
     \item \textbf{Fallas residuales:} Solo \texttt{STAGE1\_TANK\_CAPACITY} (TK-101) en $0.12\%$, bajo condiciones extremas de residencia $>100$ minutos. Las cinco restricciones restantes no se activaron en ninguna corrida.
 \end{itemize}
 
-\begin{table*}[t]
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/monte_carlo_dist.pdf}
+\caption{Distribución de las tasas de éxito por lote en la campaña optimizada (30 batches de 10,000 corridas cada uno). La curva suave representa la estimación de densidad kernel (KDE) que aproxima la campana de Gauss; el histograma semitransparente muestra la frecuencia observada. La línea roja punteada indica la media ($99.88\%$); las líneas grises punteadas delimitan el IC 95\% ($\pm0.026\%$).}
+\label{fig:mc_dist}
+\end{figure*}
+
+La Figura~\ref{fig:mc_dist} muestra la distribución de las tasas de éxito por lote. La estrecha agrupación en torno al $99.88\%$ y la baja desviación estándar ($0.026\%$) confirman la reproducibilidad del resultado y la robustez del diseño optimizado.
+
+\begin{table}[t]
 \centering
 \caption{Límites de Capacidad (Configuración Optimizada)}
 \label{tab:restrictions}
+\small
 \begin{tabular}{lcc}
 \toprule
 Restricción & Variable & Límite Máximo \\
@@ -252,12 +367,19 @@ CF-401 & Caudal Hidráulico & $10.0\,\text{m}^3/\text{h}$ \\
 SD-501 & Capacidad Evaporativa & $1000\,\text{kg/h}$ \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
-\begin{table*}[t]
+El nivel $3.03\sigma$ ($\sim1200$ DPMO, calculado directamente sobre la tasa de fallas observada) refleja la alta confiabilidad del diseño optimizado dentro del dominio puramente estocástico simulado, y demuestra que la arquitectura permite diagnosticar, redimensionar y validar la robustez de un proceso de forma sistemática.
+
+\subsection{Análisis Energético}
+
+La Tabla~\ref{tab:energy_comparison} muestra el impacto de integrar ósmosis inversa (OI) como etapa de preconcentración. La OI remueve $2718.3\,\text{kg/h}$ de agua en fase líquida con solo $8.5\,\text{kW}$ eléctricos, reduciendo la carga térmica del evaporador en $836.2\,\text{kW}$ ($19.5\%$). El ahorro neto equivalente es de $827.7\,\text{kW}$, lo que permite amortizar la inversión en la membrana en un periodo inferior a $1.5$ años. Estos valores son estimaciones teóricas de diseño base; no consideran fenómenos como el ensuciamiento de membranas (fouling), la caída de presión por acumulación de sólidos o las variaciones estacionales en la composición de la soya, que requieren datos empíricos para su modelación precisa. Este resultado, junto con la tasa de éxito de $99.88\%$ del dise\~no optimizado, valida la utilidad de la arquitectura para el diagn\'ostico y la optimizaci\'on de procesos industriales en etapa de diseño conceptual.
+
+\begin{table}[t]
 \centering
 \caption{Comparación Energética: Sin OI vs Con OI}
 \label{tab:energy_comparison}
+\small
 \begin{tabular}{lcc}
 \toprule
 Variable & Sin OI & Con OI \\
@@ -270,36 +392,49 @@ Potencia Eléctrica OI ($\text{kW}$) & $0.0$ & $8.5$ \\
 Ahorro Neto ($\text{kW}$) & $0.0$ & $827.7$ \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
-El nivel $4.53\sigma$ supera el umbral industrial de $4\sigma$ y demuestra que la arquitectura permite diagnosticar, redimensionar y validar la robustez de un proceso de forma sistemática.
+\section{Conclusiones y Trabajo Futuro}
 
-\subsection{Análisis Energético}
+Se presentó la arquitectura computacional de un Modelo Digital Fenomenológico diseñado para ser replicable en diferentes industrias de proceso. Las características clave que habilitan esta replicabilidad son: (i) configuración externalizada con validación automática, (ii) ecuaciones de etapa independientes y reemplazables, (iii) motor de restricciones desacoplado del modelo fenomenológico, y (iv) pruebas unitarias que verifican la integridad del sistema.
 
-La Tabla \ref{tab:energy_comparison} muestra el impacto de integrar ósmosis inversa (OI) como etapa de preconcentración. La OI remueve $2718.3\,\text{kg/h}$ de agua en fase líquida con solo $8.5\,\text{kW}$ eléctricos, reduciendo la carga térmica del evaporador en $836.2\,\text{kW}$ ($19.5\%$). El ahorro neto equivalente es de $827.7\,\text{kW}$, lo que permite amortizar la inversión en la membrana en un periodo inferior a $1.5$ años.
+La revisión del estado del arte (Sección~2) reveló que, si bien existen frameworks open-source con niveles superiores de integraci\'on (Sombra y Gemelo Digital) como OpenTwins, CoFMPy, DT-Forge y UniTwin, ninguno combina simultáneamente un modelo fenomenológico basado en balances de materia y energía con validación estadística y pruebas unitarias automatizadas en el nivel de Modelo Digital. La Tabla~\ref{tab:comparativa} clasifica cada framework según la taxonomía de Kritzinger et al.~\cite{kritzinger2018digital}, situando nuestra propuesta en su categoría real.
 
-\section{Conclusiones}
+La instanciación de la arquitectura para una planta de ISP demostró su utilidad práctica: el diagnóstico de Monte Carlo identificó los cuellos de botella del diseño base ($4.70\%$ de éxito), el redimensionamiento guiado por la arquitectura elevó la robustez a $99.88\%$ ($3.03\sigma$, $\sim1200$ DPMO), y el análisis energético cuantificó un ahorro teórico del $19.5\%$ mediante OI.
 
-Se presentó la arquitectura computacional de un Gemelo Digital Fenomenológico diseñado para ser replicable en diferentes industrias de proceso. Las características clave que habilitan esta replicabilidad son: (i) configuración externalizada con validación automática, (ii) funciones de etapa independientes y reemplazables, (iii) motor de restricciones desacoplado del modelo fenomenológico, y (iv) pruebas unitarias que verifican la integridad del sistema.
+El pr\'oximo paso obligatorio de la investigaci\'on es la validaci\'on cruzada del modelo digital con datos experimentales de planta piloto o hist\'oricos industriales. Hasta entonces, los resultados presentados constituyen una verificaci\'on num\'erica in silico, \'util para la toma de decisiones en etapas tempranas de dise\~no pero no sustituta de la validaci\'on emp\'irica. Se identifican las siguientes líneas de trabajo futuro:
 
-La instanciación de la arquitectura para una planta de ISP demostró su utilidad práctica: el diagnóstico de Monte Carlo identificó los cuellos de botella del diseño base ($4.70\%$ de éxito), el redimensionamiento guiado por la arquitectura elevó la robustez a $99.88\%$ ($4.53\sigma$), y el análisis energético cuantificó un ahorro del $19.5\%$ mediante OI.
+\begin{itemize}
+    \item \textbf{Validaci\'on experimental:} Contraste de los balances de materia y energía con datos operativos de planta piloto para calibrar y validar el modelo fenomenológico.
+    \item \textbf{Transici\'on a Sombra Digital:} Instrumentaci\'on IoT y conexi\'on con fuentes de datos en tiempo real (p.~ej., mediante DT-Forge) para automatizar el flujo unidireccional de datos hacia el modelo.
+    \item \textbf{Composici\'on multi-planta:} Extensi\'on del enfoque de OpenTwins para acoplar m\'ultiples modelos digitales en una jerarqu\'ia de planta completa.
+    \item \textbf{Modelos híbridos:} Incorporaci\'on de modelos de IA para predicci\'on de calidad de producto, complementando los balances fenomenol\'ogicos con correcciones emp\'iricas.
+\end{itemize}
 
-El código está estructurado para que cualquier ingeniero de procesos pueda adaptarlo siguiendo tres pasos: configurar los equipos en \texttt{equipment\_specs.py}, implementar los balances en \texttt{stage\_equations.py} y definir las variables de control en \texttt{CONTROL\_LIMITS}. El resto de la infraestructura (validación, restricciones, interfaz visual, pruebas) funciona sin modificaciones.
-
-\section*{Referencias}
-\begin{enumerate}[label={[\arabic*]}, leftmargin=*]
-    \item M. Grieves and J. Vickers, ``Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems,'' in \textit{Transdisciplinary Perspectives on Complex Systems}, Springer, 2017, pp. 85--113.
-    \item W. Kritzinger et al., ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol. 51, no. 11, pp. 1016--1022, 2018.
-    \item E. W. Lusas and M. N. Riaz, ``Soy protein products: processing and use,'' \textit{The Journal of Nutrition}, vol. 125, no. suppl\_3, pp. 573S--580S, 1995.
-    \item ISO 23247:2021, ``Digital twin framework for manufacturing,'' ISO, 2021.
-    \item ASME BPE-2019, ``Bioprocessing Equipment Standard,'' ASME, 2019.
-    \item EHEDG Guidelines, ``Hygienic Design Criteria,'' Doc. 8, 2018.
-    \item OPC Foundation, ``OPC UA Companion Specification for the AAS,'' OPC 30270, 2022.
-    \item IEC 63278:2023, ``Asset Administration Shell,'' IEC, 2023.
-    \item J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{JAOCS}, vol. 56, pp. 242--258, 1979.
-    \item O. Kedem and A. Katchalsky, ``Thermodynamic analysis of permeability,'' \textit{BBA}, vol. 27, pp. 229--246, 1958.
-    \item Y. H. Roos, \textit{Phase Transitions in Foods}, Academic Press, 1995.
-    \item R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed., McGraw-Hill, 2019.
-\end{enumerate}
+\begin{thebibliography}{99}
+\footnotesize
+\bibitem{grieves2017digital} M. Grieves and J. Vickers, ``Digital Twin: Mitigating Unpredictable, Undesirable Emergent Behavior in Complex Systems,'' in \textit{Transdisciplinary Perspectives on Complex Systems}, Springer, 2017, pp. 85--113.
+\bibitem{kritzinger2018digital} W. Kritzinger et al., ``Digital Twin in manufacturing: A categorical literature review and classification,'' \textit{IFAC-PapersOnLine}, vol.~51, no.~11, pp. 1016--1022, 2018.
+\bibitem{gil2024survey} S. Gil et al., ``Survey on open-source digital twin frameworks -- A case study approach,'' \textit{Software Practice and Experience}, vol.~54, no.~6, pp. 929--960, 2024.
+\bibitem{robles2023opentwins} J. Robles, C. Mart\'in, and M. D\'iaz, ``OpenTwins: An open-source framework for the development of next-gen compositional digital twins,'' \textit{Computers in Industry}, vol.~152, p. 104007, 2023.
+\bibitem{friedrich2025cofmupy} C. Friedrich et al., ``CoFMPy: A Python Framework for Rapid Prototyping of FMI-based Digital Twins,'' in \textit{Proc. 2nd Int. Conf. Engineering Digital Twins (ICEDT)}, 2025.
+\bibitem{dtforge2025} DT-Forge Contributors, ``DT-Forge: Domain-agnostic Python framework for digital twin architectures,'' PyPI, 2025.
+\bibitem{haussermann2024unitwin} T. H\"au{\ss}ermann et al., ``UniTwin: Pushing Universal Digital Twins Into the Clouds Through Reconfigurable Container Environments,'' \textit{IEEE Internet Computing}, vol.~29, no.~1, pp. 8--15, 2024.
+\bibitem{haussermann2025comparative} T. H\"au{\ss}ermann et al., ``A Comparative Study of UniTwin and Established Digital Twin Frameworks for IoT Applications,'' \textit{IEEE Access}, 2025.
+\bibitem{tumortwin2025} TumorTwin Contributors, ``TumorTwin: A Python framework for patient-specific digital twins in oncology,'' arXiv:2505.00670, 2025.
+\bibitem{udugama2023digital} I. A. Udugama et al., ``Digital twins in food processing: A conceptual approach to developing multi-layer digital models,'' \textit{Digital Chemical Engineering}, vol.~6, p. 100087, 2023.
+\bibitem{gamero2024data} E. Gamero et al., ``Data Management in Biorefineries: Conceptual Thoughts on Lean Digital Twinning,'' \textit{Procedia CIRP}, 2024.
+\bibitem{verboven2020digital} P. Verboven, T. Defraeye, A. K. Datta, and B. Nicolai, ``Digital twins of food process operations: the next step for food process models?'' \textit{Current Opinion in Food Science}, vol.~35, pp. 79--87, 2020.
+\bibitem{lusas1995soy} E. W. Lusas and M. N. Riaz, ``Soy protein products: processing and use,'' \textit{The Journal of Nutrition}, vol.~125, no.~suppl\_3, pp. 573S--580S, 1995.
+\bibitem{iso23247} ISO 23247:2021, ``Digital twin framework for manufacturing,'' ISO, 2021.
+\bibitem{asme2019} ASME BPE-2019, ``Bioprocessing Equipment Standard,'' ASME, 2019.
+\bibitem{ehedg2018} EHEDG Guidelines, ``Hygienic Design Criteria,'' Doc.~8, 2018.
+\bibitem{opcfoundation2022} OPC Foundation, ``OPC UA Companion Specification for the AAS,'' OPC 30270, 2022.
+\bibitem{iec63278} IEC 63278:2023, ``Asset Administration Shell,'' IEC, 2023.
+\bibitem{kinsella1979} J. E. Kinsella, ``Functional properties of soy proteins,'' \textit{JAOCS}, vol.~56, pp. 242--258, 1979.
+\bibitem{kedem1958} O. Kedem and A. Katchalsky, ``Thermodynamic analysis of permeability,'' \textit{BBA}, vol.~27, pp. 229--246, 1958.
+\bibitem{roos1995} Y. H. Roos, \textit{Phase Transitions in Foods}, Academic Press, 1995.
+\bibitem{perry2019} R. H. Perry and D. W. Green, \textit{Perry's Chemical Engineers' Handbook}, 9th ed., McGraw-Hill, 2019.
+\end{thebibliography}
 
 \end{document}
